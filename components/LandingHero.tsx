@@ -71,6 +71,15 @@ export function LandingHero() {
             ))}
           </div>
         </div>
+
+        <div className="flex flex-wrap items-center gap-4 text-sm text-slateish">
+          <a href="/privacy" className="underline decoration-slateish/30 underline-offset-4">
+            Privacy Policy
+          </a>
+          <a href="/terms" className="underline decoration-slateish/30 underline-offset-4">
+            Terms of Service
+          </a>
+        </div>
       </section>
     </main>
   );
