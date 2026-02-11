@@ -13,6 +13,11 @@ export default async function SettingsPage() {
             Reconnect Strava
           </button>
         </form>
+        <form action="/api/auth/logout" method="post" className="mt-4">
+          <button className="rounded-full border border-slateish/20 px-4 py-2 text-sm" type="submit">
+            Log out
+          </button>
+        </form>
       </section>
     </div>
   );

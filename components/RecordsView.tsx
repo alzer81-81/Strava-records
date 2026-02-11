@@ -2,10 +2,10 @@ import Link from "next/link";
 import { prisma } from "../lib/db";
 import { getWindowRange, WindowType } from "../lib/time";
 import { selectDistanceTargets } from "../lib/analytics";
-import { SyncButton } from "./SyncButton";
 import { MapPreview } from "./MapPreview";
+import { AutoSync } from "./AutoSync";
 
-const windowOptions: WindowType[] = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"];
+const windowOptions: WindowType[] = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "LAST_YEAR", "ALL_TIME"];
 
 export async function RecordsView({
   userId,
@@ -62,9 +62,11 @@ export async function RecordsView({
     : null;
 
   const targets = selectDistanceTargets();
+  const hasAnyData = records.length > 0 || totals.activityCount > 0 || !!longestRun;
 
   return (
     <div className="flex flex-col gap-6">
+      <AutoSync enabled={!hasAnyData} />
       <section className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm uppercase tracking-[0.3em] text-slateish">Records</p>
@@ -92,7 +94,6 @@ export async function RecordsView({
               Apply
             </button>
           </form>
-          <SyncButton label="Sync now" />
         </div>
       </section>
 
@@ -181,7 +182,6 @@ export async function RecordsView({
       <section className="rounded-3xl bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Distance Records</h3>
-          <div className="text-sm text-slateish">Full distance records enabled</div>
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {targets.map((target) => {
@@ -223,7 +223,7 @@ export async function RecordsView({
 function normalizeWindow(value?: string): WindowType {
   if (!value) return "MONTH";
   const upper = value.toUpperCase();
-  if (["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"].includes(upper)) {
+  if (["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "LAST_YEAR", "ALL_TIME"].includes(upper)) {
     return upper as WindowType;
   }
   return "MONTH";
@@ -231,7 +231,12 @@ function normalizeWindow(value?: string): WindowType {
 
 function labelWindow(value: WindowType) {
   if (value === "YEAR") return "This Year";
+  if (value === "LAST_YEAR") return "Last Year";
   if (value === "ALL_TIME") return "All Time";
+  if (value === "WEEK") return "This Week";
+  if (value === "MONTH") return "This Month";
+  if (value === "LAST_2M") return "2 Months";
+  if (value === "LAST_6M") return "6 Months";
   return value.replace("_", " ");
 }
 
