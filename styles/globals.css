@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-sand text-ink antialiased;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-60%);
+  }
+  50% {
+    transform: translateX(20%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.indeterminate-bar {
+  animation: indeterminate 1.4s ease-in-out infinite;
+}
