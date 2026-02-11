@@ -25,6 +25,7 @@ enum PeriodType {
   LAST_2M
   LAST_6M
   YEAR
+  LAST_YEAR
   ALL_TIME
 }
 

@@ -6,7 +6,7 @@ import { getWindowRange } from "../../../lib/time";
 import { isWindowAllowed } from "../../../lib/entitlements";
 
 const QuerySchema = z.object({
-  windowType: z.enum(["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"]).default("MONTH"),
+  windowType: z.enum(["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "LAST_YEAR", "ALL_TIME"]).default("MONTH"),
   sportType: z.enum(["RUN", "RIDE"]).default("RUN")
 });
 

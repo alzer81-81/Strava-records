@@ -6,7 +6,7 @@ import { getRollingRange, getWindowRange, WindowType } from "../../../lib/time";
 import { recomputeWindow } from "../../../lib/records";
 import { isWindowAllowed } from "../../../lib/entitlements";
 
-const windowTypes: WindowType[] = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"];
+const windowTypes: WindowType[] = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "LAST_YEAR", "ALL_TIME"];
 
 export async function GET(request: Request) {
   const session = readSessionCookie();
