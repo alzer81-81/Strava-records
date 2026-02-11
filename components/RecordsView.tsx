@@ -71,24 +71,24 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-card">
-        <h3 className="text-3xl font-semibold">Total</h3>
-        <div className="mt-6 grid gap-6 md:grid-cols-4">
+      <section className="rounded-3xl bg-white p-4 shadow-card md:p-6">
+        <h3 className="text-2xl font-semibold md:text-3xl">Total</h3>
+        <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slateish">Distance</p>
-            <p className="mt-2 text-4xl font-semibold text-ink">{formatKm(totals.totalDistance)} km</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slateish md:text-xs">Distance</p>
+            <p className="mt-2 text-2xl font-semibold text-ink md:text-4xl">{formatKm(totals.totalDistance)} km</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slateish">Moving Time</p>
-            <p className="mt-2 text-4xl font-semibold text-ink">{formatTime(totals.totalMovingTime)}</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slateish md:text-xs">Moving Time</p>
+            <p className="mt-2 text-2xl font-semibold text-ink md:text-4xl">{formatTime(totals.totalMovingTime)}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slateish">Elevation</p>
-            <p className="mt-2 text-4xl font-semibold text-ink">{Math.round(totals.totalElevationGain)} m</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slateish md:text-xs">Elevation</p>
+            <p className="mt-2 text-2xl font-semibold text-ink md:text-4xl">{Math.round(totals.totalElevationGain)} m</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slateish">Activities</p>
-            <p className="mt-2 text-4xl font-semibold text-ink">{totals.activityCount}</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slateish md:text-xs">Activities</p>
+            <p className="mt-2 text-2xl font-semibold text-ink md:text-4xl">{totals.activityCount}</p>
           </div>
         </div>
       </section>
