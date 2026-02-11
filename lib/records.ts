@@ -66,7 +66,7 @@ export async function recomputeWindow(params: {
   });
 
   const cacheByActivity = new Map(caches.map((cache) => [cache.activityId, cache]));
-  const targetDistances = selectDistanceTargets(plan);
+  const targetDistances = selectDistanceTargets();
 
   const recordMap = new Map<number, { distanceTarget: number; bestTimeSeconds: number; activityId: string; achievedAt: Date }>();
 
