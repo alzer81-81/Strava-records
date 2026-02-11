@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { WindowType } from "../lib/time";
 
-const windowOptions: WindowType[] = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "LAST_YEAR", "ALL_TIME"];
+const windowOptions: WindowType[] = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"];
 
 const WINDOW_LABELS: Record<WindowType, string> = {
   WEEK: "This Week",
@@ -13,7 +13,6 @@ const WINDOW_LABELS: Record<WindowType, string> = {
   LAST_2M: "2 Months",
   LAST_6M: "6 Months",
   YEAR: "This Year",
-  LAST_YEAR: "Last Year",
   ALL_TIME: "All Time",
 };
 
@@ -33,9 +32,9 @@ export function TopNav() {
 
   const showTimeframe = pathname === "/";
 
-  function applyWindow() {
+  function applyWindow(next: WindowType) {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("window", nextValue);
+    params.set("window", next);
     router.push(`/?${params.toString()}`);
   }
 
@@ -51,7 +50,11 @@ export function TopNav() {
             <div className="relative">
               <select
                 value={nextValue}
-                onChange={(event) => setNextValue(event.target.value as WindowType)}
+                onChange={(event) => {
+                  const value = event.target.value as WindowType;
+                  setNextValue(value);
+                  applyWindow(value);
+                }}
                 className="appearance-none rounded-full border border-sand bg-white px-4 py-2 pr-10 text-sm"
                 aria-label="Timeframe"
               >
@@ -63,13 +66,6 @@ export function TopNav() {
               </select>
               <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slateish">▾</span>
             </div>
-            <button
-              type="button"
-              onClick={applyWindow}
-              className="rounded-full border border-slateish/20 px-4 py-2 text-sm"
-            >
-              Apply
-            </button>
           </div>
         ) : (
           <Link href="/" className="rounded-full border border-slateish/20 px-4 py-2 text-sm">

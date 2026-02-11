@@ -67,7 +67,7 @@ export async function RecordsView({
       <AutoSync enabled={!hasAnyData} />
       <section className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-6xl font-semibold">Your Best Efforts</h1>
+          <h1 className="text-4xl font-semibold">Your Best Efforts</h1>
         </div>
       </section>
 
@@ -197,7 +197,7 @@ export async function RecordsView({
 function normalizeWindow(value?: string): WindowType {
   if (!value) return "MONTH";
   const upper = value.toUpperCase();
-  if (["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "LAST_YEAR", "ALL_TIME"].includes(upper)) {
+  if (["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"].includes(upper)) {
     return upper as WindowType;
   }
   return "MONTH";
@@ -209,7 +209,6 @@ const WINDOW_LABELS: Record<WindowType, string> = {
   LAST_2M: "2 Months",
   LAST_6M: "6 Months",
   YEAR: "This Year",
-  LAST_YEAR: "Last Year",
   ALL_TIME: "All Time",
 };
 
