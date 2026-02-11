@@ -209,6 +209,7 @@ const WINDOW_LABELS: Record<WindowType, string> = {
   LAST_2M: "2 Months",
   LAST_6M: "6 Months",
   YEAR: "This Year",
+  LAST_YEAR: "Last Year",
   ALL_TIME: "All Time",
 };
 
