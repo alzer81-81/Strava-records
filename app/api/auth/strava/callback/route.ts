@@ -4,6 +4,9 @@ import { prisma } from "../../../../../lib/db";
 import { setSessionCookie } from "../../../../../lib/session";
 import { clearOAuthState, readOAuthState } from "../../../../../lib/oauth";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
