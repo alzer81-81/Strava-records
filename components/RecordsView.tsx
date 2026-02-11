@@ -5,8 +5,6 @@ import { selectDistanceTargets } from "../lib/analytics";
 import { MapPreview } from "./MapPreview";
 import { AutoSync } from "./AutoSync";
 
-const windowOptions: WindowType[] = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "LAST_YEAR", "ALL_TIME"];
-
 export async function RecordsView({
   userId,
   windowParam
@@ -69,36 +67,12 @@ export async function RecordsView({
       <AutoSync enabled={!hasAnyData} />
       <section className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-slateish">Records</p>
-          <h1 className="mt-2 text-3xl font-semibold">Your best efforts</h1>
-          <p className="mt-2 text-sm text-slateish">Pick a window to see totals and record times.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <form action="/" method="get" className="flex items-center gap-2">
-            <label className="text-xs uppercase tracking-[0.2em] text-slateish">Timeframe</label>
-            <div className="relative">
-              <select
-                name="window"
-                defaultValue={windowType}
-                className="appearance-none rounded-full border border-sand bg-white px-4 py-2 pr-10 text-sm"
-              >
-              {windowOptions.map((option) => (
-                <option key={option} value={option}>
-                  {labelWindow(option)}
-                </option>
-              ))}
-              </select>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slateish">▾</span>
-            </div>
-            <button className="rounded-full border border-slateish/20 px-4 py-2 text-sm" type="submit">
-              Apply
-            </button>
-          </form>
+          <h1 className="text-6xl font-semibold">Your Best Efforts</h1>
         </div>
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-card">
-        <h3 className="text-lg font-semibold">Totals</h3>
+        <h3 className="text-3xl font-semibold">Total</h3>
         <div className="mt-6 grid gap-6 md:grid-cols-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-slateish">Distance</p>
@@ -181,7 +155,7 @@ export async function RecordsView({
 
       <section className="rounded-3xl bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Distance Records</h3>
+          <h3 className="text-3xl font-semibold">Distance Records</h3>
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {targets.map((target) => {

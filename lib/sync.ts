@@ -202,7 +202,7 @@ function getSyncRange(full: boolean) {
   if (full) {
     return { after: 0, before: now };
   }
-  const days = 400;
+  const days = 800;
   const after = now - days * 24 * 60 * 60;
   return { after, before: now };
 }

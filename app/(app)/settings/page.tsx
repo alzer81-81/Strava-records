@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "../../../lib/auth";
 
 export default async function SettingsPage() {
@@ -5,6 +6,11 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <div>
+        <Link href="/" className="rounded-full border border-slateish/20 px-4 py-2 text-sm">
+          Home
+        </Link>
+      </div>
       <section className="rounded-3xl bg-white p-6 shadow-card">
         <h2 className="text-xl font-semibold">Account</h2>
         <p className="mt-2 text-sm text-slateish">Plan: {user.plan}</p>
