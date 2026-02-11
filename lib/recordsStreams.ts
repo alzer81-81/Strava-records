@@ -6,12 +6,14 @@ import { FULL_DISTANCE_TARGETS } from "./entitlements";
 export async function computeAllTimeRecordsFromStreams(params: {
   userId: string;
   accessToken: string;
+  limit?: number;
   onProgress?: (progress: { processed: number; total: number }) => Promise<void>;
 }) {
-  const { userId, accessToken, onProgress } = params;
+  const { userId, accessToken, onProgress, limit } = params;
   const activities = await prisma.activity.findMany({
     where: { userId, sportType: "RUN" },
-    orderBy: { startDate: "asc" }
+    orderBy: { startDate: "desc" },
+    take: limit
   });
 
   const recordMap = new Map<number, { distanceTarget: number; bestTimeSeconds: number; activityId: string; achievedAt: Date }>();

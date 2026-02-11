@@ -45,6 +45,7 @@ export async function runSyncJob(params: {
       await computeAllTimeRecordsFromStreams({
         userId,
         accessToken: user.accessToken,
+        limit: 200,
         onProgress: async ({ processed, total }) => {
           await prisma.syncJob.update({
             where: { id: jobId },
