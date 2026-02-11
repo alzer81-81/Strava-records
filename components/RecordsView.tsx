@@ -229,15 +229,18 @@ function normalizeWindow(value?: string): WindowType {
   return "MONTH";
 }
 
+const WINDOW_LABELS: Record<WindowType, string> = {
+  WEEK: "This Week",
+  MONTH: "This Month",
+  LAST_2M: "2 Months",
+  LAST_6M: "6 Months",
+  YEAR: "This Year",
+  LAST_YEAR: "Last Year",
+  ALL_TIME: "All Time",
+};
+
 function labelWindow(value: WindowType) {
-  if (value === "YEAR") return "This Year";
-  if (value === "LAST_YEAR") return "Last Year";
-  if (value === "ALL_TIME") return "All Time";
-  if (value === "WEEK") return "This Week";
-  if (value === "MONTH") return "This Month";
-  if (value === "LAST_2M") return "2 Months";
-  if (value === "LAST_6M") return "6 Months";
-  return value.replace("_", " ");
+  return WINDOW_LABELS[value];
 }
 
 function formatKm(distanceMeters: number) {
