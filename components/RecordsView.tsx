@@ -71,7 +71,7 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-4 shadow-card md:p-6">
+      <section className="rounded-2xl bg-white p-4 shadow-card md:p-6">
         <h3 className="text-2xl font-semibold md:text-3xl">Total</h3>
         <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-4">
           <div>
@@ -94,7 +94,7 @@ export async function RecordsView({
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-3xl bg-white p-6 shadow-card">
+        <div className="rounded-2xl bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Longest Run</h3>
           {longestRun ? (
             <div className="mt-3 text-sm text-slateish">
@@ -113,7 +113,7 @@ export async function RecordsView({
             <p className="mt-3 text-sm text-slateish">No runs in this window yet.</p>
           )}
         </div>
-        <div className="rounded-3xl bg-white p-6 shadow-card">
+        <div className="rounded-2xl bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Fastest Avg Speed</h3>
           {fastestAvg ? (
             <div className="mt-3 text-sm text-slateish">
@@ -132,7 +132,7 @@ export async function RecordsView({
             <p className="mt-3 text-sm text-slateish">No data yet.</p>
           )}
         </div>
-        <div className="rounded-3xl bg-white p-6 shadow-card">
+        <div className="rounded-2xl bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Biggest Climb</h3>
           {biggestClimb ? (
             <div className="mt-3 text-sm text-slateish">
@@ -153,7 +153,7 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-card">
+      <section className="rounded-2xl bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
           <h3 className="text-3xl font-semibold">Distance Records</h3>
         </div>
@@ -164,13 +164,13 @@ export async function RecordsView({
               ? activitiesById.get(record.activityId) ?? null
               : null;
             return (
-              <div key={target} className="rounded-2xl border border-sand bg-sand/40 p-4">
-                <div className="flex items-center gap-4">
+              <div key={target} className="rounded-xl border border-sand bg-sand/40 p-3">
+                <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div>
-                    <p className="text-xs uppercase text-slateish">{formatTarget(target)}</p>
+                    <p className="text-[0.7rem] uppercase tracking-[0.2em] text-slateish">{formatTarget(target)}</p>
                     {record ? (
-                      <div className="mt-2 text-sm">
+                      <div className="mt-1 text-sm">
                         <p className="text-base font-semibold text-ink">{formatTime(record.bestTimeSeconds)}</p>
                         <a
                           href={`https://www.strava.com/activities/${record.activityId}`}
@@ -180,7 +180,7 @@ export async function RecordsView({
                         </a>
                       </div>
                     ) : (
-                      <p className="mt-2 text-sm text-slateish">No record yet</p>
+                      <p className="mt-1 text-sm text-slateish">No record yet</p>
                     )}
                   </div>
                 </div>

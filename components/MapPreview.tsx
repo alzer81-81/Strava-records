@@ -11,7 +11,7 @@ export function MapPreview({
 }) {
   if (!polyline) {
     return compact ? (
-      <div className="h-16 w-20 rounded-xl bg-sand/50" />
+      <div className="h-14 w-16 rounded-lg bg-sand/50" />
     ) : (
       <div className="mt-3 flex h-24 items-center justify-center rounded-xl bg-sand/50 text-xs text-slateish">
         Map preview unavailable
@@ -22,7 +22,7 @@ export function MapPreview({
   const points = decodePolyline(polyline);
   if (points.length < 2) {
     return compact ? (
-      <div className="h-16 w-20 rounded-xl bg-sand/50" />
+      <div className="h-14 w-16 rounded-lg bg-sand/50" />
     ) : (
       <div className="mt-3 flex h-24 items-center justify-center rounded-xl bg-sand/50 text-xs text-slateish">
         Map preview unavailable
@@ -51,7 +51,7 @@ export function MapPreview({
 
   if (compact) {
     return (
-      <div className="h-16 w-20 rounded-xl bg-gradient-to-r from-ember/10 via-amber-100/40 to-white p-2">
+      <div className="h-14 w-16 rounded-lg bg-gradient-to-r from-ember/10 via-amber-100/40 to-white p-1.5">
         <svg viewBox={`-${padding} -${padding} ${100 + padding * 2} ${100 + padding * 2}`} className="h-full w-full">
           <path d={path} fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
