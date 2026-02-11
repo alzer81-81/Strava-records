@@ -171,7 +171,7 @@ export async function RecordsView({
                     <p className="text-[0.7rem] uppercase tracking-[0.2em] text-slateish">{formatTarget(target)}</p>
                     {record ? (
                       <div className="mt-1 text-sm">
-                        <p className="text-base font-semibold text-ink">{formatTime(record.bestTimeSeconds)}</p>
+                        <p className="text-lg font-semibold text-ink">{formatTime(record.bestTimeSeconds)}</p>
                         <a
                           href={`https://www.strava.com/activities/${record.activityId}`}
                           className="text-ember"
