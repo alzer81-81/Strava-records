@@ -2,70 +2,73 @@ import { ConnectButton } from "./ConnectButton";
 
 export function LandingHero() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sand via-white to-[#ffe8d2]">
-      <section className="mx-auto flex max-w-6xl flex-col gap-12 px-6 py-16">
-        <div className="grid gap-10 md:grid-cols-2 md:items-center">
-          <div>
-            <p className="text-sm uppercase tracking-[0.4em] text-slateish">Strava Records</p>
-            <h1 className="mt-4 font-[var(--font-fraunces)] text-4xl font-semibold leading-tight text-ink md:text-6xl">
-              Your training, distilled into true personal records.
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#ffe8d2_0%,_#fff7ee_45%,_#f6efe6_100%)]">
+      <section className="mx-auto flex max-w-6xl flex-col gap-12 px-6 pb-20 pt-16">
+        <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-6">
+            <p className="text-xs uppercase tracking-[0.5em] text-slateish">Strava Records</p>
+            <h1 className="font-[var(--font-fraunces)] text-5xl font-semibold leading-[1.05] text-ink md:text-7xl">
+              The cleanest way to see your fastest efforts.
             </h1>
-            <p className="mt-4 text-lg text-slateish">
-              Connect Strava once and get a clean, focused dashboard of totals, all‑time PRs, and
-              record‑setting runs—without clutter.
+            <p className="max-w-2xl text-lg text-slateish md:text-xl">
+              One connect. A single dashboard. Every personal record that matters—clearly ranked,
+              beautifully displayed, and always in sync.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <ConnectButton />
-              <span className="text-sm text-slateish">Free to use while in beta.</span>
+              <span className="text-sm text-slateish">No subscription. No noise. Just your best.</span>
             </div>
           </div>
-          <div className="rounded-3xl bg-white p-6 shadow-card">
-            <h2 className="text-lg font-semibold">What you get</h2>
-            <ul className="mt-4 grid gap-3 text-sm text-slateish">
-              <li className="rounded-2xl bg-sand/60 px-4 py-3">All‑time PRs computed from activity streams</li>
-              <li className="rounded-2xl bg-sand/60 px-4 py-3">Totals by week, month, and year windows</li>
-              <li className="rounded-2xl bg-sand/60 px-4 py-3">Fastest average speed, biggest climb, and longest run</li>
-              <li className="rounded-2xl bg-sand/60 px-4 py-3">Route previews for key efforts</li>
-            </ul>
+
+          <div className="grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
+            <div className="rounded-2xl bg-white/90 p-6 shadow-card">
+              <h2 className="text-lg font-semibold">What you get</h2>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {[
+                  "All-time PRs computed from activity streams",
+                  "Totals by week, month, and year windows",
+                  "Fastest average speed, biggest climb, longest run",
+                  "Route previews for key efforts"
+                ].map((item) => (
+                  <div key={item} className="rounded-2xl bg-sand/60 px-4 py-3 text-sm text-slateish">
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-sand bg-white/80 p-6 shadow-card">
+              <h2 className="text-lg font-semibold">Why it hits</h2>
+              <ul className="mt-4 space-y-4 text-sm text-slateish">
+                <li>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slateish">Designed for focus</p>
+                  <p className="mt-2">No feeds or clutter. Just the signals that show progress.</p>
+                </li>
+                <li>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slateish">Accurate PRs</p>
+                  <p className="mt-2">Best efforts calculated from streams for real results.</p>
+                </li>
+                <li>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slateish">Private by default</p>
+                  <p className="mt-2">Your data stays in your account. Nothing shared without you.</p>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-3xl bg-white p-6 shadow-card">
-            <h3 className="text-lg font-semibold">Built for focus</h3>
-            <p className="mt-3 text-sm text-slateish">
-              No feeds or noise—just the metrics that actually show your progress.
-            </p>
-          </div>
-          <div className="rounded-3xl bg-white p-6 shadow-card">
-            <h3 className="text-lg font-semibold">Accurate PRs</h3>
-            <p className="mt-3 text-sm text-slateish">
-              We compute best efforts from streams for precise results across distances.
-            </p>
-          </div>
-          <div className="rounded-3xl bg-white p-6 shadow-card">
-            <h3 className="text-lg font-semibold">Private by default</h3>
-            <p className="mt-3 text-sm text-slateish">
-              Your data stays in your account. Nothing is shared without your consent.
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-sand bg-white/70 p-6 shadow-card">
+        <div className="rounded-2xl border border-sand bg-white/80 p-6 shadow-card">
           <h3 className="text-lg font-semibold">How it works</h3>
           <div className="mt-4 grid gap-4 md:grid-cols-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slateish">Step 1</p>
-              <p className="mt-2 text-sm text-slateish">Connect Strava with secure OAuth.</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slateish">Step 2</p>
-              <p className="mt-2 text-sm text-slateish">We sync your activities and compute records.</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slateish">Step 3</p>
-              <p className="mt-2 text-sm text-slateish">Open your dashboard to see updated totals and PRs.</p>
-            </div>
+            {[
+              ["Step 1", "Connect Strava with secure OAuth."],
+              ["Step 2", "We sync your activities and compute records."],
+              ["Step 3", "Open your dashboard to see totals and PRs."]
+            ].map(([title, body]) => (
+              <div key={title}>
+                <p className="text-xs uppercase tracking-[0.2em] text-slateish">{title}</p>
+                <p className="mt-2 text-sm text-slateish">{body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
