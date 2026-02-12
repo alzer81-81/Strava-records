@@ -64,7 +64,7 @@ export async function RecordsView({
 
   return (
     <div className="flex flex-col gap-6">
-      <AutoSync enabled={!hasAnyData} />
+      <AutoSync enabled full={!hasAnyData} streams={!hasAnyData} />
       <section className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-semibold">Your Best Efforts</h1>

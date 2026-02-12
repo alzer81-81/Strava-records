@@ -2,12 +2,22 @@
 
 import { useEffect } from "react";
 
-export function AutoSync({ enabled }: { enabled: boolean }) {
+export function AutoSync({
+  enabled,
+  full = false,
+  streams = false
+}: {
+  enabled: boolean;
+  full?: boolean;
+  streams?: boolean;
+}) {
   useEffect(() => {
     if (!enabled) return;
-    const params = new URLSearchParams({ full: "1", streams: "1" });
+    const params = new URLSearchParams();
+    if (full) params.set("full", "1");
+    if (streams) params.set("streams", "1");
     fetch(`/api/sync/start?${params.toString()}`).catch(() => {});
-  }, [enabled]);
+  }, [enabled, full, streams]);
 
   return null;
 }
