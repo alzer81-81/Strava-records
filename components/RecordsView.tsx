@@ -52,6 +52,15 @@ export async function RecordsView({
     orderBy: { distance: "desc" }
   });
 
+  const runDates = await prisma.activity.findMany({
+    where: {
+      userId,
+      sportType: "RUN",
+      startDate: { gte: start, lt: end }
+    },
+    select: { startDate: true }
+  });
+
   const fastestAvg = bestIds.fastestAvgId
     ? await prisma.activity.findUnique({ where: { id: bestIds.fastestAvgId } })
     : null;
@@ -71,7 +80,7 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-2xl bg-white p-4 shadow-card md:p-6">
+      <section className="rounded-lg bg-white p-4 shadow-card md:p-6">
         <h3 className="text-2xl font-semibold md:text-3xl">Total</h3>
         <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-4">
           <div>
@@ -94,7 +103,7 @@ export async function RecordsView({
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl bg-white p-6 shadow-card">
+        <div className="rounded-lg bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Longest Run</h3>
           {longestRun ? (
             <div className="mt-3 text-sm text-slate-600">
@@ -115,7 +124,7 @@ export async function RecordsView({
             <p className="mt-3 text-sm text-slate-500">No runs in this window yet.</p>
           )}
         </div>
-        <div className="rounded-2xl bg-white p-6 shadow-card">
+        <div className="rounded-lg bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Fastest Avg Speed</h3>
           {fastestAvg ? (
             <div className="mt-3 text-sm text-slate-600">
@@ -136,7 +145,7 @@ export async function RecordsView({
             <p className="mt-3 text-sm text-slate-500">No data yet.</p>
           )}
         </div>
-        <div className="rounded-2xl bg-white p-6 shadow-card">
+        <div className="rounded-lg bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Biggest Climb</h3>
           {biggestClimb ? (
             <div className="mt-3 text-sm text-slate-600">
@@ -159,7 +168,7 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-2xl bg-white p-6 shadow-card">
+      <section className="rounded-lg bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
           <h3 className="text-3xl font-semibold">Distance Records</h3>
         </div>
@@ -170,7 +179,7 @@ export async function RecordsView({
               ? activitiesById.get(record.activityId) ?? null
               : null;
             return (
-              <div key={target} className="rounded-xl border border-black/10 bg-white p-3 shadow-sm">
+              <div key={target} className="rounded-lg border border-black/10 bg-white p-3 shadow-sm">
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div>
@@ -195,6 +204,20 @@ export async function RecordsView({
               </div>
             );
           })}
+        </div>
+      </section>
+
+      <section className="rounded-lg bg-white p-6 shadow-card">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl font-semibold md:text-3xl">Run Frequency</h3>
+          <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Runs per period</span>
+        </div>
+        <div className="mt-4">
+          <RunFrequencyChart
+            windowStart={start}
+            windowEnd={end}
+            dates={runDates.map((item) => item.startDate)}
+          />
         </div>
       </section>
 
@@ -253,6 +276,67 @@ function formatTarget(distance: number) {
   if (distance === 42195) return "Marathon";
   if (distance >= 1000) return `${distance / 1000} km`;
   return `${distance} m`;
+}
+
+function RunFrequencyChart({
+  windowStart,
+  windowEnd,
+  dates
+}: {
+  windowStart: Date;
+  windowEnd: Date;
+  dates: Date[];
+}) {
+  const dayCount = Math.max(1, Math.ceil((windowEnd.getTime() - windowStart.getTime()) / 86400000));
+  const granularity = dayCount <= 31 ? "day" : dayCount <= 90 ? "week" : "month";
+  const buckets = buildBuckets(windowStart, windowEnd, granularity);
+  const counts = new Array(buckets.length).fill(0);
+
+  dates.forEach((date) => {
+    const idx = bucketIndex(date, buckets);
+    if (idx >= 0) counts[idx] += 1;
+  });
+
+  const max = Math.max(1, ...counts);
+
+  return (
+    <div className="flex items-end gap-2">
+      {counts.map((count, idx) => (
+        <div key={`${idx}-${count}`} className="flex flex-col items-center gap-2">
+          <div
+            className="w-4 rounded-sm bg-amber-500"
+            style={{ height: `${Math.max(10, Math.round((count / max) * 72))}px` }}
+          />
+          <span className="text-[10px] text-slate-500">{count}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+type Bucket = { start: Date; end: Date };
+
+function buildBuckets(start: Date, end: Date, granularity: "day" | "week" | "month") {
+  const buckets: Bucket[] = [];
+  const cursor = new Date(start);
+  while (cursor < end) {
+    const bucketStart = new Date(cursor);
+    const bucketEnd = new Date(cursor);
+    if (granularity === "day") {
+      bucketEnd.setDate(bucketEnd.getDate() + 1);
+    } else if (granularity === "week") {
+      bucketEnd.setDate(bucketEnd.getDate() + 7);
+    } else {
+      bucketEnd.setMonth(bucketEnd.getMonth() + 1);
+    }
+    buckets.push({ start: bucketStart, end: bucketEnd });
+    cursor.setTime(bucketEnd.getTime());
+  }
+  return buckets;
+}
+
+function bucketIndex(date: Date, buckets: Bucket[]) {
+  return buckets.findIndex((bucket) => date >= bucket.start && date < bucket.end);
 }
 
 function getTotals(value: unknown) {
