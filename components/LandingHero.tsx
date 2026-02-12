@@ -1,4 +1,5 @@
 import { ConnectButton } from "./ConnectButton";
+import Image from "next/image";
 
 export function LandingHero() {
   return (
@@ -6,7 +7,7 @@ export function LandingHero() {
       <section className="mx-auto flex max-w-6xl flex-col gap-12 px-6 pb-20 pt-16">
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-6">
-            <p className="text-xs uppercase tracking-[0.5em] text-slate-500">Strava Records</p>
+            <p className="text-xs uppercase tracking-[0.5em] text-slate-500">Best Times</p>
             <h1 className="font-[var(--font-fraunces)] text-5xl font-semibold leading-[1.05] text-ink md:text-7xl">
               The cleanest way to see your fastest efforts.
             </h1>
@@ -21,7 +22,7 @@ export function LandingHero() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-card">
+            <div className="rounded-lg border border-black/10 bg-white p-6 shadow-card">
               <h2 className="text-lg font-semibold">What you get</h2>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {[
@@ -30,13 +31,13 @@ export function LandingHero() {
                   "Fastest average speed, biggest climb, longest run",
                   "Route previews for key efforts"
                 ].map((item) => (
-                  <div key={item} className="rounded-2xl border border-black/10 px-4 py-3 text-sm text-slate-600">
+                  <div key={item} className="rounded-lg border border-black/10 px-4 py-3 text-sm text-slate-600">
                     {item}
                   </div>
                 ))}
               </div>
             </div>
-            <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-card">
+            <div className="rounded-lg border border-black/10 bg-white p-6 shadow-card">
               <h2 className="text-lg font-semibold">Why it hits</h2>
               <ul className="mt-4 space-y-4 text-sm text-slate-600">
                 <li>
@@ -56,7 +57,7 @@ export function LandingHero() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-card">
+        <div className="rounded-lg border border-black/10 bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">How it works</h3>
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             {[
@@ -73,6 +74,14 @@ export function LandingHero() {
         </div>
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+          <div className="flex items-center">
+            <Image
+              src="/api_logo_pwrdBy_strava_horiz_orange.png"
+              alt="Powered by Strava"
+              width={180}
+              height={48}
+            />
+          </div>
           <a href="/privacy" className="underline decoration-slateish/30 underline-offset-4">
             Privacy Policy
           </a>

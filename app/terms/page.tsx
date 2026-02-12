@@ -1,9 +1,9 @@
 export default function TermsPage() {
   return (
     <main className="min-h-screen bg-sand px-6 py-16">
-      <section className="mx-auto flex max-w-3xl flex-col gap-6 rounded-2xl bg-white p-8 shadow-card">
+      <section className="mx-auto flex max-w-3xl flex-col gap-6 rounded-lg bg-white p-8 shadow-card">
         <header className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-slateish">Strava Records</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slateish">Best Times</p>
           <h1 className="text-3xl font-semibold text-ink">Terms of Service</h1>
           <p className="text-sm text-slateish">Last updated: February 11, 2026</p>
         </header>

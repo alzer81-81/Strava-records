@@ -2,9 +2,9 @@ export function ConnectButton() {
   return (
     <a
       href="/api/auth/strava/start"
-      className="inline-flex items-center justify-center rounded-full bg-ember px-6 py-3 text-white shadow-soft transition hover:translate-y-[-1px]"
+      className="inline-flex h-12 items-center justify-center rounded-full bg-[#FC5200] px-6 text-white shadow-soft transition hover:translate-y-[-1px]"
     >
-      Connect Strava
+      Connect with Strava
     </a>
   );
 }
