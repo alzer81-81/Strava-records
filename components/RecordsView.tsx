@@ -61,8 +61,18 @@ export async function RecordsView({
     ? await prisma.activity.findUnique({ where: { id: bestIds.biggestClimbId } })
     : null;
 
+  const runActivities = await prisma.activity.findMany({
+    where: {
+      userId,
+      sportType: "RUN",
+      startDate: { gte: start, lt: end }
+    },
+    select: { distance: true, movingTime: true, elevationGain: true }
+  });
+
   const targets = selectDistanceTargets();
   const hasAnyData = records.length > 0 || totals.activityCount > 0 || !!longestRun;
+  const insights = buildInsights({ now, records, activities: runActivities });
 
   return (
     <div className="flex flex-col gap-6 text-black">
@@ -93,6 +103,27 @@ export async function RecordsView({
             <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">{totals.activityCount}</p>
           </div>
         </div>
+      </section>
+
+      <section className="rounded-lg bg-white p-6 shadow-card">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl font-semibold md:text-3xl">Performance Insights</h3>
+        </div>
+        {insights.length === 0 ? (
+          <p className="mt-4 text-sm text-slate-500">Keep running to unlock personalized insights.</p>
+        ) : (
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
+            {insights.map((insight) => (
+              <div key={insight.headline} className="rounded-lg border border-black/10 bg-white p-4">
+                <p className="text-base font-semibold text-black">{insight.headline}</p>
+                <p className="mt-2 text-sm text-slate-600">{insight.body}</p>
+                {insight.supporting ? (
+                  <p className="mt-2 text-xs text-slate-500">{insight.supporting}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
 
@@ -280,6 +311,111 @@ function getBestIds(value: unknown) {
   };
   if (!value || typeof value !== "object") return fallback;
   return { ...fallback, ...(value as Record<string, string | null>) };
+}
+
+type Insight = {
+  headline: string;
+  body: string;
+  supporting?: string;
+};
+
+function buildInsights({
+  now,
+  records,
+  activities
+}: {
+  now: Date;
+  records: { distanceTarget: number; bestTimeSeconds: number }[];
+  activities: { distance: number; movingTime: number; elevationGain: number }[];
+}) {
+  const insights: Insight[] = [];
+
+  const pace1k = paceFromRecord(records, 1000);
+  const pace5k = paceFromRecord(records, 5000);
+  const pace10k = paceFromRecord(records, 10000);
+  if (pace1k && pace5k && pace10k) {
+    const slowdownShort = (pace5k - pace1k) / pace1k;
+    const slowdownLong = (pace10k - pace5k) / pace5k;
+    if (slowdownShort <= 0.08 && slowdownLong >= 0.12) {
+      insights.push({
+        headline: "You’re stronger at shorter distances",
+        body: `Your pace drops by ${Math.round(slowdownLong * 100)}% between 5K and 10K, suggesting better performance in shorter efforts.`,
+        supporting: `1K: ${formatPaceSeconds(pace1k)} · 5K: ${formatPaceSeconds(pace5k)} · 10K: ${formatPaceSeconds(pace10k)}`
+      });
+    }
+  }
+
+  const elevationInsight = buildElevationInsight(activities);
+  if (elevationInsight) insights.push(elevationInsight);
+
+  if (insights.length <= 3) return insights;
+  const start = now.getMonth() % insights.length;
+  return [...insights.slice(start), ...insights.slice(0, start)].slice(0, 3);
+}
+
+function paceFromRecord(records: { distanceTarget: number; bestTimeSeconds: number }[], target: number) {
+  const record = records.find((r) => r.distanceTarget === target);
+  if (!record) return null;
+  return record.bestTimeSeconds / (target / 1000);
+}
+
+function buildElevationInsight(
+  activities: { distance: number; movingTime: number; elevationGain: number }[]
+): Insight | null {
+  const flat: number[] = [];
+  const moderate: number[] = [];
+  const hilly: number[] = [];
+  const flatElev: number[] = [];
+  const moderateElev: number[] = [];
+  const hillyElev: number[] = [];
+
+  activities.forEach((activity) => {
+    if (activity.distance <= 0 || activity.movingTime <= 0) return;
+    const km = activity.distance / 1000;
+    const elevPerKm = activity.elevationGain / Math.max(1, km);
+    const pace = activity.movingTime / km;
+    if (elevPerKm < 10) {
+      flat.push(pace);
+      flatElev.push(elevPerKm);
+    } else if (elevPerKm < 25) {
+      moderate.push(pace);
+      moderateElev.push(elevPerKm);
+    } else {
+      hilly.push(pace);
+      hillyElev.push(elevPerKm);
+    }
+  });
+
+  const hillyAvg = avg(hilly);
+  const compareAvg = avg(moderate.length >= 3 ? moderate : flat);
+  const hillyElevAvg = avg(hillyElev) ?? 0;
+  const compareElevAvg = avg(moderate.length >= 3 ? moderateElev : flatElev) ?? 0;
+
+  if (!hillyAvg || !compareAvg || hilly.length < 3 || (moderate.length + flat.length) < 3) {
+    return null;
+  }
+
+  const paceSlowdown = ((hillyAvg - compareAvg) / compareAvg) * 100;
+  const elevIncrease = compareElevAvg > 0 ? ((hillyElevAvg - compareElevAvg) / compareElevAvg) * 100 : null;
+  if (paceSlowdown <= 4 && elevIncrease !== null && elevIncrease >= 30) {
+    return {
+      headline: "You perform best on hilly routes",
+      body: `Your average pace on hilly runs is only ${Math.max(0, Math.round(paceSlowdown))}% slower despite ${Math.round(elevIncrease)}% more elevation gain.`,
+      supporting: `Hilly avg pace: ${formatPaceSeconds(hillyAvg)} · Flat/moderate: ${formatPaceSeconds(compareAvg)}`
+    };
+  }
+  return null;
+}
+
+function avg(values: number[]) {
+  if (values.length === 0) return null;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function formatPaceSeconds(secondsPerKm: number) {
+  const mins = Math.floor(secondsPerKm / 60);
+  const secs = Math.round(secondsPerKm % 60);
+  return `${mins}:${String(secs).padStart(2, "0")} /km`;
 }
 
 function formatSpeed(speedMetersPerSecond: number) {
