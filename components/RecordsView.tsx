@@ -61,6 +61,17 @@ export async function RecordsView({
     ? await prisma.activity.findUnique({ where: { id: bestIds.biggestClimbId } })
     : null;
 
+  const hrValues = await prisma.activity.findMany({
+    where: {
+      userId,
+      sportType: "RUN",
+      startDate: { gte: start, lt: end },
+      averageHeartrate: { not: null }
+    },
+    select: { averageHeartrate: true }
+  });
+  const avgHeartrate = averageHeartRate(hrValues);
+
   const targets = selectDistanceTargets();
   const hasAnyData = records.length > 0 || totals.activityCount > 0 || !!longestRun;
 
@@ -75,7 +86,7 @@ export async function RecordsView({
 
       <section className="rounded-lg bg-white p-4 shadow-card md:p-6">
         <h3 className="text-2xl font-semibold md:text-3xl">Total</h3>
-        <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-5">
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Distance</p>
             <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">{formatKm(totals.totalDistance)} km</p>
@@ -91,6 +102,12 @@ export async function RecordsView({
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Activities</p>
             <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">{totals.activityCount}</p>
+          </div>
+          <div>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Avg HR</p>
+            <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">
+              {avgHeartrate ? `${Math.round(avgHeartrate)} bpm` : "--"}
+            </p>
           </div>
         </div>
       </section>
@@ -280,6 +297,12 @@ function getBestIds(value: unknown) {
   };
   if (!value || typeof value !== "object") return fallback;
   return { ...fallback, ...(value as Record<string, string | null>) };
+}
+
+function averageHeartRate(values: { averageHeartrate: number | null }[]) {
+  const filtered = values.map((item) => item.averageHeartrate).filter((value): value is number => value !== null);
+  if (filtered.length === 0) return null;
+  return filtered.reduce((sum, value) => sum + value, 0) / filtered.length;
 }
 
 function formatSpeed(speedMetersPerSecond: number) {
