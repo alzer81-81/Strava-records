@@ -190,32 +190,40 @@ export async function RecordsView({
               ? activitiesById.get(record.activityId) ?? null
               : null;
             return (
-              <div key={target} className="rounded-lg border border-black/10 bg-white px-3 py-2 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="flex flex-1 items-center justify-between gap-3">
-                    <div className="flex items-baseline gap-2 text-lg font-semibold text-black">
-                      <span>{formatTarget(target)}</span>
-                      <span className="text-slate-400">;</span>
-                      {record ? (
+              {record ? (
+                <a
+                  key={target}
+                  href={`https://www.strava.com/activities/${record.activityId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group block rounded-lg border border-black/10 bg-white px-3 py-2 shadow-sm transition-transform duration-150 hover:scale-[1.01] hover:border-black/20"
+                >
+                  <div className="flex items-center gap-3">
+                    <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
+                    <div className="flex flex-1 items-center justify-between gap-3">
+                      <div className="flex items-baseline gap-2 text-lg font-semibold text-black">
+                        <span>{formatTarget(target)}</span>
+                        <span className="text-slate-400">:</span>
                         <span>{formatTime(record.bestTimeSeconds)}</span>
-                      ) : (
-                        <span className="text-slate-500">No record yet</span>
-                      )}
+                      </div>
+                      <span className="text-sm font-semibold text-amber-600">View activity</span>
                     </div>
-                    {record ? (
-                      <a
-                        href={`https://www.strava.com/activities/${record.activityId}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm font-semibold text-amber-600"
-                      >
-                        View activity
-                      </a>
-                    ) : null}
+                  </div>
+                </a>
+              ) : (
+                <div key={target} className="rounded-lg border border-black/10 bg-white px-3 py-2 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
+                    <div className="flex flex-1 items-center justify-between gap-3">
+                      <div className="flex items-baseline gap-2 text-lg font-semibold text-black">
+                        <span>{formatTarget(target)}</span>
+                        <span className="text-slate-400">:</span>
+                        <span className="text-slate-500">No record yet</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             );
           })}
         </div>
