@@ -24,6 +24,7 @@ export async function GET(request: Request) {
   for (const windowType of windowTypes) {
     if (!isWindowAllowed(user.plan, windowType)) continue;
     const { start, end, key } = getWindowRange(windowType, now);
+    const prevRange = windowType === "ALL_TIME" ? null : getWindowRange(windowType, new Date(start.getTime() - 1));
     await recomputeWindow({
       userId: user.id,
       windowType,
@@ -42,6 +43,27 @@ export async function GET(request: Request) {
       sportType: "RIDE",
       plan: user.plan
     });
+
+    if (prevRange) {
+      await recomputeWindow({
+        userId: user.id,
+        windowType,
+        windowKey: prevRange.key,
+        start: prevRange.start,
+        end: prevRange.end,
+        sportType: "RUN",
+        plan: user.plan
+      });
+      await recomputeWindow({
+        userId: user.id,
+        windowType,
+        windowKey: prevRange.key,
+        start: prevRange.start,
+        end: prevRange.end,
+        sportType: "RIDE",
+        plan: user.plan
+      });
+    }
 
     if (windowType === "WEEK") {
       const rolling = getRollingRange(7, now);
