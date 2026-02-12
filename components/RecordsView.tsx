@@ -27,9 +27,9 @@ export async function RecordsView({
   const totals = getTotals(summary?.totals);
   const bestIds = getBestIds(summary?.bestActivityIds);
 
-  const prevRange = windowType === "ALL_TIME"
-    ? null
-    : getWindowRange(windowType, new Date(start.getTime() - 1));
+  const prevRange = windowType === "WEEK" || windowType === "MONTH"
+    ? getWindowRange(windowType, new Date(start.getTime() - 1))
+    : null;
   const prevSummary = prevRange
     ? await prisma.periodSummary.findFirst({
       where: {
@@ -119,67 +119,69 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-lg bg-white p-6 shadow-card">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-semibold md:text-3xl">Trend vs Last Month</h3>
-        </div>
-        {!prevSummary ? (
-          <p className="mt-4 text-sm text-slate-500">No previous data available.</p>
-        ) : (
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <TrendCard
-              label="Total Distance"
-              current={`${formatKm(totals.totalDistance)} km`}
-              previous={`${formatKm(prevTotals.totalDistance)} km`}
-              change={percentChange(totals.totalDistance, prevTotals.totalDistance)}
-              betterDirection="up"
-            />
-            <TrendCard
-              label="Average Pace"
-              current={formatPaceFromTotals(totals)}
-              previous={formatPaceFromTotals(prevTotals)}
-              change={paceChangeSeconds(totals, prevTotals)}
-              betterDirection="up"
-              changeSuffix="/km"
-              isTimeDiff
-            />
-            <TrendCard
-              label="Total Elevation"
-              current={`${Math.round(totals.totalElevationGain)} m`}
-              previous={`${Math.round(prevTotals.totalElevationGain)} m`}
-              change={percentChange(totals.totalElevationGain, prevTotals.totalElevationGain)}
-              betterDirection="up"
-            />
-            <div className="rounded-lg border border-black/10 bg-white p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Key Distance Improvements</p>
-              <div className="mt-3 grid gap-3">
-                {[1000, 5000, 10000].map((target) => {
-                  const current = records.find((r) => r.distanceTarget === target);
-                  const previous = prevRecords.find((r) => r.distanceTarget === target);
-                  const improvement = current && previous
-                    ? ((previous.bestTimeSeconds - current.bestTimeSeconds) / previous.bestTimeSeconds) * 100
-                    : null;
-                  const isNewPr = current && previous && current.bestTimeSeconds < previous.bestTimeSeconds;
-                  return (
-                    <div key={target} className="flex items-center justify-between rounded-md bg-[#f8f8f8] px-3 py-2 text-sm">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{formatTarget(target)}</p>
-                        <p className="text-sm font-semibold text-black">
-                          {current ? formatTime(current.bestTimeSeconds) : "--"}
-                          {isNewPr ? <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">New PR 🎉</span> : null}
-                        </p>
+      {windowType === "WEEK" || windowType === "MONTH" ? (
+        <section className="rounded-lg bg-white p-6 shadow-card">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl font-semibold md:text-3xl">{trendTitle(windowType)}</h3>
+          </div>
+          {!prevSummary ? (
+            <p className="mt-4 text-sm text-slate-500">No previous data available.</p>
+          ) : (
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <TrendCard
+                label="Total Distance"
+                current={`${formatKm(totals.totalDistance)} km`}
+                previous={`${formatKm(prevTotals.totalDistance)} km`}
+                change={percentChange(totals.totalDistance, prevTotals.totalDistance)}
+                betterDirection="up"
+              />
+              <TrendCard
+                label="Average Pace"
+                current={formatPaceFromTotals(totals)}
+                previous={formatPaceFromTotals(prevTotals)}
+                change={paceChangeSeconds(totals, prevTotals)}
+                betterDirection="up"
+                changeSuffix="/km"
+                isTimeDiff
+              />
+              <TrendCard
+                label="Total Elevation"
+                current={`${Math.round(totals.totalElevationGain)} m`}
+                previous={`${Math.round(prevTotals.totalElevationGain)} m`}
+                change={percentChange(totals.totalElevationGain, prevTotals.totalElevationGain)}
+                betterDirection="up"
+              />
+              <div className="rounded-lg border border-black/10 bg-white p-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Key Distance Improvements</p>
+                <div className="mt-3 grid gap-3">
+                  {[1000, 5000, 10000].map((target) => {
+                    const current = records.find((r) => r.distanceTarget === target);
+                    const previous = prevRecords.find((r) => r.distanceTarget === target);
+                    const improvement = current && previous
+                      ? ((previous.bestTimeSeconds - current.bestTimeSeconds) / previous.bestTimeSeconds) * 100
+                      : null;
+                    const isNewPr = current && previous && current.bestTimeSeconds < previous.bestTimeSeconds;
+                    return (
+                      <div key={target} className="flex items-center justify-between rounded-md bg-[#f8f8f8] px-3 py-2 text-sm">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{formatTarget(target)}</p>
+                          <p className="text-sm font-semibold text-black">
+                            {current ? formatTime(current.bestTimeSeconds) : "--"}
+                            {isNewPr ? <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">New PR 🎉</span> : null}
+                          </p>
+                        </div>
+                        <div className={`text-right text-xs ${trendColor(improvement, "up")}`}>
+                          {improvement === null ? "0%" : `${formatPct(improvement)}%`}
+                        </div>
                       </div>
-                      <div className={`text-right text-xs ${trendColor(improvement, "up")}`}>
-                        {improvement === null ? "0%" : `${formatPct(improvement)}%`}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </section>
+          )}
+        </section>
+      ) : null}
 
       <section className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg bg-white p-6 shadow-card">
@@ -460,4 +462,10 @@ function trendColor(change: number | null, betterDirection: "up" | "down") {
 
 function formatPct(value: number) {
   return Math.abs(value).toFixed(0);
+}
+
+function trendTitle(windowType: WindowType) {
+  if (windowType === "WEEK") return "Trend vs Last Week";
+  if (windowType === "MONTH") return "Trend vs Last Month";
+  return "Trend";
 }
