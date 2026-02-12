@@ -52,14 +52,6 @@ export async function RecordsView({
     orderBy: { distance: "desc" }
   });
 
-  const runDates = await prisma.activity.findMany({
-    where: {
-      userId,
-      sportType: "RUN",
-      startDate: { gte: start, lt: end }
-    },
-    select: { startDate: true }
-  });
 
   const fastestAvg = bestIds.fastestAvgId
     ? await prisma.activity.findUnique({ where: { id: bestIds.fastestAvgId } })
@@ -207,19 +199,6 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-lg bg-white p-6 shadow-card">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-semibold md:text-3xl">Run Frequency</h3>
-          <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Runs per period</span>
-        </div>
-        <div className="mt-4">
-          <RunFrequencyChart
-            windowStart={start}
-            windowEnd={end}
-            dates={runDates.map((item) => item.startDate)}
-          />
-        </div>
-      </section>
 
     </div>
   );
@@ -278,66 +257,6 @@ function formatTarget(distance: number) {
   return `${distance} m`;
 }
 
-function RunFrequencyChart({
-  windowStart,
-  windowEnd,
-  dates
-}: {
-  windowStart: Date;
-  windowEnd: Date;
-  dates: Date[];
-}) {
-  const dayCount = Math.max(1, Math.ceil((windowEnd.getTime() - windowStart.getTime()) / 86400000));
-  const granularity = dayCount <= 31 ? "day" : dayCount <= 90 ? "week" : "month";
-  const buckets = buildBuckets(windowStart, windowEnd, granularity);
-  const counts = new Array(buckets.length).fill(0);
-
-  dates.forEach((date) => {
-    const idx = bucketIndex(date, buckets);
-    if (idx >= 0) counts[idx] += 1;
-  });
-
-  const max = Math.max(1, ...counts);
-
-  return (
-    <div className="flex items-end gap-2">
-      {counts.map((count, idx) => (
-        <div key={`${idx}-${count}`} className="flex flex-col items-center gap-2">
-          <div
-            className="w-4 rounded-sm bg-amber-500"
-            style={{ height: `${Math.max(10, Math.round((count / max) * 72))}px` }}
-          />
-          <span className="text-[10px] text-slate-500">{count}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-type Bucket = { start: Date; end: Date };
-
-function buildBuckets(start: Date, end: Date, granularity: "day" | "week" | "month") {
-  const buckets: Bucket[] = [];
-  const cursor = new Date(start);
-  while (cursor < end) {
-    const bucketStart = new Date(cursor);
-    const bucketEnd = new Date(cursor);
-    if (granularity === "day") {
-      bucketEnd.setDate(bucketEnd.getDate() + 1);
-    } else if (granularity === "week") {
-      bucketEnd.setDate(bucketEnd.getDate() + 7);
-    } else {
-      bucketEnd.setMonth(bucketEnd.getMonth() + 1);
-    }
-    buckets.push({ start: bucketStart, end: bucketEnd });
-    cursor.setTime(bucketEnd.getTime());
-  }
-  return buckets;
-}
-
-function bucketIndex(date: Date, buckets: Bucket[]) {
-  return buckets.findIndex((bucket) => date >= bucket.start && date < bucket.end);
-}
 
 function getTotals(value: unknown) {
   const fallback = {
