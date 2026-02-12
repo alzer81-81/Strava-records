@@ -64,7 +64,7 @@ export async function RecordsView({
 
   return (
     <div className="flex flex-col gap-6">
-      <AutoSync enabled full={!hasAnyData} streams={!hasAnyData} />
+      <AutoSync enabled />
       <section className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-semibold">Your Best Efforts</h1>
@@ -104,6 +104,8 @@ export async function RecordsView({
               <MapPreview polyline={longestRun.summaryPolyline} label="Route" />
               <a
                 href={`https://www.strava.com/activities/${longestRun.id}`}
+                target="_blank"
+                rel="noreferrer"
                 className="mt-3 inline-flex text-ember"
               >
                 View on Strava
@@ -123,6 +125,8 @@ export async function RecordsView({
               <MapPreview polyline={fastestAvg.summaryPolyline} label="Route" />
               <a
                 href={`https://www.strava.com/activities/${fastestAvg.id}`}
+                target="_blank"
+                rel="noreferrer"
                 className="mt-3 inline-flex text-ember"
               >
                 View on Strava
@@ -142,6 +146,8 @@ export async function RecordsView({
               <MapPreview polyline={biggestClimb.summaryPolyline} label="Route" />
               <a
                 href={`https://www.strava.com/activities/${biggestClimb.id}`}
+                target="_blank"
+                rel="noreferrer"
                 className="mt-3 inline-flex text-ember"
               >
                 View on Strava
@@ -174,6 +180,8 @@ export async function RecordsView({
                         <p className="text-lg font-semibold text-ink">{formatTime(record.bestTimeSeconds)}</p>
                         <a
                           href={`https://www.strava.com/activities/${record.activityId}`}
+                          target="_blank"
+                          rel="noreferrer"
                           className="text-ember"
                         >
                           View activity
