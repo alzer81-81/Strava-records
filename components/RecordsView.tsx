@@ -194,13 +194,13 @@ export async function RecordsView({
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div className="flex flex-1 items-center justify-between gap-3">
-                    <div className="flex items-baseline gap-2 text-xs uppercase tracking-[0.2em] text-slate-500">
+                    <div className="flex items-baseline gap-2 text-lg font-semibold text-black">
                       <span>{formatTarget(target)}</span>
                       <span className="text-slate-400">;</span>
                       {record ? (
                         <span>{formatTime(record.bestTimeSeconds)}</span>
                       ) : (
-                        <span>No record yet</span>
+                        <span className="text-slate-500">No record yet</span>
                       )}
                     </div>
                     {record ? (
