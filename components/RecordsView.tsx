@@ -63,11 +63,11 @@ export async function RecordsView({
   const hasAnyData = records.length > 0 || totals.activityCount > 0 || !!longestRun;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 text-black">
       <AutoSync enabled />
       <section className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-semibold">Your Best Efforts</h1>
+          <h1 className="text-4xl font-semibold md:text-5xl">Your Best Efforts</h1>
         </div>
       </section>
 
@@ -75,20 +75,20 @@ export async function RecordsView({
         <h3 className="text-2xl font-semibold md:text-3xl">Total</h3>
         <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-4">
           <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slateish md:text-xs">Distance</p>
-            <p className="mt-2 text-2xl font-semibold text-ink md:text-4xl">{formatKm(totals.totalDistance)} km</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Distance</p>
+            <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">{formatKm(totals.totalDistance)} km</p>
           </div>
           <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slateish md:text-xs">Moving Time</p>
-            <p className="mt-2 text-2xl font-semibold text-ink md:text-4xl">{formatTime(totals.totalMovingTime)}</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Moving Time</p>
+            <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">{formatTime(totals.totalMovingTime)}</p>
           </div>
           <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slateish md:text-xs">Elevation</p>
-            <p className="mt-2 text-2xl font-semibold text-ink md:text-4xl">{Math.round(totals.totalElevationGain)} m</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Elevation</p>
+            <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">{Math.round(totals.totalElevationGain)} m</p>
           </div>
           <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slateish md:text-xs">Activities</p>
-            <p className="mt-2 text-2xl font-semibold text-ink md:text-4xl">{totals.activityCount}</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Activities</p>
+            <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">{totals.activityCount}</p>
           </div>
         </div>
       </section>
@@ -97,8 +97,8 @@ export async function RecordsView({
         <div className="rounded-2xl bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Longest Run</h3>
           {longestRun ? (
-            <div className="mt-3 text-sm text-slateish">
-              <p className="text-base font-semibold text-ink">{longestRun.name ?? "Run"}</p>
+            <div className="mt-3 text-sm text-slate-600">
+              <p className="text-base font-semibold text-black">{longestRun.name ?? "Run"}</p>
               <p>{formatDate(longestRun.startDate)} • {formatKm(longestRun.distance)} km</p>
               <p>Moving: {formatTime(longestRun.movingTime)} • Pace: {formatPace(longestRun)} • Elev: {Math.round(longestRun.elevationGain)} m</p>
               <MapPreview polyline={longestRun.summaryPolyline} label="Route" />
@@ -106,20 +106,20 @@ export async function RecordsView({
                 href={`https://www.strava.com/activities/${longestRun.id}`}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-flex text-ember"
+                className="mt-3 inline-flex text-amber-600"
               >
                 View on Strava
               </a>
             </div>
           ) : (
-            <p className="mt-3 text-sm text-slateish">No runs in this window yet.</p>
+            <p className="mt-3 text-sm text-slate-500">No runs in this window yet.</p>
           )}
         </div>
         <div className="rounded-2xl bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Fastest Avg Speed</h3>
           {fastestAvg ? (
-            <div className="mt-3 text-sm text-slateish">
-              <p className="text-base font-semibold text-ink">{fastestAvg.name ?? "Run"}</p>
+            <div className="mt-3 text-sm text-slate-600">
+              <p className="text-base font-semibold text-black">{fastestAvg.name ?? "Run"}</p>
               <p>{formatDate(fastestAvg.startDate)} • {formatKm(fastestAvg.distance)} km</p>
               <p>Avg speed: {formatSpeed(fastestAvg.averageSpeed)}</p>
               <MapPreview polyline={fastestAvg.summaryPolyline} label="Route" />
@@ -127,20 +127,20 @@ export async function RecordsView({
                 href={`https://www.strava.com/activities/${fastestAvg.id}`}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-flex text-ember"
+                className="mt-3 inline-flex text-amber-600"
               >
                 View on Strava
               </a>
             </div>
           ) : (
-            <p className="mt-3 text-sm text-slateish">No data yet.</p>
+            <p className="mt-3 text-sm text-slate-500">No data yet.</p>
           )}
         </div>
         <div className="rounded-2xl bg-white p-6 shadow-card">
           <h3 className="text-lg font-semibold">Biggest Climb</h3>
           {biggestClimb ? (
-            <div className="mt-3 text-sm text-slateish">
-              <p className="text-base font-semibold text-ink">{biggestClimb.name ?? "Run"}</p>
+            <div className="mt-3 text-sm text-slate-600">
+              <p className="text-base font-semibold text-black">{biggestClimb.name ?? "Run"}</p>
               <p>{formatDate(biggestClimb.startDate)} • {formatKm(biggestClimb.distance)} km</p>
               <p>Elevation: {Math.round(biggestClimb.elevationGain)} m</p>
               <MapPreview polyline={biggestClimb.summaryPolyline} label="Route" />
@@ -148,13 +148,13 @@ export async function RecordsView({
                 href={`https://www.strava.com/activities/${biggestClimb.id}`}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-flex text-ember"
+                className="mt-3 inline-flex text-amber-600"
               >
                 View on Strava
               </a>
             </div>
           ) : (
-            <p className="mt-3 text-sm text-slateish">No data yet.</p>
+            <p className="mt-3 text-sm text-slate-500">No data yet.</p>
           )}
         </div>
       </section>
@@ -170,25 +170,25 @@ export async function RecordsView({
               ? activitiesById.get(record.activityId) ?? null
               : null;
             return (
-              <div key={target} className="rounded-xl border border-sand bg-sand/40 p-3">
+              <div key={target} className="rounded-xl border border-black/10 bg-white p-3 shadow-sm">
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div>
-                    <p className="text-[0.7rem] uppercase tracking-[0.2em] text-slateish">{formatTarget(target)}</p>
+                    <p className="text-[0.7rem] uppercase tracking-[0.2em] text-slate-500">{formatTarget(target)}</p>
                     {record ? (
                       <div className="mt-1 text-sm">
-                        <p className="text-lg font-semibold text-ink">{formatTime(record.bestTimeSeconds)}</p>
+                        <p className="text-lg font-semibold text-black">{formatTime(record.bestTimeSeconds)}</p>
                         <a
                           href={`https://www.strava.com/activities/${record.activityId}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-ember"
+                          className="text-amber-600"
                         >
                           View activity
                         </a>
                       </div>
                     ) : (
-                      <p className="mt-1 text-sm text-slateish">No record yet</p>
+                      <p className="mt-1 text-sm text-slate-500">No record yet</p>
                     )}
                   </div>
                 </div>
