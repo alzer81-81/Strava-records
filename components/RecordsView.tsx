@@ -190,26 +190,28 @@ export async function RecordsView({
               ? activitiesById.get(record.activityId) ?? null
               : null;
             return (
-              <div key={target} className="rounded-lg border border-black/10 bg-white p-3 shadow-sm">
+              <div key={target} className="rounded-lg border border-black/10 bg-white px-3 py-2 shadow-sm">
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div>
-                    <p className="text-[0.7rem] uppercase tracking-[0.2em] text-slate-500">{formatTarget(target)}</p>
-                    {record ? (
-                      <div className="mt-1 text-sm">
+                  <div className="flex flex-1 items-center justify-between gap-3">
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{formatTarget(target)}</p>
+                      {record ? (
                         <p className="text-lg font-semibold text-black">{formatTime(record.bestTimeSeconds)}</p>
-                        <a
-                          href={`https://www.strava.com/activities/${record.activityId}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-amber-600"
-                        >
-                          View activity
-                        </a>
-                      </div>
-                    ) : (
-                      <p className="mt-1 text-sm text-slate-500">No record yet</p>
-                    )}
+                      ) : (
+                        <p className="text-sm text-slate-500">No record yet</p>
+                      )}
+                    </div>
+                    {record ? (
+                      <a
+                        href={`https://www.strava.com/activities/${record.activityId}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm font-semibold text-amber-600"
+                      >
+                        View activity
+                      </a>
+                    ) : null}
                   </div>
                 </div>
               </div>
