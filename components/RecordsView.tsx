@@ -27,6 +27,21 @@ export async function RecordsView({
   const totals = getTotals(summary?.totals);
   const bestIds = getBestIds(summary?.bestActivityIds);
 
+  const prevRange = windowType === "ALL_TIME"
+    ? null
+    : getWindowRange(windowType, new Date(start.getTime() - 1));
+  const prevSummary = prevRange
+    ? await prisma.periodSummary.findFirst({
+      where: {
+        userId,
+        periodType: windowType,
+        periodKey: prevRange.key,
+        sportType: "RUN"
+      }
+    })
+    : null;
+  const prevTotals = getTotals(prevSummary?.totals);
+
   const records = await prisma.record.findMany({
     where: {
       userId,
@@ -35,6 +50,16 @@ export async function RecordsView({
       sportType: "RUN"
     }
   });
+  const prevRecords = prevRange
+    ? await prisma.record.findMany({
+      where: {
+        userId,
+        windowType,
+        windowKey: prevRange.key,
+        sportType: "RUN"
+      }
+    })
+    : [];
   const recordActivities = await prisma.activity.findMany({
     where: {
       id: { in: records.map((r) => r.activityId) }
@@ -92,6 +117,68 @@ export async function RecordsView({
             <p className="mt-2 text-2xl font-semibold text-black md:text-4xl">{totals.activityCount}</p>
           </div>
         </div>
+      </section>
+
+      <section className="rounded-lg bg-white p-6 shadow-card">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl font-semibold md:text-3xl">Trend vs Last Month</h3>
+        </div>
+        {!prevSummary ? (
+          <p className="mt-4 text-sm text-slate-500">No previous data available.</p>
+        ) : (
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <TrendCard
+              label="Total Distance"
+              current={`${formatKm(totals.totalDistance)} km`}
+              previous={`${formatKm(prevTotals.totalDistance)} km`}
+              change={percentChange(totals.totalDistance, prevTotals.totalDistance)}
+              betterDirection="up"
+            />
+            <TrendCard
+              label="Average Pace"
+              current={formatPaceFromTotals(totals)}
+              previous={formatPaceFromTotals(prevTotals)}
+              change={paceChangeSeconds(totals, prevTotals)}
+              betterDirection="up"
+              changeSuffix="/km"
+              isTimeDiff
+            />
+            <TrendCard
+              label="Total Elevation"
+              current={`${Math.round(totals.totalElevationGain)} m`}
+              previous={`${Math.round(prevTotals.totalElevationGain)} m`}
+              change={percentChange(totals.totalElevationGain, prevTotals.totalElevationGain)}
+              betterDirection="up"
+            />
+            <div className="rounded-lg border border-black/10 bg-white p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Key Distance Improvements</p>
+              <div className="mt-3 grid gap-3">
+                {[1000, 5000, 10000].map((target) => {
+                  const current = records.find((r) => r.distanceTarget === target);
+                  const previous = prevRecords.find((r) => r.distanceTarget === target);
+                  const improvement = current && previous
+                    ? ((previous.bestTimeSeconds - current.bestTimeSeconds) / previous.bestTimeSeconds) * 100
+                    : null;
+                  const isNewPr = current && previous && current.bestTimeSeconds < previous.bestTimeSeconds;
+                  return (
+                    <div key={target} className="flex items-center justify-between rounded-md bg-[#f8f8f8] px-3 py-2 text-sm">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{formatTarget(target)}</p>
+                        <p className="text-sm font-semibold text-black">
+                          {current ? formatTime(current.bestTimeSeconds) : "--"}
+                          {isNewPr ? <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">New PR 🎉</span> : null}
+                        </p>
+                      </div>
+                      <div className={`text-right text-xs ${trendColor(improvement, "up")}`}>
+                        {improvement === null ? "0%" : `${formatPct(improvement)}%`}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
@@ -280,6 +367,39 @@ function getBestIds(value: unknown) {
   return { ...fallback, ...(value as Record<string, string | null>) };
 }
 
+function TrendCard({
+  label,
+  current,
+  previous,
+  change,
+  betterDirection,
+  changeSuffix,
+  isTimeDiff
+}: {
+  label: string;
+  current: string;
+  previous: string;
+  change: number | null;
+  betterDirection: "up" | "down";
+  changeSuffix?: string;
+  isTimeDiff?: boolean;
+}) {
+  const direction = trendDirection(change, betterDirection);
+  const arrow = direction === "up" ? "↑" : direction === "down" ? "↓" : "–";
+  const value = isTimeDiff ? formatTimeDiff(change ?? 0) : change !== null ? `${formatPct(change)}%` : "0%";
+  return (
+    <div className="rounded-lg border border-black/10 bg-white p-4">
+      <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-black">{current}</p>
+      <p className="text-xs text-slate-500">Prev: {previous}</p>
+      <div className={`mt-3 flex items-center justify-end gap-2 text-sm font-semibold ${trendColor(change, betterDirection)}`}>
+        <span>{arrow}</span>
+        <span>{value}{changeSuffix ?? ""}</span>
+      </div>
+    </div>
+  );
+}
+
 function formatSpeed(speedMetersPerSecond: number) {
   const kmh = speedMetersPerSecond * 3.6;
   return `${kmh.toFixed(1)} km/h`;
@@ -291,4 +411,53 @@ function formatPace(activity: { distance: number; movingTime: number }) {
   const mins = Math.floor(paceSecondsPerKm / 60);
   const secs = Math.round(paceSecondsPerKm % 60);
   return `${mins}:${String(secs).padStart(2, "0")} /km`;
+}
+
+function formatPaceFromTotals(totals: { totalDistance: number; totalMovingTime: number }) {
+  if (totals.totalDistance <= 0 || totals.totalMovingTime <= 0) return "--";
+  const paceSecondsPerKm = totals.totalMovingTime / (totals.totalDistance / 1000);
+  const mins = Math.floor(paceSecondsPerKm / 60);
+  const secs = Math.round(paceSecondsPerKm % 60);
+  return `${mins}:${String(secs).padStart(2, "0")} /km`;
+}
+
+function percentChange(current: number, previous: number) {
+  if (previous <= 0) return null;
+  return ((current - previous) / previous) * 100;
+}
+
+function paceChangeSeconds(
+  current: { totalDistance: number; totalMovingTime: number },
+  previous: { totalDistance: number; totalMovingTime: number }
+) {
+  if (current.totalDistance <= 0 || previous.totalDistance <= 0) return null;
+  const curr = current.totalMovingTime / (current.totalDistance / 1000);
+  const prev = previous.totalMovingTime / (previous.totalDistance / 1000);
+  return prev - curr;
+}
+
+function formatTimeDiff(seconds: number) {
+  const sign = seconds > 0 ? "-" : seconds < 0 ? "+" : "";
+  const abs = Math.abs(seconds);
+  const mins = Math.floor(abs / 60);
+  const secs = Math.round(abs % 60);
+  if (mins > 0) return `${sign}${mins}m ${String(secs).padStart(2, "0")}s`;
+  return `${sign}${secs}s`;
+}
+
+function trendDirection(change: number | null, betterDirection: "up" | "down") {
+  if (change === null || change === 0) return "neutral";
+  if (betterDirection === "up") return change > 0 ? "up" : "down";
+  return change > 0 ? "down" : "up";
+}
+
+function trendColor(change: number | null, betterDirection: "up" | "down") {
+  const direction = trendDirection(change, betterDirection);
+  if (direction === "up") return "text-emerald-600";
+  if (direction === "down") return "text-red-600";
+  return "text-slate-500";
+}
+
+function formatPct(value: number) {
+  return Math.abs(value).toFixed(0);
 }
