@@ -78,9 +78,9 @@ export async function RecordsView({
   return (
     <div className="flex flex-col gap-6 text-black">
       <AutoSync enabled />
-      <section className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-semibold md:text-5xl">Your Best Efforts</h1>
+      <section className="rounded-lg bg-[#0E6BA8] px-6 py-6 text-white shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="text-3xl font-semibold md:text-4xl">Your Best Efforts</h1>
         </div>
       </section>
 
