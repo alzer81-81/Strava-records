@@ -124,7 +124,7 @@ export async function RecordsView({
 
       <section className="grid gap-4 md:grid-cols-3">
         <div className="rounded-xl border border-black/10 bg-white p-6 shadow-card transition-transform duration-200 hover:-translate-y-1">
-          <h3 className="text-lg font-black">Big Day Out</h3>
+          <h3 className="text-lg font-black">Longest Run</h3>
           {longestRun ? (
             <div className="mt-3 text-sm text-slate-600">
               <p className="text-base font-semibold text-black">{longestRun.name ?? "Run"}</p>
@@ -145,7 +145,7 @@ export async function RecordsView({
           )}
         </div>
         <div className="rounded-xl border border-black/10 bg-white p-6 shadow-card transition-transform duration-200 hover:-translate-y-1">
-          <h3 className="text-lg font-black">Speed Check</h3>
+          <h3 className="text-lg font-black">Fastest Avg Speed</h3>
           {fastestAvg ? (
             <div className="mt-3 text-sm text-slate-600">
               <p className="text-base font-semibold text-black">{fastestAvg.name ?? "Run"}</p>
@@ -166,7 +166,7 @@ export async function RecordsView({
           )}
         </div>
         <div className="rounded-xl border border-black/10 bg-white p-6 shadow-card transition-transform duration-200 hover:-translate-y-1">
-          <h3 className="text-lg font-black">Hill Crush</h3>
+          <h3 className="text-lg font-black">Biggest Climb</h3>
           {biggestClimb ? (
             <div className="mt-3 text-sm text-slate-600">
               <p className="text-base font-semibold text-black">{biggestClimb.name ?? "Run"}</p>
@@ -191,7 +191,7 @@ export async function RecordsView({
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
           <h3 className="font-[var(--font-fraunces)] text-3xl font-black md:text-4xl">PR Board</h3>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-volt">No fake stats. Just the work.</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black">No fake stats. Just the work.</p>
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {targets.map((target) => {
@@ -246,7 +246,10 @@ export async function RecordsView({
             <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
               <p className="mt-2 text-sm text-slate-500">{bucket.range}</p>
-              <p className="stat-pop mt-3 text-3xl font-black text-black">{bucket.count}</p>
+              <div className="mt-3 flex items-end gap-2">
+                <p className="stat-pop text-3xl font-black text-black">{bucket.count}</p>
+                <p className="mb-1 text-xs font-semibold text-slate-500">{bucket.percent}%</p>
+              </div>
               <p className="text-xs text-slate-500">Activities</p>
             </div>
           ))}
@@ -347,11 +350,22 @@ function buildTimeOfDayData(dates: Date[]) {
     hours[hour] += 1;
   });
 
+  const total = hours.reduce((sum, value) => sum + value, 0);
+  const withPercent = (count: number) => ({
+    count,
+    percent: total > 0 ? Math.round((count / total) * 100) : 0
+  });
+
+  const early = withPercent(sumRange(hours, 0, 6));
+  const morning = withPercent(sumRange(hours, 6, 12));
+  const afternoon = withPercent(sumRange(hours, 12, 18));
+  const evening = withPercent(sumRange(hours, 18, 24));
+
   const summary = [
-    { label: "Early Morning", range: "12AM–6AM", count: sumRange(hours, 0, 6) },
-    { label: "Morning", range: "6AM–12PM", count: sumRange(hours, 6, 12) },
-    { label: "Afternoon", range: "12PM–6PM", count: sumRange(hours, 12, 18) },
-    { label: "Evening", range: "6PM–12AM", count: sumRange(hours, 18, 24) }
+    { label: "Early Morning", range: "12AM–6AM", ...early },
+    { label: "Morning", range: "6AM–12PM", ...morning },
+    { label: "Afternoon", range: "12PM–6PM", ...afternoon },
+    { label: "Evening", range: "6PM–12AM", ...evening }
   ];
 
   const max = Math.max(1, ...hours);
