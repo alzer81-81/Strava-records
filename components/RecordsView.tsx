@@ -254,21 +254,22 @@ export async function RecordsView({
           <div className="flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">24-Hour Activity Count</p>
           </div>
-          <div className="mt-4 grid grid-cols-24 gap-1 items-end" aria-label="24-hour activity count chart">
+          <div className="mt-4 flex flex-col gap-2" aria-label="24-hour activity count chart">
             {timeOfDay.hours.map((count, hour) => {
-              const height = Math.max(6, Math.round((count / timeOfDay.max) * 140));
+              const width = Math.max(6, Math.round((count / timeOfDay.max) * 420));
               const label = `${count} activities at ${formatHourLabel(hour)}`;
               return (
-                <div key={hour} className="flex flex-col items-center">
+                <div key={hour} className="flex items-center gap-3">
+                  <span className="w-10 text-[11px] text-slate-500">{formatHourLabel(hour)}</span>
                   <div
                     role="button"
                     tabIndex={0}
                     title={label}
                     aria-label={label}
-                    className="w-full rounded-sm bg-black/90 transition-colors hover:bg-black"
-                    style={{ height }}
+                    className="h-3 rounded-sm bg-black/90 transition-colors hover:bg-black"
+                    style={{ width }}
                   />
-                  <span className="mt-2 text-[10px] text-slate-500">{hour}</span>
+                  <span className="text-[11px] text-slate-500">{count}</span>
                 </div>
               );
             })}
