@@ -8,7 +8,7 @@ export function LandingHero() {
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-6">
             <div className="flex items-center">
-              <Image src="/BT_logo.png" alt="Best Times" width={44} height={44} />
+              <Image src="/BT_logo.png" alt="Best Times" width={200} height={60} />
             </div>
             <h1 className="font-[var(--font-fraunces)] text-5xl font-semibold leading-[1.05] text-ink md:text-7xl">
               The cleanest way to see your fastest efforts.
