@@ -242,7 +242,7 @@ export async function RecordsView({
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-black md:text-3xl">When You Usually Run</h3>
         </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-4 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4 md:grid-cols-3 sm:grid-cols-2">
           {timeOfDay.summary.map((bucket) => (
             <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
@@ -392,16 +392,20 @@ function buildTimeOfDayData(dates: Date[]) {
     percent: total > 0 ? Math.round((count / total) * 100) : 0
   });
 
-  const early = withPercent(sumRange(hours, 0, 6));
-  const morning = withPercent(sumRange(hours, 6, 12));
-  const afternoon = withPercent(sumRange(hours, 12, 18));
-  const evening = withPercent(sumRange(hours, 18, 24));
+  const overnight = withPercent(sumRange(hours, 0, 4));
+  const earlyMorning = withPercent(sumRange(hours, 4, 8));
+  const lateMorning = withPercent(sumRange(hours, 8, 12));
+  const afternoon = withPercent(sumRange(hours, 12, 16));
+  const earlyEvening = withPercent(sumRange(hours, 16, 20));
+  const lateEvening = withPercent(sumRange(hours, 20, 24));
 
   const summary = [
-    { label: "Early Morning", range: "12AM–6AM", ...early },
-    { label: "Morning", range: "6AM–12PM", ...morning },
-    { label: "Afternoon", range: "12PM–6PM", ...afternoon },
-    { label: "Evening", range: "6PM–12AM", ...evening }
+    { label: "12AM–4AM", range: "12AM–4AM", ...overnight },
+    { label: "4AM–8AM", range: "4AM–8AM", ...earlyMorning },
+    { label: "8AM–12PM", range: "8AM–12PM", ...lateMorning },
+    { label: "12PM–4PM", range: "12PM–4PM", ...afternoon },
+    { label: "4PM–8PM", range: "4PM–8PM", ...earlyEvening },
+    { label: "8PM–12AM", range: "8PM–12AM", ...lateEvening }
   ];
 
   const max = Math.max(1, ...hours);
