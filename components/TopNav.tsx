@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { WindowType } from "../lib/time";
@@ -42,7 +43,8 @@ export function TopNav() {
   return (
     <header className="sticky top-0 z-10 border-b border-black/10 bg-white text-black">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <div className="text-left">
+        <div className="flex items-center gap-3">
+          <Image src="/BT_logo.png" alt="Best Times" width={40} height={40} />
           <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Best Times</p>
         </div>
         {showTimeframe ? (
