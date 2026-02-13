@@ -13,7 +13,7 @@ export async function computeAllTimeRecordsFromStreams(params: {
   const activities = await prisma.activity.findMany({
     where: { userId, sportType: "RUN" },
     orderBy: { startDate: "desc" },
-    take: limit
+    ...(typeof limit === "number" ? { take: limit } : {})
   });
 
   const recordMap = new Map<number, { distanceTarget: number; bestTimeSeconds: number; activityId: string; achievedAt: Date }>();
