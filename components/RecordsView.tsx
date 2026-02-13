@@ -249,66 +249,6 @@ export async function RecordsView({
             </div>
           ))}
         </div>
-        <div className="mt-6 rounded-lg border border-black/10 bg-white p-4 md:p-5">
-          <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">24-Hour Activity Count</p>
-          </div>
-          <div className="mt-4 overflow-x-auto" aria-label="24-hour activity count chart">
-            <div className="min-w-[760px]">
-              <div className="mb-3 text-center text-3xl font-semibold text-black">Value</div>
-              <div className="grid grid-cols-[44px_1fr] gap-3">
-                <div className="relative h-[300px]">
-                  {buildYAxisTicks(timeOfDay.max).map((tick) => (
-                    <div
-                      key={`tick-label-${tick.value}`}
-                      className="absolute right-0 -translate-y-1/2 text-xs text-slate-500"
-                      style={{ bottom: `${tick.percent}%` }}
-                    >
-                      {tick.value}
-                    </div>
-                  ))}
-                </div>
-                <div className="relative h-[300px] border-b border-slate-300 pl-1">
-                  {buildYAxisTicks(timeOfDay.max).map((tick) => (
-                    <div
-                      key={`tick-line-${tick.value}`}
-                      className="absolute left-0 right-0 border-t border-slate-100"
-                      style={{ bottom: `${tick.percent}%` }}
-                    />
-                  ))}
-                  <div className="grid h-full grid-cols-24 items-end gap-2">
-                    {timeOfDay.hours.map((count, hour) => {
-                      const barHeight = Math.max(3, Math.round((count / timeOfDay.max) * 300));
-                      const label = `${count} activities at ${formatHourLabel(hour)}`;
-                      return (
-                        <div key={`bar-${hour}`} className="flex h-full items-end justify-center">
-                          <div
-                            role="button"
-                            tabIndex={0}
-                            title={label}
-                            aria-label={label}
-                            className="w-full max-w-6 rounded-sm bg-black/80 transition-colors hover:bg-black"
-                            style={{ height: barHeight }}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 grid grid-cols-[44px_1fr] gap-3">
-                <div />
-                <div className="grid grid-cols-24 gap-2">
-                {timeOfDay.hours.map((_, hour) => (
-                  <div key={`tick-${hour}`} className="text-center text-[10px] text-slate-500">
-                    {hour}
-                  </div>
-                ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
 
@@ -414,15 +354,6 @@ function buildTimeOfDayData(dates: Date[]) {
 
   const max = Math.max(1, ...hours);
   return { hours, summary, max };
-}
-
-function buildYAxisTicks(maxValue: number) {
-  const steps = 6;
-  return Array.from({ length: steps + 1 }, (_, i) => {
-    const value = Math.round((maxValue / steps) * i);
-    const percent = (i / steps) * 100;
-    return { value, percent };
-  });
 }
 
 function sumRange(values: number[], start: number, end: number) {
