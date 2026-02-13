@@ -253,25 +253,34 @@ export async function RecordsView({
           <div className="flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">24-Hour Activity Count</p>
           </div>
-          <div className="mt-4 flex max-h-[300px] flex-col gap-2 overflow-y-auto pr-1" aria-label="24-hour activity count chart">
-            {timeOfDay.hours.map((count, hour) => {
-              const widthPercent = Math.max(4, Math.round((count / timeOfDay.max) * 100));
-              const label = `${count} activities at ${formatHourLabel(hour)}`;
-              return (
-                <div key={hour} className="grid grid-cols-[42px_1fr_36px] items-center gap-2">
-                  <span className="text-[11px] text-slate-500">{formatHourLabel(hour)}</span>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    title={label}
-                    aria-label={label}
-                    className="h-3 rounded-sm bg-black/90 transition-colors hover:bg-black"
-                    style={{ width: `${widthPercent}%` }}
-                  />
-                  <span className="text-right text-[11px] text-slate-500">{count}</span>
-                </div>
-              );
-            })}
+          <div className="mt-4 overflow-x-auto" aria-label="24-hour activity count chart">
+            <div className="min-w-[720px]">
+              <div className="grid h-[300px] grid-cols-24 items-end gap-1">
+                {timeOfDay.hours.map((count, hour) => {
+                  const barHeight = Math.max(3, Math.round((count / timeOfDay.max) * 300));
+                  const label = `${count} activities at ${formatHourLabel(hour)}`;
+                  return (
+                    <div key={`bar-${hour}`} className="flex h-full items-end justify-center">
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        title={label}
+                        aria-label={label}
+                        className="w-full rounded-sm bg-black/90 transition-colors hover:bg-black"
+                        style={{ height: barHeight }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-2 grid grid-cols-24 gap-1">
+                {timeOfDay.hours.map((_, hour) => (
+                  <div key={`tick-${hour}`} className="text-center text-[10px] text-slate-500">
+                    {hour}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
