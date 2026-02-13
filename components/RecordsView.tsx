@@ -4,6 +4,7 @@ import { getWindowRange, WindowType } from "../lib/time";
 import { selectDistanceTargets } from "../lib/analytics";
 import { MapPreview } from "./MapPreview";
 import { AutoSync } from "./AutoSync";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 export async function RecordsView({
   userId,
@@ -95,39 +96,29 @@ export async function RecordsView({
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <TopStatCard
-          accent="bg-[#6CD400]"
-          icon="↯"
-          value={`${totals.activityCount}`}
+          value={totals.activityCount}
           label="Activities"
         />
         <TopStatCard
-          accent="bg-[#2F6BFF]"
-          icon="◉"
-          value={`${formatKm(totals.totalDistance)}`}
+          value={totals.totalDistance / 1000}
+          decimals={1}
           label="Kilometers"
         />
         <TopStatCard
-          accent="bg-[#FC5200]"
-          icon="◷"
-          value={`${formatHours(totals.totalMovingTime)}`}
+          value={totals.totalMovingTime / 3600}
+          decimals={2}
           label="Hours moving"
         />
         <TopStatCard
-          accent="bg-[#A855F7]"
-          icon="△"
-          value={`${formatInteger(totals.totalElevationGain)}`}
+          value={Math.round(totals.totalElevationGain)}
           label="Meters climbed"
         />
         <TopStatCard
-          accent="bg-[#FF2C3E]"
-          icon="◔"
-          value={`${formatInteger(estimateCalories(totals.totalDistance))}`}
+          value={Math.round(estimateCalories(totals.totalDistance))}
           label="Calories burned"
         />
         <TopStatCard
-          accent="bg-[#0EA63A]"
-          icon="♡"
-          value={avgHeartrate ? `${Math.round(avgHeartrate)}` : "--"}
+          value={avgHeartrate ? Math.round(avgHeartrate) : null}
           label="Average HR"
         />
       </section>
@@ -273,23 +264,19 @@ export async function RecordsView({
 }
 
 function TopStatCard({
-  accent,
-  icon,
   value,
+  decimals = 0,
   label
 }: {
-  accent: string;
-  icon: string;
-  value: string;
+  value: number | null;
+  decimals?: number;
   label: string;
 }) {
   return (
     <div className="rounded-xl border border-black/10 bg-white p-5 shadow-card transition-transform duration-200 hover:-translate-y-0.5">
-      <div className={`-mx-5 -mt-5 mb-4 h-2 rounded-t-xl ${accent}`} />
-      <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-slate-50 text-base font-black text-black">
-        {icon}
-      </div>
-      <p className="stat-pop text-3xl font-black leading-none text-black md:text-5xl">{value}</p>
+      <p className="stat-pop text-3xl font-black leading-none text-black md:text-5xl">
+        <AnimatedNumber value={value} decimals={decimals} />
+      </p>
       <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 md:text-xs">{label}</p>
     </div>
   );
@@ -320,18 +307,6 @@ function labelWindow(value: WindowType) {
 
 function formatKm(distanceMeters: number) {
   return (distanceMeters / 1000).toFixed(1);
-}
-
-function formatHours(seconds: number) {
-  return (seconds / 3600).toFixed(2);
-}
-
-function formatInteger(value: number) {
-  return Math.round(value).toLocaleString("en-US");
-}
-
-function formatDecimal(value: number, decimals: number) {
-  return value.toFixed(decimals);
 }
 
 function formatTime(seconds: number) {
