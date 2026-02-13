@@ -61,6 +61,15 @@ export async function RecordsView({
     ? await prisma.activity.findUnique({ where: { id: bestIds.biggestClimbId } })
     : null;
 
+  const activitiesForTimeOfDay = await prisma.activity.findMany({
+    where: {
+      userId,
+      startDate: { gte: start, lt: end }
+    },
+    select: { startDate: true }
+  });
+  const timeOfDay = buildTimeOfDayData(activitiesForTimeOfDay.map((activity) => activity.startDate));
+
   const hrValues = await prisma.activity.findMany({
     where: {
       userId,
@@ -227,6 +236,46 @@ export async function RecordsView({
         </div>
       </section>
 
+      <section className="rounded-lg bg-white p-6 shadow-card">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl font-semibold md:text-3xl">Activity by Time of Day</h3>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-4 sm:grid-cols-2">
+          {timeOfDay.summary.map((bucket) => (
+            <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
+              <p className="mt-2 text-sm text-slate-500">{bucket.range}</p>
+              <p className="mt-3 text-3xl font-semibold text-black">{bucket.count}</p>
+              <p className="text-xs text-slate-500">Activities</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 rounded-lg border border-black/10 bg-white p-4">
+          <div className="flex items-center justify-between">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">24-Hour Activity Count</p>
+          </div>
+          <div className="mt-4 grid grid-cols-24 gap-1 items-end" aria-label="24-hour activity count chart">
+            {timeOfDay.hours.map((count, hour) => {
+              const height = Math.max(6, Math.round((count / timeOfDay.max) * 140));
+              const label = `${count} activities at ${formatHourLabel(hour)}`;
+              return (
+                <div key={hour} className="flex flex-col items-center">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    title={label}
+                    aria-label={label}
+                    className="w-full rounded-sm bg-black/90 transition-colors hover:bg-black"
+                    style={{ height }}
+                  />
+                  <span className="mt-2 text-[10px] text-slate-500">{hour}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
 
     </div>
   );
@@ -312,6 +361,35 @@ function averageHeartRate(values: { averageHeartrate: number | null }[]) {
   const filtered = values.map((item) => item.averageHeartrate).filter((value): value is number => value !== null);
   if (filtered.length === 0) return null;
   return filtered.reduce((sum, value) => sum + value, 0) / filtered.length;
+}
+
+function buildTimeOfDayData(dates: Date[]) {
+  const hours = new Array(24).fill(0);
+  dates.forEach((date) => {
+    const hour = date.getHours();
+    hours[hour] += 1;
+  });
+
+  const summary = [
+    { label: "Early Morning", range: "12AM–6AM", count: sumRange(hours, 0, 6) },
+    { label: "Morning", range: "6AM–12PM", count: sumRange(hours, 6, 12) },
+    { label: "Afternoon", range: "12PM–6PM", count: sumRange(hours, 12, 18) },
+    { label: "Evening", range: "6PM–12AM", count: sumRange(hours, 18, 24) }
+  ];
+
+  const max = Math.max(1, ...hours);
+  return { hours, summary, max };
+}
+
+function sumRange(values: number[], start: number, end: number) {
+  return values.slice(start, end).reduce((sum, value) => sum + value, 0);
+}
+
+function formatHourLabel(hour: number) {
+  if (hour === 0) return "12AM";
+  if (hour < 12) return `${hour}AM`;
+  if (hour === 12) return "12PM";
+  return `${hour - 12}PM`;
 }
 
 function formatSpeed(speedMetersPerSecond: number) {
