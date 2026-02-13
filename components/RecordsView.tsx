@@ -87,13 +87,13 @@ export async function RecordsView({
   return (
     <div className="flex flex-col gap-6 text-black">
       <AutoSync enabled />
-      <section className="rounded-lg bg-[#0E6BA8] px-6 py-6 text-white shadow-card">
+      <section className="relative -mx-6 rounded-lg bg-[#0E6BA8] px-6 py-6 text-white shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-semibold md:text-4xl">Your Best Efforts</h1>
         </div>
       </section>
 
-      <section className="rounded-lg bg-white p-4 shadow-card md:p-6">
+      <section className="relative -mt-4 rounded-lg bg-white p-4 shadow-card md:-mt-6 md:p-6">
         <h3 className="text-2xl font-semibold md:text-3xl">Total</h3>
         <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-5">
           <div>
