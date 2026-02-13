@@ -93,32 +93,43 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-xl border border-black/10 bg-white p-4 shadow-punch md:p-6">
-        <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">You Moved</h3>
-        <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-5">
-          <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Distance</p>
-            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">{formatKm(totals.totalDistance)} KM</p>
-          </div>
-          <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Moving Time</p>
-            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">{formatTime(totals.totalMovingTime)}</p>
-          </div>
-          <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Elevation</p>
-            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">{Math.round(totals.totalElevationGain)} M</p>
-          </div>
-          <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Activities</p>
-            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">{totals.activityCount}</p>
-          </div>
-          <div>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Avg HR</p>
-            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">
-              {avgHeartrate ? `${Math.round(avgHeartrate)} bpm` : "--"}
-            </p>
-          </div>
-        </div>
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <TopStatCard
+          accent="bg-[#6CD400]"
+          icon="↯"
+          value={`${totals.activityCount}`}
+          label="Activities"
+        />
+        <TopStatCard
+          accent="bg-[#2F6BFF]"
+          icon="◉"
+          value={`${formatKm(totals.totalDistance)}`}
+          label="Kilometers"
+        />
+        <TopStatCard
+          accent="bg-[#FC5200]"
+          icon="◷"
+          value={`${formatHours(totals.totalMovingTime)}`}
+          label="Hours moving"
+        />
+        <TopStatCard
+          accent="bg-[#A855F7]"
+          icon="△"
+          value={`${formatInteger(totals.totalElevationGain)}`}
+          label="Meters climbed"
+        />
+        <TopStatCard
+          accent="bg-[#FF2C3E]"
+          icon="◔"
+          value={`${formatInteger(estimateCalories(totals.totalDistance))}`}
+          label="Calories burned"
+        />
+        <TopStatCard
+          accent="bg-[#0EA63A]"
+          icon="◌"
+          value={`${formatDecimal(estimateCo2Saved(totals.totalDistance), 2)}`}
+          label="KG CO₂ saved"
+        />
       </section>
 
 
@@ -261,6 +272,29 @@ export async function RecordsView({
   );
 }
 
+function TopStatCard({
+  accent,
+  icon,
+  value,
+  label
+}: {
+  accent: string;
+  icon: string;
+  value: string;
+  label: string;
+}) {
+  return (
+    <div className="rounded-md border-4 border-black bg-[#f3f3f3] p-4 shadow-[8px_8px_0_#000]">
+      <div className={`-mx-4 -mt-4 mb-4 h-4 rounded-t-[1px] ${accent}`} />
+      <div className="mb-4 inline-flex h-12 w-12 items-center justify-center border-4 border-black bg-white text-xl font-black text-black">
+        {icon}
+      </div>
+      <p className="stat-pop text-4xl font-black leading-none text-black md:text-6xl">{value}</p>
+      <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-black md:text-sm">{label}</p>
+    </div>
+  );
+}
+
 function normalizeWindow(value?: string): WindowType {
   if (!value) return "MONTH";
   const upper = value.toUpperCase();
@@ -286,6 +320,18 @@ function labelWindow(value: WindowType) {
 
 function formatKm(distanceMeters: number) {
   return (distanceMeters / 1000).toFixed(1);
+}
+
+function formatHours(seconds: number) {
+  return (seconds / 3600).toFixed(2);
+}
+
+function formatInteger(value: number) {
+  return Math.round(value).toLocaleString("en-US");
+}
+
+function formatDecimal(value: number, decimals: number) {
+  return value.toFixed(decimals);
 }
 
 function formatTime(seconds: number) {
@@ -341,6 +387,18 @@ function averageHeartRate(values: { averageHeartrate: number | null }[]) {
   const filtered = values.map((item) => item.averageHeartrate).filter((value): value is number => value !== null);
   if (filtered.length === 0) return null;
   return filtered.reduce((sum, value) => sum + value, 0) / filtered.length;
+}
+
+function estimateCalories(distanceMeters: number) {
+  const km = distanceMeters / 1000;
+  const caloriesPerKm = 62;
+  return km * caloriesPerKm;
+}
+
+function estimateCo2Saved(distanceMeters: number) {
+  const km = distanceMeters / 1000;
+  const kgPerKm = 0.12;
+  return km * kgPerKm;
 }
 
 function buildTimeOfDayData(dates: Date[]) {
