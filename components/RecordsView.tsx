@@ -253,24 +253,22 @@ export async function RecordsView({
           <div className="flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">24-Hour Activity Count</p>
           </div>
-          <div
-            className="mt-4 grid h-[300px] grid-cols-24 items-end gap-1"
-            aria-label="24-hour activity count chart"
-          >
+          <div className="mt-4 flex max-h-[300px] flex-col gap-2 overflow-y-auto pr-1" aria-label="24-hour activity count chart">
             {timeOfDay.hours.map((count, hour) => {
-              const height = Math.max(4, Math.round((count / timeOfDay.max) * 300));
+              const widthPercent = Math.max(4, Math.round((count / timeOfDay.max) * 100));
               const label = `${count} activities at ${formatHourLabel(hour)}`;
               return (
-                <div key={hour} className="flex h-full flex-col items-center justify-end gap-2">
+                <div key={hour} className="grid grid-cols-[42px_1fr_36px] items-center gap-2">
+                  <span className="text-[11px] text-slate-500">{formatHourLabel(hour)}</span>
                   <div
                     role="button"
                     tabIndex={0}
                     title={label}
                     aria-label={label}
-                    className="w-full rounded-sm bg-black/90 transition-colors hover:bg-black"
-                    style={{ height }}
+                    className="h-3 rounded-sm bg-black/90 transition-colors hover:bg-black"
+                    style={{ width: `${widthPercent}%` }}
                   />
-                  <span className="text-[10px] text-slate-500">{hour}</span>
+                  <span className="text-right text-[11px] text-slate-500">{count}</span>
                 </div>
               );
             })}
