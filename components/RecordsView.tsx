@@ -94,7 +94,7 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <TopStatCard
           value={totals.activityCount}
           label="Activities"
@@ -273,11 +273,11 @@ function TopStatCard({
   label: string;
 }) {
   return (
-    <div className="rounded-xl border border-black/10 bg-white p-5 shadow-card transition-transform duration-200 hover:-translate-y-0.5">
-      <p className="stat-pop text-3xl font-black leading-none text-black md:text-5xl">
+    <div className="rounded-xl border border-black/10 bg-white p-4 shadow-card transition-transform duration-200 hover:-translate-y-0.5 md:p-5">
+      <p className="stat-pop text-xl font-black leading-none text-black sm:text-2xl md:text-5xl">
         <AnimatedNumber value={value} decimals={decimals} />
       </p>
-      <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 md:text-xs">{label}</p>
+      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px] md:mt-2 md:text-xs">{label}</p>
     </div>
   );
 }
