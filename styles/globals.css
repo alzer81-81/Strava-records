@@ -8,6 +8,8 @@
 
 body {
   @apply bg-sand text-ink antialiased;
+  background-image: radial-gradient(circle at 8% -10%, rgba(252, 82, 0, 0.14) 0%, rgba(252, 82, 0, 0) 38%),
+    radial-gradient(circle at 88% -5%, rgba(47, 107, 255, 0.14) 0%, rgba(47, 107, 255, 0) 34%);
 }
 
 .app-shell {
@@ -37,4 +39,19 @@ body {
 
 .indeterminate-bar {
   animation: indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes stat-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.stat-pop {
+  animation: stat-pop 380ms ease-out both;
 }

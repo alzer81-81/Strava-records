@@ -41,14 +41,14 @@ export function TopNav() {
   }
 
   return (
-    <header className="sticky top-0 z-10 border-b border-black/10 bg-white text-black">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <header className="sticky top-0 z-20 border-b border-black/10 bg-white/95 text-black backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
         <div className="flex items-center">
           <Image src="/BT_logo.png" alt="Best Times" width={200} height={60} />
         </div>
         {showTimeframe ? (
-          <div className="flex items-center gap-3">
-            <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Timeframe</span>
+          <div className="flex items-center gap-3 rounded-full border border-black/10 bg-white px-3 py-1.5 shadow-soft">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Timeframe</span>
             <div className="relative">
               <select
                 value={nextValue}
@@ -57,7 +57,7 @@ export function TopNav() {
                   setNextValue(value);
                   applyWindow(value);
                 }}
-                className="appearance-none rounded-full border border-black/10 bg-white px-4 py-2 pr-10 text-sm text-black"
+                className="appearance-none rounded-full border border-black/10 bg-white px-4 py-2 pr-10 text-sm font-semibold text-black transition hover:border-black/30"
                 aria-label="Timeframe"
               >
                 {windowOptions.map((option) => (
@@ -70,7 +70,7 @@ export function TopNav() {
             </div>
           </div>
         ) : (
-          <Link href="/" className="rounded-full border border-black/10 px-4 py-2 text-sm text-black">
+          <Link href="/" className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold text-black transition hover:bg-black hover:text-white">
             Home
           </Link>
         )}
