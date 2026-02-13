@@ -76,7 +76,7 @@ export function LandingHero() {
         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
           <div className="flex items-center">
             <Image
-              src="/api_logo_pwrdBy_strava_horiz_orange.png"
+              src="/powered_by_strava.png"
               alt="Powered by Strava"
               width={180}
               height={48}
