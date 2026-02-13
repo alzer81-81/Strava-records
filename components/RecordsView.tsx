@@ -126,9 +126,9 @@ export async function RecordsView({
         />
         <TopStatCard
           accent="bg-[#0EA63A]"
-          icon="◌"
-          value={`${formatDecimal(estimateCo2Saved(totals.totalDistance), 2)}`}
-          label="KG CO₂ saved"
+          icon="♡"
+          value={avgHeartrate ? `${Math.round(avgHeartrate)}` : "--"}
+          label="Average HR"
         />
       </section>
 
@@ -284,13 +284,13 @@ function TopStatCard({
   label: string;
 }) {
   return (
-    <div className="rounded-md border-4 border-black bg-[#f3f3f3] p-4 shadow-[8px_8px_0_#000]">
-      <div className={`-mx-4 -mt-4 mb-4 h-4 rounded-t-[1px] ${accent}`} />
-      <div className="mb-4 inline-flex h-12 w-12 items-center justify-center border-4 border-black bg-white text-xl font-black text-black">
+    <div className="rounded-xl border border-black/10 bg-white p-5 shadow-card transition-transform duration-200 hover:-translate-y-0.5">
+      <div className={`-mx-5 -mt-5 mb-4 h-2 rounded-t-xl ${accent}`} />
+      <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-slate-50 text-base font-black text-black">
         {icon}
       </div>
-      <p className="stat-pop text-4xl font-black leading-none text-black md:text-6xl">{value}</p>
-      <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-black md:text-sm">{label}</p>
+      <p className="stat-pop text-3xl font-black leading-none text-black md:text-5xl">{value}</p>
+      <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 md:text-xs">{label}</p>
     </div>
   );
 }
@@ -393,12 +393,6 @@ function estimateCalories(distanceMeters: number) {
   const km = distanceMeters / 1000;
   const caloriesPerKm = 62;
   return km * caloriesPerKm;
-}
-
-function estimateCo2Saved(distanceMeters: number) {
-  const km = distanceMeters / 1000;
-  const kgPerKm = 0.12;
-  return km * kgPerKm;
 }
 
 function buildTimeOfDayData(dates: Date[]) {
