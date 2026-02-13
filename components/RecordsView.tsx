@@ -88,33 +88,33 @@ export async function RecordsView({
       <AutoSync enabled />
       <section className="px-1 py-1">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="font-[var(--font-fraunces)] text-4xl font-black text-black md:text-5xl">Your Fastest Moments</h1>
+          <h1 className="font-[var(--font-fraunces)] text-3xl font-black text-black md:text-5xl">Your Fastest Moments</h1>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blaze">Keep building momentum</p>
         </div>
       </section>
 
       <section className="rounded-xl border border-black/10 bg-white p-4 shadow-punch md:p-6">
-        <h3 className="font-[var(--font-fraunces)] text-3xl font-black md:text-4xl">You Moved</h3>
+        <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">You Moved</h3>
         <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-5">
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Distance</p>
-            <p className="stat-pop mt-2 text-2xl font-black text-ink md:text-4xl">{formatKm(totals.totalDistance)} KM</p>
+            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">{formatKm(totals.totalDistance)} KM</p>
           </div>
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Moving Time</p>
-            <p className="stat-pop mt-2 text-2xl font-black text-ink md:text-4xl">{formatTime(totals.totalMovingTime)}</p>
+            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">{formatTime(totals.totalMovingTime)}</p>
           </div>
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Elevation</p>
-            <p className="stat-pop mt-2 text-2xl font-black text-ink md:text-4xl">{Math.round(totals.totalElevationGain)} M</p>
+            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">{Math.round(totals.totalElevationGain)} M</p>
           </div>
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Activities</p>
-            <p className="stat-pop mt-2 text-2xl font-black text-ink md:text-4xl">{totals.activityCount}</p>
+            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">{totals.activityCount}</p>
           </div>
           <div>
             <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-500 md:text-xs">Avg HR</p>
-            <p className="stat-pop mt-2 text-2xl font-black text-ink md:text-4xl">
+            <p className="stat-pop mt-2 text-xl font-black text-ink md:text-4xl">
               {avgHeartrate ? `${Math.round(avgHeartrate)} bpm` : "--"}
             </p>
           </div>
@@ -190,7 +190,7 @@ export async function RecordsView({
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
-          <h3 className="font-[var(--font-fraunces)] text-3xl font-black md:text-4xl">PR Board</h3>
+          <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">PR Board</h3>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black">No fake stats. Just the work.</p>
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -210,12 +210,12 @@ export async function RecordsView({
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div className="flex flex-1 items-center justify-between gap-3">
-                    <div className="flex items-baseline gap-2 text-lg font-black text-black md:text-xl">
+                    <div className="flex items-baseline gap-2 text-base font-black text-black md:text-xl">
                       <span>{formatTarget(target)}</span>
                       <span className="text-slate-400">:</span>
                       <span>{formatTime(record.bestTimeSeconds)}</span>
                     </div>
-                    <span className="text-sm font-semibold text-[#FC5200]">View activity</span>
+                    <span className="text-xs font-semibold text-[#FC5200] md:text-sm">View activity</span>
                   </div>
                 </div>
               </a>
@@ -224,7 +224,7 @@ export async function RecordsView({
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div className="flex flex-1 items-center justify-between gap-3">
-                    <div className="flex items-baseline gap-2 text-lg font-black text-black md:text-xl">
+                    <div className="flex items-baseline gap-2 text-base font-black text-black md:text-xl">
                       <span>{formatTarget(target)}</span>
                       <span className="text-slate-400">:</span>
                       <span className="text-slate-500">No record yet</span>
@@ -239,7 +239,7 @@ export async function RecordsView({
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-black md:text-3xl">When You Usually Run</h3>
+          <h3 className="text-xl font-black md:text-3xl">When You Usually Run</h3>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-4 sm:grid-cols-2">
           {timeOfDay.summary.map((bucket) => (
@@ -247,7 +247,7 @@ export async function RecordsView({
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
               <p className="mt-2 text-sm text-slate-500">{bucket.range}</p>
               <div className="mt-3 flex items-end gap-2">
-                <p className="stat-pop text-3xl font-black text-black">{bucket.count}</p>
+                <p className="stat-pop text-2xl font-black text-black md:text-3xl">{bucket.count}</p>
                 <p className="mb-1 text-xs font-semibold text-slate-500">{bucket.percent}%</p>
               </div>
               <p className="text-xs text-slate-500">Activities</p>
