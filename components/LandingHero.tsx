@@ -7,9 +7,8 @@ export function LandingHero() {
       <section className="mx-auto flex max-w-6xl flex-col gap-12 px-6 pb-20 pt-16">
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <Image src="/BT_logo.png" alt="Best Times" width={44} height={44} />
-              <p className="text-xs uppercase tracking-[0.5em] text-slate-500">Best Times</p>
             </div>
             <h1 className="font-[var(--font-fraunces)] text-5xl font-semibold leading-[1.05] text-ink md:text-7xl">
               The cleanest way to see your fastest efforts.
