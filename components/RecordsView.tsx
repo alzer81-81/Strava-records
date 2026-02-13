@@ -82,18 +82,17 @@ export async function RecordsView({
   const avgHeartrate = averageHeartRate(hrValues);
 
   const targets = selectDistanceTargets();
-  const hasAnyData = records.length > 0 || totals.activityCount > 0 || !!longestRun;
 
   return (
     <div className="flex flex-col gap-6 text-black">
       <AutoSync enabled />
-      <section className="relative -mx-6 rounded-lg bg-[#0E6BA8] px-6 py-6 text-white shadow-card">
+      <section className="px-1 py-1">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-3xl font-semibold md:text-4xl">Your Best Efforts</h1>
+          <h1 className="text-3xl font-semibold text-black md:text-4xl">Your Best Efforts</h1>
         </div>
       </section>
 
-      <section className="relative -mt-4 rounded-lg bg-white p-4 shadow-card md:-mt-6 md:p-6">
+      <section className="rounded-lg bg-white p-4 shadow-card md:p-6">
         <h3 className="text-2xl font-semibold md:text-3xl">Total</h3>
         <div className="mt-4 grid grid-cols-2 gap-4 md:mt-6 md:grid-cols-5">
           <div>
@@ -250,26 +249,28 @@ export async function RecordsView({
             </div>
           ))}
         </div>
-        <div className="mt-6 rounded-lg border border-black/10 bg-white p-4">
+        <div className="mt-6 rounded-lg border border-black/10 bg-white p-4 md:p-5">
           <div className="flex items-center justify-between">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">24-Hour Activity Count</p>
           </div>
-          <div className="mt-4 flex flex-col gap-2" aria-label="24-hour activity count chart">
+          <div
+            className="mt-4 grid h-[300px] grid-cols-24 items-end gap-1"
+            aria-label="24-hour activity count chart"
+          >
             {timeOfDay.hours.map((count, hour) => {
-              const width = Math.max(6, Math.round((count / timeOfDay.max) * 420));
+              const height = Math.max(4, Math.round((count / timeOfDay.max) * 300));
               const label = `${count} activities at ${formatHourLabel(hour)}`;
               return (
-                <div key={hour} className="flex items-center gap-3">
-                  <span className="w-10 text-[11px] text-slate-500">{formatHourLabel(hour)}</span>
+                <div key={hour} className="flex h-full flex-col items-center justify-end gap-2">
                   <div
                     role="button"
                     tabIndex={0}
                     title={label}
                     aria-label={label}
-                    className="h-3 rounded-sm bg-black/90 transition-colors hover:bg-black"
-                    style={{ width }}
+                    className="w-full rounded-sm bg-black/90 transition-colors hover:bg-black"
+                    style={{ height }}
                   />
-                  <span className="text-[11px] text-slate-500">{count}</span>
+                  <span className="text-[10px] text-slate-500">{hour}</span>
                 </div>
               );
             })}
