@@ -105,8 +105,7 @@ export async function RecordsView({
           label="Kilometers"
         />
         <TopStatCard
-          value={totals.totalMovingTime / 3600}
-          decimals={2}
+          display={formatMovingTimeCard(totals.totalMovingTime)}
           label="Hours moving"
         />
         <TopStatCard
@@ -265,17 +264,19 @@ export async function RecordsView({
 
 function TopStatCard({
   value,
+  display,
   decimals = 0,
   label
 }: {
-  value: number | null;
+  value?: number | null;
+  display?: string;
   decimals?: number;
   label: string;
 }) {
   return (
     <div className="rounded-xl border border-black/10 bg-white p-4 shadow-card transition-transform duration-200 hover:-translate-y-0.5 md:p-5">
       <p className="stat-pop text-xl font-black leading-none text-black sm:text-2xl md:text-5xl">
-        <AnimatedNumber value={value} decimals={decimals} />
+        {display ?? <AnimatedNumber value={value ?? null} decimals={decimals} />}
       </p>
       <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px] md:mt-2 md:text-xs">{label}</p>
     </div>
@@ -316,6 +317,14 @@ function formatTime(seconds: number) {
   const remSecs = Math.floor(seconds % 60);
   if (hrs > 0) return `${hrs}h ${remMins}m`;
   return `${remMins}m ${String(remSecs).padStart(2, "0")}s`;
+}
+
+function formatMovingTimeCard(seconds: number) {
+  const totalMinutes = Math.floor(seconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours <= 0) return `${minutes}m`;
+  return `${hours}h ${minutes}m`;
 }
 
 function formatDate(date: Date) {
