@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma } from "../lib/db";
 import { getWindowRange, WindowType } from "../lib/time";
 import { selectDistanceTargets } from "../lib/analytics";
@@ -22,6 +21,7 @@ export async function RecordsView({
     select: { startDate: true }
   });
   const displayedRange = formatWindowRange(windowType, start, end, earliestActivity?.startDate ?? null);
+  const displayedRangeMobile = formatWindowRange(windowType, start, end, earliestActivity?.startDate ?? null, true);
 
   const summary = await prisma.periodSummary.findFirst({
     where: {
@@ -32,8 +32,6 @@ export async function RecordsView({
     }
   });
   const totals = getTotals(summary?.totals);
-  const bestIds = getBestIds(summary?.bestActivityIds);
-
 
   const records = await prisma.record.findMany({
     where: {
@@ -51,22 +49,26 @@ export async function RecordsView({
   });
   const activitiesById = new Map(recordActivities.map((activity) => [activity.id, activity]));
 
-  const longestRun = await prisma.activity.findFirst({
+  const longestRuns = await prisma.activity.findMany({
     where: {
       userId,
       sportType: "RUN",
       startDate: { gte: start, lt: end }
     },
-    orderBy: { distance: "desc" }
+    orderBy: { distance: "desc" },
+    take: 3
   });
 
-
-  const fastestAvg = bestIds.fastestAvgId
-    ? await prisma.activity.findUnique({ where: { id: bestIds.fastestAvgId } })
-    : null;
-  const biggestClimb = bestIds.biggestClimbId
-    ? await prisma.activity.findUnique({ where: { id: bestIds.biggestClimbId } })
-    : null;
+  const fastestAvgRuns = await prisma.activity.findMany({
+    where: {
+      userId,
+      sportType: "RUN",
+      startDate: { gte: start, lt: end },
+      averageSpeed: { gt: 0 }
+    },
+    orderBy: { averageSpeed: "desc" },
+    take: 3
+  });
 
   const activitiesForTimeOfDay = await prisma.activity.findMany({
     where: {
@@ -96,7 +98,10 @@ export async function RecordsView({
       <section className="px-1 py-1">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="font-[var(--font-fraunces)] text-3xl font-black text-black md:text-5xl">Your Fastest Moments</h1>
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-blaze">{displayedRange}</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-blaze">
+            <span className="md:hidden">{displayedRangeMobile}</span>
+            <span className="hidden md:inline">{displayedRange}</span>
+          </p>
         </div>
       </section>
 
@@ -129,78 +134,75 @@ export async function RecordsView({
       </section>
 
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-black/10 bg-white p-6 shadow-card transition-transform duration-200 hover:-translate-y-1">
-          <h3 className="text-lg font-black">Longest Run</h3>
-          {longestRun ? (
-            <div className="mt-3 text-sm text-slate-600">
-              <p className="text-base font-semibold text-black">{longestRun.name ?? "Run"}</p>
-              <p>{formatDate(longestRun.startDate)} • {formatKm(longestRun.distance)} km</p>
-              <p>Moving: {formatTime(longestRun.movingTime)} • Pace: {formatPace(longestRun)} • Elev: {Math.round(longestRun.elevationGain)} m</p>
-              <MapPreview polyline={longestRun.summaryPolyline} label="Route" />
-              <a
-                href={`https://www.strava.com/activities/${longestRun.id}`}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-flex font-semibold text-[#FC5200]"
-              >
-                View on Strava
-              </a>
+      <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
+        <h3 className="text-xl font-black md:text-3xl">Longest Run</h3>
+        {longestRuns.length > 0 ? (
+          <div className="-mx-1 mt-4 overflow-x-auto pb-2">
+            <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
+              {longestRuns.map((run, index) => (
+                <article
+                  key={run.id}
+                  className="min-w-[84%] rounded-xl border border-black/10 bg-white p-4 shadow-card sm:min-w-[70%] md:min-w-0"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{rankLabel(index)}</p>
+                  <p className="mt-2 text-base font-bold text-black">{run.name ?? "Run"}</p>
+                  <p className="mt-1 text-sm text-slate-600">{formatDate(run.startDate)} • {formatKm(run.distance)} km</p>
+                  <p className="text-sm text-slate-600">Moving: {formatTime(run.movingTime)} • Pace: {formatPace(run)}</p>
+                  <MapPreview polyline={run.summaryPolyline} label="Route" />
+                  <a
+                    href={`https://www.strava.com/activities/${run.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-flex font-semibold text-[#FC5200]"
+                  >
+                    View on Strava
+                  </a>
+                </article>
+              ))}
             </div>
-          ) : (
-            <p className="mt-3 text-sm text-slate-500">No runs in this window yet.</p>
-          )}
-        </div>
-        <div className="rounded-xl border border-black/10 bg-white p-6 shadow-card transition-transform duration-200 hover:-translate-y-1">
-          <h3 className="text-lg font-black">Fastest Avg Speed</h3>
-          {fastestAvg ? (
-            <div className="mt-3 text-sm text-slate-600">
-              <p className="text-base font-semibold text-black">{fastestAvg.name ?? "Run"}</p>
-              <p>{formatDate(fastestAvg.startDate)} • {formatKm(fastestAvg.distance)} km</p>
-              <p>Avg speed: {formatSpeed(fastestAvg.averageSpeed)}</p>
-              <MapPreview polyline={fastestAvg.summaryPolyline} label="Route" />
-              <a
-                href={`https://www.strava.com/activities/${fastestAvg.id}`}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-flex font-semibold text-[#FC5200]"
-              >
-                View on Strava
-              </a>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-slate-500">No runs in this window yet.</p>
+        )}
+      </section>
+
+      <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
+        <h3 className="text-xl font-black md:text-3xl">Fastest Avg Speed</h3>
+        {fastestAvgRuns.length > 0 ? (
+          <div className="-mx-1 mt-4 overflow-x-auto pb-2">
+            <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
+              {fastestAvgRuns.map((run, index) => (
+                <article
+                  key={run.id}
+                  className="min-w-[84%] rounded-xl border border-black/10 bg-white p-4 shadow-card sm:min-w-[70%] md:min-w-0"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{rankLabel(index)}</p>
+                  <p className="mt-2 text-base font-bold text-black">{run.name ?? "Run"}</p>
+                  <p className="mt-1 text-sm text-slate-600">{formatDate(run.startDate)} • {formatKm(run.distance)} km</p>
+                  <p className="text-sm text-slate-600">Avg speed: {formatSpeed(run.averageSpeed)}</p>
+                  <MapPreview polyline={run.summaryPolyline} label="Route" />
+                  <a
+                    href={`https://www.strava.com/activities/${run.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-flex font-semibold text-[#FC5200]"
+                  >
+                    View on Strava
+                  </a>
+                </article>
+              ))}
             </div>
-          ) : (
-            <p className="mt-3 text-sm text-slate-500">No data yet.</p>
-          )}
-        </div>
-        <div className="rounded-xl border border-black/10 bg-white p-6 shadow-card transition-transform duration-200 hover:-translate-y-1">
-          <h3 className="text-lg font-black">Biggest Climb</h3>
-          {biggestClimb ? (
-            <div className="mt-3 text-sm text-slate-600">
-              <p className="text-base font-semibold text-black">{biggestClimb.name ?? "Run"}</p>
-              <p>{formatDate(biggestClimb.startDate)} • {formatKm(biggestClimb.distance)} km</p>
-              <p>Elevation: {Math.round(biggestClimb.elevationGain)} m</p>
-              <MapPreview polyline={biggestClimb.summaryPolyline} label="Route" />
-              <a
-                href={`https://www.strava.com/activities/${biggestClimb.id}`}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-flex font-semibold text-[#FC5200]"
-              >
-                View on Strava
-              </a>
-            </div>
-          ) : (
-            <p className="mt-3 text-sm text-slate-500">No data yet.</p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-slate-500">No data yet.</p>
+        )}
       </section>
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
           <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">PB Records</h3>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black">No fake stats. Just the work.</p>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4 grid grid-cols-1 gap-3">
           {targets.map((target) => {
             const record = records.find((r) => r.distanceTarget === target);
             const recordActivity = record
@@ -216,14 +218,12 @@ export async function RecordsView({
               >
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <div className="flex min-w-0 items-baseline gap-1 text-[11px] font-black text-black sm:text-[13px] md:gap-2 md:text-xl">
-                      <span className="whitespace-nowrap sm:hidden">{formatTargetCompact(target)}</span>
-                      <span className="hidden whitespace-nowrap sm:inline">{formatTarget(target)}</span>
-                      <span className="text-slate-400">:</span>
-                      <span className="whitespace-nowrap">{formatTime(record.bestTimeSeconds)}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="whitespace-nowrap text-sm font-black text-black md:text-base">{formatTarget(target)}</p>
+                    <div className="mt-1 flex items-center justify-between gap-2">
+                      <span className="whitespace-nowrap text-sm font-black text-black md:text-base">{formatTime(record.bestTimeSeconds)}</span>
+                      <span className="whitespace-nowrap text-xs font-semibold text-[#FC5200] md:text-sm">View activity</span>
                     </div>
-                    <span className="whitespace-nowrap text-[10px] font-semibold text-[#FC5200] sm:text-[11px] md:text-sm">View activity</span>
                   </div>
                 </div>
               </a>
@@ -231,12 +231,10 @@ export async function RecordsView({
               <div key={target} className="rounded-lg border border-black/10 bg-white px-3 py-2 shadow-sm">
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <div className="flex min-w-0 items-baseline gap-1 text-[11px] font-black text-black sm:text-[13px] md:gap-2 md:text-xl">
-                      <span className="whitespace-nowrap sm:hidden">{formatTargetCompact(target)}</span>
-                      <span className="hidden whitespace-nowrap sm:inline">{formatTarget(target)}</span>
-                      <span className="text-slate-400">:</span>
-                      <span className="whitespace-nowrap text-slate-500">No record yet</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="whitespace-nowrap text-sm font-black text-black md:text-base">{formatTarget(target)}</p>
+                    <div className="mt-1 flex items-center justify-between gap-2">
+                      <span className="whitespace-nowrap text-sm font-black text-slate-500 md:text-base">No record yet</span>
                     </div>
                   </div>
                 </div>
@@ -250,7 +248,7 @@ export async function RecordsView({
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-black md:text-3xl">When You Usually Run</h3>
         </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-3 sm:grid-cols-2">
+        <div className="mt-4 grid grid-cols-2 gap-4">
           {timeOfDay.summary.map((bucket) => (
             <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
@@ -299,28 +297,23 @@ function normalizeWindow(value?: string): WindowType {
   return "MONTH";
 }
 
-const WINDOW_LABELS: Record<WindowType, string> = {
-  WEEK: "This Week",
-  MONTH: "This Month",
-  LAST_2M: "2 Months",
-  LAST_6M: "6 Months",
-  YEAR: "This Year",
-  LAST_YEAR: "Last Year",
-  ALL_TIME: "All Time",
-};
-
-function labelWindow(value: WindowType) {
-  return WINDOW_LABELS[value];
-}
-
-function formatWindowRange(windowType: WindowType, start: Date, endExclusive: Date, earliestActivity: Date | null) {
+function formatWindowRange(
+  windowType: WindowType,
+  start: Date,
+  endExclusive: Date,
+  earliestActivity: Date | null,
+  shortMonth = false
+) {
   const end = new Date(endExclusive.getTime() - 1000);
   const startForDisplay = windowType === "ALL_TIME" && earliestActivity ? earliestActivity : start;
-  return `${formatReadableDate(startForDisplay)} - ${formatReadableDate(end)}`;
+  return `${formatReadableDate(startForDisplay, shortMonth)} - ${formatReadableDate(end, shortMonth)}`;
 }
 
-function formatReadableDate(date: Date) {
-  return `${ordinal(date.getDate())} ${new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(date)}`;
+function formatReadableDate(date: Date, shortMonth = false) {
+  return `${ordinal(date.getDate())} ${new Intl.DateTimeFormat("en-US", {
+    month: shortMonth ? "short" : "long",
+    year: "numeric"
+  }).format(date)}`;
 }
 
 function ordinal(day: number) {
@@ -370,19 +363,12 @@ function formatTarget(distance: number) {
   return `${distance} m`;
 }
 
-function formatTargetCompact(distance: number) {
-  if (distance === 805) return "1/2mi";
-  if (distance === 1609) return "1mi";
-  if (distance === 3219) return "2mi";
-  if (distance === 15000) return "15k";
-  if (distance === 16093) return "10mi";
-  if (distance === 20000) return "20k";
-  if (distance === 21097) return "HM";
-  if (distance === 42195) return "M";
-  if (distance >= 1000) return `${distance / 1000}k`;
-  return `${distance}m`;
+function rankLabel(index: number) {
+  if (index === 0) return "1st";
+  if (index === 1) return "2nd";
+  if (index === 2) return "3rd";
+  return `${index + 1}th`;
 }
-
 
 function getTotals(value: unknown) {
   const fallback = {
@@ -394,16 +380,6 @@ function getTotals(value: unknown) {
   };
   if (!value || typeof value !== "object") return fallback;
   return { ...fallback, ...(value as Record<string, number>) };
-}
-
-function getBestIds(value: unknown) {
-  const fallback = {
-    longestRunId: null as string | null,
-    fastestAvgId: null as string | null,
-    biggestClimbId: null as string | null
-  };
-  if (!value || typeof value !== "object") return fallback;
-  return { ...fallback, ...(value as Record<string, string | null>) };
 }
 
 function averageHeartRate(values: { averageHeartrate: number | null }[]) {
@@ -453,13 +429,6 @@ function buildTimeOfDayData(dates: Date[]) {
 
 function sumRange(values: number[], start: number, end: number) {
   return values.slice(start, end).reduce((sum, value) => sum + value, 0);
-}
-
-function formatHourLabel(hour: number) {
-  if (hour === 0) return "12AM";
-  if (hour < 12) return `${hour}AM`;
-  if (hour === 12) return "12PM";
-  return `${hour - 12}PM`;
 }
 
 function formatSpeed(speedMetersPerSecond: number) {
