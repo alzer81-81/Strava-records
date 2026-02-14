@@ -202,7 +202,7 @@ export async function RecordsView({
         <div className="flex items-center justify-between">
           <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">PB Records</h3>
         </div>
-        <div className="mt-4 grid grid-cols-1 gap-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2">
           {targets.map((target) => {
             const record = records.find((r) => r.distanceTarget === target);
             const recordActivity = record
@@ -214,28 +214,24 @@ export async function RecordsView({
                 href={`https://www.strava.com/activities/${record.activityId}`}
                 target="_blank"
                 rel="noreferrer"
-                className="group block rounded-lg border border-black/10 bg-white px-3 py-2 shadow-sm transition duration-200 hover:scale-[1.01] hover:border-black/20 hover:shadow-soft"
+                className="group block rounded-lg border border-black/10 bg-white px-3 py-3 shadow-sm transition duration-200 hover:scale-[1.01] hover:border-black/20 hover:shadow-soft"
               >
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 pr-2">
                     <p className="whitespace-nowrap text-sm font-black text-black md:text-base">{formatTarget(target)}</p>
-                    <div className="mt-1 flex items-center justify-between gap-2">
-                      <span className="whitespace-nowrap text-sm font-black text-black md:text-base">{formatTime(record.bestTimeSeconds)}</span>
-                      <span className="whitespace-nowrap text-xs font-semibold text-[#FC5200] md:text-sm">View activity</span>
-                    </div>
+                    <span className="mt-1 block whitespace-nowrap text-sm font-black text-black md:text-base">{formatTime(record.bestTimeSeconds)}</span>
                   </div>
+                  <span className="whitespace-nowrap text-xs font-semibold text-[#FC5200] md:text-sm">View activity</span>
                 </div>
               </a>
             ) : (
-              <div key={target} className="rounded-lg border border-black/10 bg-white px-3 py-2 shadow-sm">
+              <div key={target} className="rounded-lg border border-black/10 bg-white px-3 py-3 shadow-sm">
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 pr-2">
                     <p className="whitespace-nowrap text-sm font-black text-black md:text-base">{formatTarget(target)}</p>
-                    <div className="mt-1 flex items-center justify-between gap-2">
-                      <span className="whitespace-nowrap text-sm font-black text-slate-500 md:text-base">No record yet</span>
-                    </div>
+                    <span className="mt-1 block whitespace-nowrap text-sm font-black text-slate-500 md:text-base">No record yet</span>
                   </div>
                 </div>
               </div>
