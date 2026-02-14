@@ -30,12 +30,26 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "Best Times",
     title: "Best Times",
-    description: "Track your records, compare time windows, and view clean Strava performance analytics."
+    description: "Track your records, compare time windows, and view clean Strava performance analytics.",
+    images: [
+      {
+        url: "/open_graph.png",
+        width: 1200,
+        height: 630,
+        alt: "Best Times"
+      }
+    ]
   },
   twitter: {
     card: "summary_large_image",
     title: "Best Times",
-    description: "Track your records, compare time windows, and view clean Strava performance analytics."
+    description: "Track your records, compare time windows, and view clean Strava performance analytics.",
+    images: ["/open_graph.png"]
+  },
+  icons: {
+    icon: "/bt_icon.png",
+    shortcut: "/bt_icon.png",
+    apple: "/bt_icon.png"
   },
   category: "sports",
   robots: {
