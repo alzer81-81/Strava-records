@@ -16,6 +16,12 @@ export async function RecordsView({
   const windowType = normalizeWindow(windowParam);
   const now = new Date();
   const { start, end, key } = getWindowRange(windowType, now);
+  const earliestActivity = await prisma.activity.findFirst({
+    where: { userId },
+    orderBy: { startDate: "asc" },
+    select: { startDate: true }
+  });
+  const displayedRange = formatWindowRange(windowType, start, end, earliestActivity?.startDate ?? null);
 
   const summary = await prisma.periodSummary.findFirst({
     where: {
@@ -90,7 +96,7 @@ export async function RecordsView({
       <section className="px-1 py-1">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="font-[var(--font-fraunces)] text-3xl font-black text-black md:text-5xl">Your Fastest Moments</h1>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blaze">{labelWindow(windowType)}</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-blaze">{displayedRange}</p>
         </div>
       </section>
 
@@ -211,12 +217,13 @@ export async function RecordsView({
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <div className="flex min-w-0 items-baseline gap-1 text-[13px] font-black text-black md:gap-2 md:text-xl">
-                      <span className="whitespace-nowrap">{formatTarget(target)}</span>
+                    <div className="flex min-w-0 items-baseline gap-1 text-[11px] font-black text-black sm:text-[13px] md:gap-2 md:text-xl">
+                      <span className="whitespace-nowrap sm:hidden">{formatTargetCompact(target)}</span>
+                      <span className="hidden whitespace-nowrap sm:inline">{formatTarget(target)}</span>
                       <span className="text-slate-400">:</span>
                       <span className="whitespace-nowrap">{formatTime(record.bestTimeSeconds)}</span>
                     </div>
-                    <span className="whitespace-nowrap text-[11px] font-semibold text-[#FC5200] md:text-sm">View activity</span>
+                    <span className="whitespace-nowrap text-[10px] font-semibold text-[#FC5200] sm:text-[11px] md:text-sm">View activity</span>
                   </div>
                 </div>
               </a>
@@ -225,8 +232,9 @@ export async function RecordsView({
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <div className="flex min-w-0 items-baseline gap-1 text-[13px] font-black text-black md:gap-2 md:text-xl">
-                      <span className="whitespace-nowrap">{formatTarget(target)}</span>
+                    <div className="flex min-w-0 items-baseline gap-1 text-[11px] font-black text-black sm:text-[13px] md:gap-2 md:text-xl">
+                      <span className="whitespace-nowrap sm:hidden">{formatTargetCompact(target)}</span>
+                      <span className="hidden whitespace-nowrap sm:inline">{formatTarget(target)}</span>
                       <span className="text-slate-400">:</span>
                       <span className="whitespace-nowrap text-slate-500">No record yet</span>
                     </div>
@@ -306,6 +314,25 @@ function labelWindow(value: WindowType) {
   return WINDOW_LABELS[value];
 }
 
+function formatWindowRange(windowType: WindowType, start: Date, endExclusive: Date, earliestActivity: Date | null) {
+  const end = new Date(endExclusive.getTime() - 1000);
+  const startForDisplay = windowType === "ALL_TIME" && earliestActivity ? earliestActivity : start;
+  return `${formatReadableDate(startForDisplay)} - ${formatReadableDate(end)}`;
+}
+
+function formatReadableDate(date: Date) {
+  return `${ordinal(date.getDate())} ${new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(date)}`;
+}
+
+function ordinal(day: number) {
+  const mod10 = day % 10;
+  const mod100 = day % 100;
+  if (mod10 === 1 && mod100 !== 11) return `${day}st`;
+  if (mod10 === 2 && mod100 !== 12) return `${day}nd`;
+  if (mod10 === 3 && mod100 !== 13) return `${day}rd`;
+  return `${day}th`;
+}
+
 function formatKm(distanceMeters: number) {
   return (distanceMeters / 1000).toFixed(1);
 }
@@ -342,6 +369,19 @@ function formatTarget(distance: number) {
   if (distance === 42195) return "Marathon";
   if (distance >= 1000) return `${distance / 1000} km`;
   return `${distance} m`;
+}
+
+function formatTargetCompact(distance: number) {
+  if (distance === 805) return "1/2mi";
+  if (distance === 1609) return "1mi";
+  if (distance === 3219) return "2mi";
+  if (distance === 15000) return "15k";
+  if (distance === 16093) return "10mi";
+  if (distance === 20000) return "20k";
+  if (distance === 21097) return "HM";
+  if (distance === 42195) return "M";
+  if (distance >= 1000) return `${distance / 1000}k`;
+  return `${distance}m`;
 }
 
 

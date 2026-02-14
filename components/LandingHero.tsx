@@ -4,8 +4,19 @@ import Image from "next/image";
 export function LandingHero() {
   return (
     <main className="min-h-screen bg-transparent">
-      <section className="mx-auto flex max-w-6xl flex-col gap-10 px-6 pb-20 pt-16">
-        <div className="flex flex-col gap-10">
+      <section className="relative mx-auto flex max-w-6xl flex-col gap-10 overflow-hidden px-6 pb-20 pt-16">
+        <div className="pointer-events-none absolute left-[28%] right-[-34%] top-[260px] z-0 hidden md:block">
+          <Image
+            src="/orange_bar.svg"
+            alt=""
+            width={1156}
+            height={237}
+            priority
+            className="h-auto w-full opacity-95"
+          />
+        </div>
+
+        <div className="relative z-10 flex flex-col gap-10">
           <div className="flex flex-col gap-8">
             <div className="flex items-center">
               <Image src="/BT_logo.png" alt="Best Times" width={200} height={60} />
