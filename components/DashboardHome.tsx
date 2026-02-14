@@ -24,7 +24,7 @@ export async function DashboardHome({ userId }: { userId: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="rounded-3xl bg-gradient-to-br from-white via-sand to-[#ffe9d5] p-6 shadow-card">
+      <section className="rounded-lg bg-gradient-to-br from-white via-sand to-[#ffe9d5] p-6 shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-slateish">Dashboard</p>
@@ -51,7 +51,7 @@ export async function DashboardHome({ userId }: { userId: string }) {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-3xl bg-white p-6 shadow-card">
+        <div className="rounded-lg bg-white p-6 shadow-card">
           <h2 className="text-lg font-semibold">This week</h2>
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slateish">
             <Stat label="Distance" value={`${formatKm(weekTotals.totalDistance)} km`} />
@@ -60,7 +60,7 @@ export async function DashboardHome({ userId }: { userId: string }) {
             <Stat label="Activities" value={`${weekTotals.activityCount}`} />
           </div>
         </div>
-        <div className="rounded-3xl bg-white p-6 shadow-card">
+        <div className="rounded-lg bg-white p-6 shadow-card">
           <h2 className="text-lg font-semibold">This month</h2>
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slateish">
             <Stat label="Distance" value={`${formatKm(monthTotals.totalDistance)} km`} />
@@ -71,7 +71,7 @@ export async function DashboardHome({ userId }: { userId: string }) {
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white p-6 shadow-card">
+      <section className="rounded-lg bg-white p-6 shadow-card">
         <h2 className="text-lg font-semibold">Quick actions</h2>
         <p className="mt-2 text-sm text-slateish">Sync Strava to refresh records and summaries.</p>
         <div className="mt-4">
@@ -88,7 +88,7 @@ export async function DashboardHome({ userId }: { userId: string }) {
 
 function MetricCard({ title, value, subtitle }: { title: string; value: string; subtitle: string }) {
   return (
-    <div className="rounded-3xl bg-white p-6 shadow-card">
+    <div className="rounded-lg bg-white p-6 shadow-card">
       <p className="text-xs uppercase tracking-[0.2em] text-slateish">{title}</p>
       <p className="mt-3 text-3xl font-semibold text-ink">{value}</p>
       <p className="mt-2 text-sm text-slateish">{subtitle}</p>

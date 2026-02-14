@@ -74,7 +74,7 @@ export function SyncButton({
       </button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-card">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-card">
             <h3 className="text-lg font-semibold">Gathering all your activities</h3>
             <p className="mt-2 text-sm text-slateish">
               This can take a few minutes. Please keep this tab open while we sync.
@@ -90,7 +90,7 @@ export function SyncButton({
               {status === "error" && "Sync failed. Please try again."}
             </div>
             {status === "error" && errorMessage && (
-              <div className="mt-2 rounded-xl bg-sand/60 p-3 text-xs text-slateish">
+              <div className="mt-2 rounded-lg bg-sand/60 p-3 text-xs text-slateish">
                 {errorMessage}
               </div>
             )}

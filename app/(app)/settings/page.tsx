@@ -11,7 +11,7 @@ export default async function SettingsPage() {
           Home
         </Link>
       </div>
-      <section className="rounded-3xl bg-white p-6 shadow-card">
+      <section className="rounded-lg bg-white p-6 shadow-card">
         <h2 className="text-xl font-semibold">Account</h2>
         <p className="mt-2 text-sm text-slateish">Plan: {user.plan}</p>
         <form action="/api/auth/strava/start" method="get" className="mt-4">

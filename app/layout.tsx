@@ -47,9 +47,13 @@ export const metadata: Metadata = {
     images: ["/open_graph.png"]
   },
   icons: {
-    icon: "/bt_icon.png",
-    shortcut: "/bt_icon.png",
-    apple: "/bt_icon.png"
+    icon: [
+      { url: "/bt_icon.png?v=3", type: "image/png" }
+    ],
+    shortcut: ["/bt_icon.png?v=3"],
+    apple: [
+      { url: "/bt_icon.png?v=3", type: "image/png" }
+    ]
   },
   category: "sports",
   robots: {

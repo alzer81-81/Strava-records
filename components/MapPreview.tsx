@@ -13,7 +13,7 @@ export function MapPreview({
     return compact ? (
       <div className="h-14 w-16 rounded-lg bg-sand/50" />
     ) : (
-      <div className="mt-3 flex h-24 items-center justify-center rounded-xl bg-sand/50 text-xs text-slateish">
+      <div className="mt-3 flex h-24 items-center justify-center rounded-lg bg-sand/50 text-xs text-slateish">
         Map preview unavailable
       </div>
     );
@@ -24,7 +24,7 @@ export function MapPreview({
     return compact ? (
       <div className="h-14 w-16 rounded-lg bg-sand/50" />
     ) : (
-      <div className="mt-3 flex h-24 items-center justify-center rounded-xl bg-sand/50 text-xs text-slateish">
+      <div className="mt-3 flex h-24 items-center justify-center rounded-lg bg-sand/50 text-xs text-slateish">
         Map preview unavailable
       </div>
     );
@@ -60,7 +60,7 @@ export function MapPreview({
   }
 
   return (
-    <div className="mt-3 h-24 rounded-xl bg-gradient-to-r from-ember/10 via-amber-100/40 to-white p-2">
+    <div className="mt-3 h-24 rounded-lg bg-gradient-to-r from-ember/10 via-amber-100/40 to-white p-2">
       <svg viewBox={`-${padding} -${padding} ${100 + padding * 2} ${100 + padding * 2}`} className="h-full w-full">
         <path d={path} fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
