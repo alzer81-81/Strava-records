@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function LandingHero() {
   return (
-    <main className="min-h-screen bg-transparent">
+    <main className="min-h-screen overflow-x-hidden bg-transparent">
       <section className="relative mx-auto flex max-w-6xl flex-col gap-10 overflow-visible px-6 pb-20 pt-16">
         <div className="pointer-events-none absolute left-[44%] top-[250px] z-0 hidden w-[1200px] max-w-none md:block xl:w-[1450px]">
           <Image

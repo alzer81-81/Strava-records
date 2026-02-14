@@ -254,7 +254,6 @@ export async function RecordsView({
           {timeOfDay.summary.map((bucket) => (
             <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
-              <p className="mt-2 text-sm text-slate-500">{bucket.range}</p>
               <div className="mt-3 flex items-end gap-2">
                 <p className="stat-pop text-2xl font-black text-black md:text-3xl">{bucket.count}</p>
                 <p className="mb-1 text-xs font-semibold text-slate-500">{bucket.percent}%</p>
