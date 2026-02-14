@@ -41,6 +41,15 @@ export async function RecordsView({
       sportType: "RUN"
     }
   });
+  const allTimeRecords = await prisma.record.findMany({
+    where: {
+      userId,
+      windowType: "ALL_TIME",
+      windowKey: "all-time",
+      sportType: "RUN"
+    }
+  });
+  const racePredictions = buildRacePredictions(allTimeRecords.length > 0 ? allTimeRecords : records);
   const recordActivities = await prisma.activity.findMany({
     where: {
       id: { in: records.map((r) => r.activityId) }
@@ -259,6 +268,25 @@ export async function RecordsView({
         </div>
       </section>
 
+      <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-black md:text-3xl">Race Predictions</h3>
+        </div>
+        {racePredictions.length > 0 ? (
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {racePredictions.map((prediction) => (
+              <div key={prediction.target} className="rounded-lg border border-black/10 bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{formatTarget(prediction.target)}</p>
+                <p className="mt-2 text-2xl font-black text-black md:text-3xl">{formatTime(prediction.seconds)}</p>
+                <p className="mt-2 text-xs text-slate-500">{prediction.basis}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-slate-500">No PB data yet to calculate predictions.</p>
+        )}
+      </section>
+
 
     </div>
   );
@@ -426,6 +454,56 @@ function buildTimeOfDayData(dates: Date[]) {
 
 function sumRange(values: number[], start: number, end: number) {
   return values.slice(start, end).reduce((sum, value) => sum + value, 0);
+}
+
+function buildRacePredictions(records: { distanceTarget: number; bestTimeSeconds: number }[]) {
+  const predictors = records
+    .filter((record) => record.bestTimeSeconds > 0 && record.distanceTarget >= 400)
+    .sort((a, b) => a.distanceTarget - b.distanceTarget);
+
+  const targets = [5000, 10000, 21097, 42195];
+  const predictions: { target: number; seconds: number; basis: string }[] = [];
+
+  for (const target of targets) {
+    const exact = predictors.find((record) => record.distanceTarget === target);
+    if (exact) {
+      predictions.push({
+        target,
+        seconds: exact.bestTimeSeconds,
+        basis: "Current PB"
+      });
+      continue;
+    }
+
+    const source = findNearestPredictor(predictors, target);
+    if (!source) continue;
+
+    // Riegel model with exponent 1.06.
+    const projectedSeconds = Math.round(
+      source.bestTimeSeconds * Math.pow(target / source.distanceTarget, 1.06)
+    );
+
+    predictions.push({
+      target,
+      seconds: projectedSeconds,
+      basis: `Based on ${formatTarget(source.distanceTarget)} PB`
+    });
+  }
+
+  return predictions;
+}
+
+function findNearestPredictor(
+  predictors: { distanceTarget: number; bestTimeSeconds: number }[],
+  target: number
+) {
+  if (predictors.length === 0) return null;
+  return predictors.reduce((best, current) => {
+    if (!best) return current;
+    const bestDelta = Math.abs(Math.log(best.distanceTarget / target));
+    const currentDelta = Math.abs(Math.log(current.distanceTarget / target));
+    return currentDelta < bestDelta ? current : best;
+  }, predictors[0] ?? null);
 }
 
 function formatSpeed(speedMetersPerSecond: number) {
