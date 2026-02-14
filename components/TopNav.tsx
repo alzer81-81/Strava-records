@@ -47,8 +47,8 @@ export function TopNav() {
           <Image src="/BT_logo.png" alt="Best Times" width={200} height={60} />
         </div>
         {showTimeframe ? (
-          <div className="flex items-center gap-3 rounded-full border border-black/10 bg-white px-3 py-1.5 shadow-soft">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Timeframe</span>
+          <div className="flex items-center gap-2 rounded-full border border-black/10 bg-white px-2 py-1.5 shadow-soft md:gap-3 md:px-3">
+            <span className="hidden text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 md:inline">Timeframe</span>
             <div className="relative">
               <select
                 value={nextValue}
@@ -57,7 +57,7 @@ export function TopNav() {
                   setNextValue(value);
                   applyWindow(value);
                 }}
-                className="appearance-none rounded-full border border-black/10 bg-white px-4 py-2 pr-10 text-sm font-semibold text-black transition hover:border-black/30"
+                className="appearance-none rounded-full border border-black/10 bg-gradient-to-r from-white to-slate-50 px-3 py-2 pr-9 text-sm font-semibold text-black transition hover:border-black/30 md:px-4 md:pr-10"
                 aria-label="Timeframe"
               >
                 {windowOptions.map((option) => (
@@ -66,7 +66,7 @@ export function TopNav() {
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">▾</span>
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">▾</span>
             </div>
           </div>
         ) : (

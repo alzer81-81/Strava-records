@@ -90,7 +90,7 @@ export async function RecordsView({
       <section className="px-1 py-1">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="font-[var(--font-fraunces)] text-3xl font-black text-black md:text-5xl">Your Fastest Moments</h1>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blaze">Keep building momentum</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blaze">{labelWindow(windowType)}</p>
         </div>
       </section>
 
@@ -191,10 +191,10 @@ export async function RecordsView({
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
-          <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">PR Board</h3>
+          <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">PB Records</h3>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black">No fake stats. Just the work.</p>
         </div>
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div className="mt-4 grid grid-cols-2 gap-3">
           {targets.map((target) => {
             const record = records.find((r) => r.distanceTarget === target);
             const recordActivity = record
@@ -210,13 +210,13 @@ export async function RecordsView({
               >
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="flex flex-1 items-center justify-between gap-3">
-                    <div className="flex items-baseline gap-2 text-base font-black text-black md:text-xl">
-                      <span>{formatTarget(target)}</span>
+                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-baseline gap-1 text-[13px] font-black text-black md:gap-2 md:text-xl">
+                      <span className="whitespace-nowrap">{formatTarget(target)}</span>
                       <span className="text-slate-400">:</span>
-                      <span>{formatTime(record.bestTimeSeconds)}</span>
+                      <span className="whitespace-nowrap">{formatTime(record.bestTimeSeconds)}</span>
                     </div>
-                    <span className="text-xs font-semibold text-[#FC5200] md:text-sm">View activity</span>
+                    <span className="whitespace-nowrap text-[11px] font-semibold text-[#FC5200] md:text-sm">View activity</span>
                   </div>
                 </div>
               </a>
@@ -224,11 +224,11 @@ export async function RecordsView({
               <div key={target} className="rounded-lg border border-black/10 bg-white px-3 py-2 shadow-sm">
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="flex flex-1 items-center justify-between gap-3">
-                    <div className="flex items-baseline gap-2 text-base font-black text-black md:text-xl">
-                      <span>{formatTarget(target)}</span>
+                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-baseline gap-1 text-[13px] font-black text-black md:gap-2 md:text-xl">
+                      <span className="whitespace-nowrap">{formatTarget(target)}</span>
                       <span className="text-slate-400">:</span>
-                      <span className="text-slate-500">No record yet</span>
+                      <span className="whitespace-nowrap text-slate-500">No record yet</span>
                     </div>
                   </div>
                 </div>
