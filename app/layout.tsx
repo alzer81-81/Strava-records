@@ -1,9 +1,13 @@
 import "../styles/globals.css";
-import { Fraunces, Manrope } from "next/font/google";
+import { Fraunces, Poppins } from "next/font/google";
 import type { Metadata } from "next";
 
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
+const poppins = Poppins({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  weight: ["400", "500", "600", "700", "800", "900"]
+});
 const siteUrl = process.env.BASE_URL ?? "https://best-times-run.vercel.app";
 const metadataBase = new URL(siteUrl);
 
@@ -64,7 +68,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${manrope.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${poppins.variable}`}>
       <body className="font-[var(--font-manrope)]">
         {children}
       </body>

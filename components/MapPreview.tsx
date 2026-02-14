@@ -2,11 +2,10 @@ import { decodePolyline } from "../lib/polyline";
 
 export function MapPreview({
   polyline,
-  label,
   compact = false
 }: {
   polyline: string | null | undefined;
-  label: string;
+  label?: string;
   compact?: boolean;
 }) {
   if (!polyline) {
@@ -64,7 +63,6 @@ export function MapPreview({
       <svg viewBox={`-${padding} -${padding} ${100 + padding * 2} ${100 + padding * 2}`} className="h-full w-full">
         <path d={path} fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <div className="mt-1 text-[10px] uppercase tracking-[0.3em] text-slateish">{label}</div>
     </div>
   );
 }

@@ -73,6 +73,7 @@ export async function RecordsView({
   const activitiesForTimeOfDay = await prisma.activity.findMany({
     where: {
       userId,
+      sportType: "RUN",
       startDate: { gte: start, lt: end }
     },
     select: { startDate: true }
@@ -202,7 +203,7 @@ export async function RecordsView({
         <div className="flex items-center justify-between">
           <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">PB Records</h3>
         </div>
-        <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-3 min-[800px]:grid-cols-2">
           {targets.map((target) => {
             const record = records.find((r) => r.distanceTarget === target);
             const recordActivity = record
@@ -219,7 +220,7 @@ export async function RecordsView({
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div className="min-w-0 flex-1 pr-2">
-                    <p className="whitespace-nowrap text-sm font-black text-black md:text-base">{formatTarget(target)}</p>
+                    <p className="whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{formatTarget(target)}</p>
                     <span className="mt-1 block whitespace-nowrap text-sm font-black text-black md:text-base">{formatTime(record.bestTimeSeconds)}</span>
                   </div>
                   <span className="whitespace-nowrap text-xs font-semibold text-[#FC5200] md:text-sm">View activity</span>
@@ -230,7 +231,7 @@ export async function RecordsView({
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div className="min-w-0 flex-1 pr-2">
-                    <p className="whitespace-nowrap text-sm font-black text-black md:text-base">{formatTarget(target)}</p>
+                    <p className="whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{formatTarget(target)}</p>
                     <span className="mt-1 block whitespace-nowrap text-sm font-black text-slate-500 md:text-base">No record yet</span>
                   </div>
                 </div>
