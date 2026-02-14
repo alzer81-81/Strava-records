@@ -23,7 +23,11 @@ const TokenResponseSchema = z.object({
   expires_at: z.number(),
   athlete: z
     .object({
-      id: z.number()
+      id: z.number(),
+      firstname: z.string().nullable().optional(),
+      lastname: z.string().nullable().optional(),
+      profile_medium: z.string().nullable().optional(),
+      profile: z.string().nullable().optional()
     })
     .optional()
 });

@@ -6,6 +6,8 @@ const COOKIE_NAME = "sr_session";
 
 export type SessionData = {
   userId: string;
+  avatarUrl?: string | null;
+  displayName?: string | null;
 };
 
 function base64UrlEncode(input: string) {

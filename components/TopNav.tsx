@@ -25,7 +25,7 @@ function normalizeWindow(value?: string): WindowType {
   return "MONTH";
 }
 
-export function TopNav() {
+export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; displayName?: string | null }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -44,7 +44,7 @@ export function TopNav() {
     <header className="sticky top-0 z-20 border-b border-black/10 bg-white/95 text-black backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
         <div className="flex items-center">
-          <Image src="/BT_logo.png" alt="Best Times" width={200} height={60} />
+          <Image src="/BT_logo.png" alt="Best Times" width={200} height={60} className="h-auto w-[100px] md:w-[200px]" />
         </div>
         {showTimeframe ? (
           <div className="flex items-center gap-2 rounded-full border border-black/10 bg-white px-2 py-1.5 shadow-soft md:gap-3 md:px-3">
@@ -68,6 +68,7 @@ export function TopNav() {
               </select>
               <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">▾</span>
             </div>
+            <Avatar avatarUrl={avatarUrl} displayName={displayName} />
           </div>
         ) : (
           <Link href="/" className="rounded-full border border-black/10 px-4 py-2 text-sm font-semibold text-black transition hover:bg-black hover:text-white">
@@ -76,5 +77,30 @@ export function TopNav() {
         )}
       </div>
     </header>
+  );
+}
+
+function getInitials(name?: string | null) {
+  if (!name) return "U";
+  const parts = name.trim().split(/\s+/).slice(0, 2);
+  return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "U";
+}
+
+function Avatar({ avatarUrl, displayName }: { avatarUrl?: string | null; displayName?: string | null }) {
+  const initials = getInitials(displayName);
+  if (avatarUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={displayName ?? "User"}
+        className="h-9 w-9 rounded-full border border-black/10 object-cover"
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+  return (
+    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-slate-100 text-xs font-bold text-slate-700">
+      {initials}
+    </div>
   );
 }

@@ -42,7 +42,12 @@ export async function GET(request: Request) {
     }
   });
 
-  setSessionCookie({ userId: user.id });
+  const first = token.athlete.firstname?.trim() ?? "";
+  const last = token.athlete.lastname?.trim() ?? "";
+  const displayName = [first, last].filter(Boolean).join(" ") || null;
+  const avatarUrl = token.athlete.profile_medium ?? token.athlete.profile ?? null;
+
+  setSessionCookie({ userId: user.id, avatarUrl, displayName });
 
   return NextResponse.redirect(new URL("/home", request.url));
 }
