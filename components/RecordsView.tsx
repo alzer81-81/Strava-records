@@ -146,10 +146,22 @@ export async function RecordsView({
                   key={run.id}
                   className="min-w-[84%] rounded-xl border border-black/10 bg-white p-4 shadow-card sm:min-w-[70%] md:min-w-0"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{rankLabel(index)}</p>
-                  <p className="mt-2 text-base font-bold text-black">{run.name ?? "Run"}</p>
-                  <p className="mt-1 text-sm text-slate-600">{formatDate(run.startDate)} • {formatKm(run.distance)} km</p>
-                  <p className="text-sm text-slate-600">Moving: {formatTime(run.movingTime)} • Pace: {formatPace(run)}</p>
+                  <p className="text-xs font-medium text-slate-500">{formatDate(run.startDate)} • {rankLabel(index)}</p>
+                  <p className="mt-2 text-3xl font-black leading-none text-black">{run.name ?? "Run"}</p>
+                  <div className="mt-5 grid grid-cols-3 divide-x divide-black/10">
+                    <div className="pr-3">
+                      <p className="text-sm text-slate-600">Distance</p>
+                      <p className="mt-1 text-2xl font-black text-black">{formatKm(run.distance)} km</p>
+                    </div>
+                    <div className="px-3">
+                      <p className="text-sm text-slate-600">Pace</p>
+                      <p className="mt-1 text-2xl font-black text-black">{formatPace(run)}</p>
+                    </div>
+                    <div className="pl-3">
+                      <p className="text-sm text-slate-600">Time</p>
+                      <p className="mt-1 text-2xl font-black text-black">{formatTime(run.movingTime)}</p>
+                    </div>
+                  </div>
                   <MapPreview polyline={run.summaryPolyline} label="Route" />
                   <a
                     href={`https://www.strava.com/activities/${run.id}`}
@@ -178,10 +190,23 @@ export async function RecordsView({
                   key={run.id}
                   className="min-w-[84%] rounded-xl border border-black/10 bg-white p-4 shadow-card sm:min-w-[70%] md:min-w-0"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{rankLabel(index)}</p>
-                  <p className="mt-2 text-base font-bold text-black">{run.name ?? "Run"}</p>
-                  <p className="mt-1 text-sm text-slate-600">{formatDate(run.startDate)} • {formatKm(run.distance)} km</p>
-                  <p className="text-sm text-slate-600">Avg speed: {formatSpeed(run.averageSpeed)}</p>
+                  <p className="text-xs font-medium text-slate-500">{formatDate(run.startDate)} • {rankLabel(index)}</p>
+                  <p className="mt-2 text-3xl font-black leading-none text-black">{run.name ?? "Run"}</p>
+                  <div className="mt-5 grid grid-cols-3 divide-x divide-black/10">
+                    <div className="pr-3">
+                      <p className="text-sm text-slate-600">Distance</p>
+                      <p className="mt-1 text-2xl font-black text-black">{formatKm(run.distance)} km</p>
+                    </div>
+                    <div className="px-3">
+                      <p className="text-sm text-slate-600">Pace</p>
+                      <p className="mt-1 text-2xl font-black text-black">{formatPace(run)}</p>
+                    </div>
+                    <div className="pl-3">
+                      <p className="text-sm text-slate-600">Time</p>
+                      <p className="mt-1 text-2xl font-black text-black">{formatTime(run.movingTime)}</p>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm text-slate-600">Avg speed: {formatSpeed(run.averageSpeed)}</p>
                   <MapPreview polyline={run.summaryPolyline} label="Route" />
                   <a
                     href={`https://www.strava.com/activities/${run.id}`}
