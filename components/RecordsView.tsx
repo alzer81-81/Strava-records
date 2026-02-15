@@ -202,7 +202,7 @@ export async function RecordsView({
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
-          <h3 className="font-[var(--font-fraunces)] text-xl font-black md:text-3xl">PB Records</h3>
+          <h3 className="font-[var(--font-fraunces)] text-xl font-black md:text-3xl">Best Times</h3>
         </div>
         <div className="mt-4 grid grid-cols-1 gap-3 min-[800px]:grid-cols-2">
           {targets.map((target) => {
