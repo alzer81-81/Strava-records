@@ -1,7 +1,10 @@
 @font-face {
   font-family: "Mona Sans";
-  src: url("https://cdn.jsdelivr.net/gh/github/mona-sans@main/fonts/webfonts/Mona-Sans.woff2")
-    format("woff2");
+  src:
+    url("https://cdn.jsdelivr.net/npm/@fontsource-variable/mona-sans/files/mona-sans-latin-wght-normal.woff2")
+      format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/github/mona-sans@main/fonts/webfonts/Mona-Sans.woff2")
+      format("woff2");
   font-weight: 200 900;
   font-style: normal;
   font-display: swap;
@@ -21,6 +24,21 @@ body {
   @apply bg-sand text-ink antialiased;
   background-image: radial-gradient(circle at 8% -10%, rgba(252, 82, 0, 0.14) 0%, rgba(252, 82, 0, 0) 38%),
     radial-gradient(circle at 88% -5%, rgba(47, 107, 255, 0.14) 0%, rgba(47, 107, 255, 0) 34%);
+}
+
+html,
+body {
+  font-family: var(--font-manrope);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.stat-pop {
+  font-family: var(--font-fraunces);
 }
 
 .app-shell {

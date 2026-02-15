@@ -22,6 +22,7 @@ export async function RecordsView({
   });
   const displayedRange = formatWindowRange(windowType, start, end, earliestActivity?.startDate ?? null);
   const displayedRangeMobile = formatWindowRange(windowType, start, end, earliestActivity?.startDate ?? null, true);
+  const windowTitle = getWindowTitle(windowType);
 
   const summary = await prisma.periodSummary.findFirst({
     where: {
@@ -98,7 +99,7 @@ export async function RecordsView({
       <AutoSync enabled windowType={windowType} />
       <section className="px-1 py-1">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="font-[var(--font-fraunces)] text-3xl font-black text-black md:text-5xl">Your Fastest Moments</h1>
+          <h1 className="font-[var(--font-fraunces)] text-2xl font-black text-black md:text-4xl">{windowTitle}</h1>
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-blaze">
             <span className="md:hidden">{displayedRangeMobile}</span>
             <span className="hidden md:inline">{displayedRange}</span>
@@ -136,7 +137,7 @@ export async function RecordsView({
 
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
-        <h3 className="text-xl font-black md:text-3xl">Longest Run</h3>
+        <h3 className="text-lg font-black md:text-2xl">Longest Run</h3>
         {longestRuns.length > 0 ? (
           <div className="-mx-1 mt-4 overflow-x-auto pb-2">
             <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
@@ -168,7 +169,7 @@ export async function RecordsView({
       </section>
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
-        <h3 className="text-xl font-black md:text-3xl">Fastest Avg Speed</h3>
+        <h3 className="text-lg font-black md:text-2xl">Fastest Avg Speed</h3>
         {fastestAvgRuns.length > 0 ? (
           <div className="-mx-1 mt-4 overflow-x-auto pb-2">
             <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
@@ -201,7 +202,7 @@ export async function RecordsView({
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
-          <h3 className="font-[var(--font-fraunces)] text-2xl font-black md:text-4xl">PB Records</h3>
+          <h3 className="font-[var(--font-fraunces)] text-xl font-black md:text-3xl">PB Records</h3>
         </div>
         <div className="mt-4 grid grid-cols-1 gap-3 min-[800px]:grid-cols-2">
           {targets.map((target) => {
@@ -243,7 +244,7 @@ export async function RecordsView({
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-black md:text-3xl">When You Usually Run</h3>
+          <h3 className="text-lg font-black md:text-2xl">When You Usually Run</h3>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-4">
           {timeOfDay.summary.map((bucket) => (
@@ -292,6 +293,25 @@ function normalizeWindow(value?: string): WindowType {
     return upper as WindowType;
   }
   return "MONTH";
+}
+
+function getWindowTitle(windowType: WindowType) {
+  switch (windowType) {
+    case "WEEK":
+      return "This Week";
+    case "MONTH":
+      return "This Month";
+    case "LAST_2M":
+      return "2 Months";
+    case "LAST_6M":
+      return "6 Months";
+    case "YEAR":
+      return "This Year";
+    case "ALL_TIME":
+      return "All Time";
+    default:
+      return "This Month";
+  }
 }
 
 function formatWindowRange(
