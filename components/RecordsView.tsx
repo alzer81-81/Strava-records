@@ -151,15 +151,15 @@ export async function RecordsView({
                   <div className="mt-5 grid grid-cols-3 divide-x divide-black/10">
                     <div className="pr-3">
                       <p className="text-sm text-slate-600">Distance</p>
-                      <p className="mt-1 text-2xl font-black text-black">{formatKm(run.distance)} km</p>
+                      <p className="mt-1 text-xl font-normal text-black">{formatKm(run.distance)} km</p>
                     </div>
                     <div className="px-3">
                       <p className="text-sm text-slate-600">Pace</p>
-                      <p className="mt-1 text-2xl font-black text-black">{formatPace(run)}</p>
+                      <p className="mt-1 text-xl font-normal text-black">{formatPace(run)}</p>
                     </div>
                     <div className="pl-3">
                       <p className="text-sm text-slate-600">Time</p>
-                      <p className="mt-1 text-2xl font-black text-black">{formatTime(run.movingTime)}</p>
+                      <p className="mt-1 text-xl font-normal text-black">{formatTime(run.movingTime)}</p>
                     </div>
                   </div>
                   <MapPreview polyline={run.summaryPolyline} label="Route" />
@@ -195,15 +195,15 @@ export async function RecordsView({
                   <div className="mt-5 grid grid-cols-3 divide-x divide-black/10">
                     <div className="pr-3">
                       <p className="text-sm text-slate-600">Distance</p>
-                      <p className="mt-1 text-2xl font-black text-black">{formatKm(run.distance)} km</p>
+                      <p className="mt-1 text-xl font-normal text-black">{formatKm(run.distance)} km</p>
                     </div>
                     <div className="px-3">
                       <p className="text-sm text-slate-600">Pace</p>
-                      <p className="mt-1 text-2xl font-black text-black">{formatPace(run)}</p>
+                      <p className="mt-1 text-xl font-normal text-black">{formatPace(run)}</p>
                     </div>
                     <div className="pl-3">
                       <p className="text-sm text-slate-600">Time</p>
-                      <p className="mt-1 text-2xl font-black text-black">{formatTime(run.movingTime)}</p>
+                      <p className="mt-1 text-xl font-normal text-black">{formatTime(run.movingTime)}</p>
                     </div>
                   </div>
                   <p className="mt-2 text-sm text-slate-600">Avg speed: {formatSpeed(run.averageSpeed)}</p>
