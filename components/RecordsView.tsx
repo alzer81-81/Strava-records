@@ -139,7 +139,7 @@ export async function RecordsView({
       </section>
 
 
-      <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
+      <section>
         <h3 className="text-lg font-black md:text-2xl">Longest Run</h3>
         {longestRuns.length > 0 ? (
           <div className="-mx-1 mt-4 overflow-x-auto pb-2">
@@ -183,7 +183,7 @@ export async function RecordsView({
         )}
       </section>
 
-      <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
+      <section>
         <h3 className="text-lg font-black md:text-2xl">Fastest Run</h3>
         {fastestRuns.length > 0 ? (
           <div className="-mx-1 mt-4 overflow-x-auto pb-2">
@@ -270,11 +270,11 @@ export async function RecordsView({
         </div>
       </section>
 
-      <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
+      <section>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-black md:text-2xl">When You Usually Run</h3>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="mt-4 grid grid-cols-3 gap-4">
           {timeOfDay.summary.map((bucket) => (
             <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
