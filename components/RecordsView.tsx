@@ -200,7 +200,7 @@ export async function RecordsView({
         )}
       </section>
 
-      <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
+      <section>
         <div className="flex items-center justify-between">
           <h3 className="font-[var(--font-fraunces)] text-2xl font-black">Best Times</h3>
         </div>
@@ -216,7 +216,7 @@ export async function RecordsView({
                 href={`https://www.strava.com/activities/${record.activityId}`}
                 target="_blank"
                 rel="noreferrer"
-                className="group block rounded-lg border border-black/10 bg-white px-3 py-3 shadow-sm transition duration-200 hover:scale-[1.01] hover:border-black/20 hover:shadow-soft"
+                className="group block rounded-xl border border-black/10 bg-white px-3 py-3 shadow-card transition duration-200 hover:scale-[1.01] hover:border-black/20 hover:shadow-soft"
               >
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
@@ -228,7 +228,7 @@ export async function RecordsView({
                 </div>
               </a>
             ) : (
-              <div key={target} className="rounded-lg border border-black/10 bg-white px-3 py-3 shadow-sm">
+              <div key={target} className="rounded-xl border border-black/10 bg-white px-3 py-3 shadow-card">
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
                   <div className="min-w-0 flex-1 pr-2">
