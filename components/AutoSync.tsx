@@ -44,7 +44,7 @@ export function AutoSync({
 
     async function startFullSync() {
       try {
-        const startRes = await fetch("/api/sync/start?full=1&streams=1");
+        const startRes = await fetch("/api/sync/start?full=1&details=1&streams=1");
         if (!startRes.ok) return;
         const data = (await startRes.json()) as { jobId?: string };
         if (!data.jobId) return;

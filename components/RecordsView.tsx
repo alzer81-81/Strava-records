@@ -60,16 +60,19 @@ export async function RecordsView({
     take: 3
   });
 
-  const fastestAvgRuns = await prisma.activity.findMany({
+  const runsForFastest = await prisma.activity.findMany({
     where: {
       userId,
       sportType: "RUN",
       startDate: { gte: start, lt: end },
-      averageSpeed: { gt: 0 }
+      distance: { gt: 0 },
+      movingTime: { gt: 0 }
     },
-    orderBy: { averageSpeed: "desc" },
-    take: 3
+    orderBy: { startDate: "desc" }
   });
+  const fastestRuns = [...runsForFastest]
+    .sort((a, b) => paceSecondsPerKm(a) - paceSecondsPerKm(b))
+    .slice(0, 3);
 
   const activitiesForTimeOfDay = await prisma.activity.findMany({
     where: {
@@ -181,11 +184,11 @@ export async function RecordsView({
       </section>
 
       <section className="rounded-xl border border-black/10 bg-white p-6 shadow-card">
-        <h3 className="text-lg font-black md:text-2xl">Fastest Avg Speed</h3>
-        {fastestAvgRuns.length > 0 ? (
+        <h3 className="text-lg font-black md:text-2xl">Fastest Run</h3>
+        {fastestRuns.length > 0 ? (
           <div className="-mx-1 mt-4 overflow-x-auto pb-2">
             <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
-              {fastestAvgRuns.map((run, index) => (
+              {fastestRuns.map((run, index) => (
                 <article
                   key={run.id}
                   className="min-w-[84%] rounded-xl border border-black/10 bg-white p-4 shadow-card sm:min-w-[70%] md:min-w-0"
@@ -206,7 +209,7 @@ export async function RecordsView({
                       <p className="mt-1 text-[17px] font-semibold text-black">{formatTime(run.movingTime)}</p>
                     </div>
                   </div>
-                  <p className="mt-2 text-sm text-slate-600">Avg speed: {formatSpeed(run.averageSpeed)}</p>
+                  <p className="mt-2 text-sm text-slate-600">Overall pace rank</p>
                   <MapPreview polyline={run.summaryPolyline} label="Route" />
                   <a
                     href={`https://www.strava.com/activities/${run.id}`}
@@ -484,4 +487,14 @@ function formatPace(activity: { distance: number; movingTime: number }) {
   const mins = Math.floor(paceSecondsPerKm / 60);
   const secs = Math.round(paceSecondsPerKm % 60);
   return `${mins}:${String(secs).padStart(2, "0")} /km`;
+}
+
+function paceSecondsPerKm(activity: { distance: number; movingTime: number; averageSpeed: number }) {
+  if (activity.distance > 0 && activity.movingTime > 0) {
+    return activity.movingTime / (activity.distance / 1000);
+  }
+  if (activity.averageSpeed > 0) {
+    return 1000 / activity.averageSpeed;
+  }
+  return Number.POSITIVE_INFINITY;
 }
