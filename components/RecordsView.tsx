@@ -215,7 +215,7 @@ export async function RecordsView({
 
 
       <section>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-lg font-black md:text-2xl">Longest Run</h3>
           <TopTenModal
             title="Longest Run"
@@ -236,22 +236,22 @@ export async function RecordsView({
               {longestRuns.map((run, index) => (
                 <article
                   key={run.id}
-                  className="min-w-[84%] rounded-xl border border-black/10 bg-white p-4 shadow-card sm:min-w-[70%] md:min-w-0"
+                  className="min-w-[84%] overflow-hidden rounded-xl border border-black/10 bg-white p-4 shadow-card sm:min-w-[70%] md:min-w-0"
                 >
                   <p className="text-xs font-medium text-slate-500">{formatDate(run.startDate)} • {rankLabel(index)}</p>
-                  <p className="mt-2 text-2xl font-black leading-none text-black">{run.name ?? "Run"}</p>
+                  <p className="mt-2 text-xl font-black leading-tight text-black sm:text-2xl">{run.name ?? "Run"}</p>
                   <div className="mt-5 grid grid-cols-3 divide-x divide-black/10">
                     <div className="pr-3">
                       <p className="text-sm text-slate-600">Distance</p>
-                      <p className="mt-1 text-[17px] font-semibold text-black">{formatKm(run.distance)} km</p>
+                      <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{formatKm(run.distance)} km</p>
                     </div>
                     <div className="px-3">
                       <p className="text-sm text-slate-600">Pace</p>
-                      <p className="mt-1 text-[17px] font-semibold text-black">{formatPace(run)}</p>
+                      <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{formatPace(run)}</p>
                     </div>
                     <div className="pl-3">
                       <p className="text-sm text-slate-600">Time</p>
-                      <p className="mt-1 text-[17px] font-semibold text-black">{formatTime(run.movingTime)}</p>
+                      <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{formatTime(run.movingTime)}</p>
                     </div>
                   </div>
                   <MapPreview polyline={run.summaryPolyline} label="Route" />
@@ -317,10 +317,10 @@ export async function RecordsView({
       </section>
 
       <section>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-lg font-black md:text-2xl">When You Usually Run</h3>
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-4">
+        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
           {timeOfDay.summary.map((bucket) => (
             <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
@@ -351,11 +351,11 @@ function TopStatCard({
   label: string;
 }) {
   return (
-    <div className="rounded-xl border border-black/10 bg-white p-4 shadow-card transition-transform duration-200 hover:-translate-y-0.5 md:p-5">
-      <p className="stat-pop text-xl font-black leading-none text-black sm:text-2xl md:text-5xl">
+    <div className="min-w-0 rounded-xl border border-black/10 bg-white p-4 shadow-card transition-transform duration-200 hover:-translate-y-0.5 md:p-5">
+      <p className="stat-pop whitespace-nowrap text-[1.8rem] font-black leading-none text-black sm:text-4xl md:text-5xl">
         {display ?? <AnimatedNumber value={value ?? null} decimals={decimals} />}
       </p>
-      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px] md:mt-2 md:text-xs">{label}</p>
+      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px] md:mt-2 md:text-xs">{label}</p>
     </div>
   );
 }
@@ -541,7 +541,7 @@ function formatPace(activity: { distance: number; movingTime: number }) {
   const paceSecondsPerKm = activity.movingTime / (activity.distance / 1000);
   const mins = Math.floor(paceSecondsPerKm / 60);
   const secs = Math.round(paceSecondsPerKm % 60);
-  return `${mins}:${String(secs).padStart(2, "0")} /km`;
+  return `${mins}:${String(secs).padStart(2, "0")}/km`;
 }
 
 function paceSecondsPerKm(activity: { distance: number; movingTime: number; averageSpeed: number }) {
@@ -559,7 +559,7 @@ function formatPaceForTarget(timeSeconds: number, targetMeters: number) {
   const paceSeconds = timeSeconds / (targetMeters / 1000);
   const mins = Math.floor(paceSeconds / 60);
   const secs = Math.round(paceSeconds % 60);
-  return `${mins}:${String(secs).padStart(2, "0")} /km`;
+  return `${mins}:${String(secs).padStart(2, "0")}/km`;
 }
 
 function estimateFromActivityDistance(distanceMeters: number, movingTimeSeconds: number, targetMeters: number) {
