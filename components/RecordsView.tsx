@@ -75,19 +75,45 @@ export async function RecordsView({
   ] as const;
 
   const fastestRunsByDistance = fastestDistanceGroups.map((group) => {
-    const runs = [...runsForFastest]
-      .filter((run) => Math.abs(run.distance - group.targetMeters) <= group.toleranceMeters)
-      .sort((a, b) => paceSecondsPerKm(a) - paceSecondsPerKm(b))
-      .slice(0, 10)
-      .map((run) => ({
-        id: run.id,
-        date: formatDate(run.startDate),
-        name: run.name ?? "Run",
-        distance: `${formatKm(run.distance)} km`,
-        pace: formatPace(run),
-        time: formatTime(run.movingTime),
-        summaryPolyline: run.summaryPolyline ?? null
-      }));
+    const candidates = runsForFastest
+      .map((run) => {
+        const cache = cacheByActivity.get(run.id) ?? null;
+        const efforts = extractBestEfforts(cache);
+        const effort = resolveEffortForTarget(efforts, group.targetMeters);
+        if (effort) {
+          return {
+            id: run.id,
+            startDate: run.startDate,
+            name: run.name ?? "Run",
+            summaryPolyline: run.summaryPolyline ?? null,
+            bestTimeSeconds: effort.elapsed_time
+          };
+        }
+
+        const estimatedTime = estimateFromActivityDistance(run.distance, run.movingTime, group.targetMeters);
+        if (!estimatedTime) return null;
+        return {
+          id: run.id,
+          startDate: run.startDate,
+          name: run.name ?? "Run",
+          summaryPolyline: run.summaryPolyline ?? null,
+          bestTimeSeconds: estimatedTime
+        };
+      })
+      .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null)
+      .sort((a, b) => a.bestTimeSeconds - b.bestTimeSeconds)
+      .slice(0, 10);
+
+    const runs = candidates.map((run) => ({
+      id: run.id,
+      date: formatDate(run.startDate),
+      name: run.name,
+      distance: formatTargetDistance(group.targetMeters),
+      pace: formatPaceForTarget(run.bestTimeSeconds, group.targetMeters),
+      time: formatTime(run.bestTimeSeconds),
+      summaryPolyline: run.summaryPolyline
+    }));
+
     return {
       key: group.key,
       label: group.label,
@@ -428,6 +454,15 @@ function formatTarget(distance: number) {
   return `${distance} m`;
 }
 
+function formatTargetDistance(targetMeters: number) {
+  if (targetMeters === 1000) return "1.0 km";
+  if (targetMeters === 5000) return "5.0 km";
+  if (targetMeters === 10000) return "10.0 km";
+  if (targetMeters === 21097) return "21.1 km";
+  if (targetMeters === 42195) return "42.2 km";
+  return `${(targetMeters / 1000).toFixed(1)} km`;
+}
+
 function rankLabel(index: number) {
   if (index === 0) return "1st";
   if (index === 1) return "2nd";
@@ -517,6 +552,14 @@ function paceSecondsPerKm(activity: { distance: number; movingTime: number; aver
     return 1000 / activity.averageSpeed;
   }
   return Number.POSITIVE_INFINITY;
+}
+
+function formatPaceForTarget(timeSeconds: number, targetMeters: number) {
+  if (timeSeconds <= 0 || targetMeters <= 0) return "--";
+  const paceSeconds = timeSeconds / (targetMeters / 1000);
+  const mins = Math.floor(paceSeconds / 60);
+  const secs = Math.round(paceSeconds % 60);
+  return `${mins}:${String(secs).padStart(2, "0")} /km`;
 }
 
 function estimateFromActivityDistance(distanceMeters: number, movingTimeSeconds: number, targetMeters: number) {
