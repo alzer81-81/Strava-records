@@ -79,7 +79,7 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
                 <p className="text-xs font-medium text-slate-500">
                   {run.date} • {rankLabel(index)}
                 </p>
-                <p className="mt-2 text-xl font-black leading-tight text-black sm:text-2xl">{run.name || "Run"}</p>
+                <p className="mt-2 text-lg font-semibold leading-tight text-black sm:text-xl">{run.name || "Run"}</p>
                 <div className="mt-4 grid grid-cols-3 divide-x divide-black/10">
                   <div className="pr-3">
                     <p className="text-sm text-slate-600">Distance</p>
