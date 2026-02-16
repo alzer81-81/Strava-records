@@ -69,8 +69,8 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
       </div>
 
       {topThree.length > 0 ? (
-        <div className="-mx-1 mt-4 overflow-x-auto pb-2">
-          <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
+        <div className="-mx-6 mt-4 overflow-x-auto pb-2 pl-6 pr-2 md:mx-0 md:pl-0 md:pr-0">
+          <div className="flex gap-3 px-0 md:grid md:grid-cols-3 md:gap-4 md:px-0">
             {topThree.map((run, index) => (
               <article
                 key={run.id}
