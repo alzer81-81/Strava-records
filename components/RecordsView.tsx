@@ -5,6 +5,7 @@ import { MapPreview } from "./MapPreview";
 import { AutoSync } from "./AutoSync";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { TopTenModal } from "./TopTenModal";
+import { FastestRunByDistance } from "./FastestRunByDistance";
 
 export async function RecordsView({
   userId,
@@ -72,10 +73,34 @@ export async function RecordsView({
     },
     orderBy: { startDate: "desc" }
   });
-  const fastestRunsTop10 = [...runsForFastest]
-    .sort((a, b) => paceSecondsPerKm(a) - paceSecondsPerKm(b))
-    .slice(0, 10);
-  const fastestRuns = fastestRunsTop10.slice(0, 3);
+  const fastestDistanceGroups = [
+    { key: "1000", label: "1K", targetMeters: 1000, toleranceMeters: 120 },
+    { key: "5000", label: "5K", targetMeters: 5000, toleranceMeters: 320 },
+    { key: "10000", label: "10K", targetMeters: 10000, toleranceMeters: 500 },
+    { key: "21097", label: "HM", targetMeters: 21097, toleranceMeters: 900 },
+    { key: "42195", label: "M", targetMeters: 42195, toleranceMeters: 1800 }
+  ] as const;
+
+  const fastestRunsByDistance = fastestDistanceGroups.map((group) => {
+    const runs = [...runsForFastest]
+      .filter((run) => Math.abs(run.distance - group.targetMeters) <= group.toleranceMeters)
+      .sort((a, b) => paceSecondsPerKm(a) - paceSecondsPerKm(b))
+      .slice(0, 10)
+      .map((run) => ({
+        id: run.id,
+        date: formatDate(run.startDate),
+        name: run.name ?? "Run",
+        distance: `${formatKm(run.distance)} km`,
+        pace: formatPace(run),
+        time: formatTime(run.movingTime),
+        summaryPolyline: run.summaryPolyline ?? null
+      }));
+    return {
+      key: group.key,
+      label: group.label,
+      runs
+    };
+  });
 
   const activitiesForTimeOfDay = await prisma.activity.findMany({
     where: {
@@ -200,64 +225,7 @@ export async function RecordsView({
         )}
       </section>
 
-      <section>
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-lg font-black md:text-2xl">Fastest Run</h3>
-          <TopTenModal
-            title="Fastest Run"
-            rows={fastestRunsTop10.map((run, index) => ({
-              rank: rankLabel(index),
-              date: formatDate(run.startDate),
-              name: run.name ?? "Run",
-              distance: `${formatKm(run.distance)} km`,
-              pace: formatPace(run),
-              time: formatTime(run.movingTime),
-              url: `https://www.strava.com/activities/${run.id}`
-            }))}
-          />
-        </div>
-        {fastestRuns.length > 0 ? (
-          <div className="-mx-1 mt-4 overflow-x-auto pb-2">
-            <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
-              {fastestRuns.map((run, index) => (
-                <article
-                  key={run.id}
-                  className="min-w-[84%] rounded-xl border border-black/10 bg-white p-4 shadow-card sm:min-w-[70%] md:min-w-0"
-                >
-                  <p className="text-xs font-medium text-slate-500">{formatDate(run.startDate)} • {rankLabel(index)}</p>
-                  <p className="mt-2 text-2xl font-black leading-none text-black">{run.name ?? "Run"}</p>
-                  <div className="mt-5 grid grid-cols-3 divide-x divide-black/10">
-                    <div className="pr-3">
-                      <p className="text-sm text-slate-600">Distance</p>
-                      <p className="mt-1 text-[17px] font-semibold text-black">{formatKm(run.distance)} km</p>
-                    </div>
-                    <div className="px-3">
-                      <p className="text-sm text-slate-600">Pace</p>
-                      <p className="mt-1 text-[17px] font-semibold text-black">{formatPace(run)}</p>
-                    </div>
-                    <div className="pl-3">
-                      <p className="text-sm text-slate-600">Time</p>
-                      <p className="mt-1 text-[17px] font-semibold text-black">{formatTime(run.movingTime)}</p>
-                    </div>
-                  </div>
-                  <p className="mt-2 text-sm text-slate-600">Overall pace rank</p>
-                  <MapPreview polyline={run.summaryPolyline} label="Route" />
-                  <a
-                    href={`https://www.strava.com/activities/${run.id}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-3 inline-flex font-semibold text-[#FC5200]"
-                  >
-                    View on Strava
-                  </a>
-                </article>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p className="mt-3 text-sm text-slate-500">No data yet.</p>
-        )}
-      </section>
+      <FastestRunByDistance groups={fastestRunsByDistance} />
 
       <section>
         <div className="flex items-center justify-between">
