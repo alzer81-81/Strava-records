@@ -26,17 +26,14 @@ export type PRRecord = {
 };
 
 export function BestTimesGroupedList({
-  records,
-  onAddGoal
+  records
 }: {
   records: PRRecord[];
-  onAddGoal?: (record: PRRecord) => void;
 }) {
   const sortedRecords = useMemo(
     () => [...records].sort((a, b) => a.distanceMeters - b.distanceMeters),
     [records]
   );
-  const normalization = useMemo(() => normalizeTimes(sortedRecords), [sortedRecords]);
 
   return (
     <section aria-labelledby="best-times-title">
@@ -60,8 +57,6 @@ export function BestTimesGroupedList({
             <BestTimesRow
               key={row.id}
               row={row}
-              normalization={normalization}
-              onAddGoal={onAddGoal}
             />
           ))}
         </ul>
@@ -71,17 +66,12 @@ export function BestTimesGroupedList({
 }
 
 function BestTimesRow({
-  row,
-  normalization,
-  onAddGoal
+  row
 }: {
   row: PRRecord;
-  normalization: { min: number; max: number } | null;
-  onAddGoal?: (record: PRRecord) => void;
 }) {
-  const pace = row.bestTimeSeconds ? formatPace(row.bestTimeSeconds, row.distanceMeters) : "No pace yet";
+  const pace = row.bestTimeSeconds ? formatPace(row.bestTimeSeconds, row.distanceMeters) : "-";
   const achievedOn = row.achievedAt ? formatAchievedDate(row.achievedAt) : "-";
-  const score = getScore(row.bestTimeSeconds, normalization);
 
   if (row.activityId && row.bestTimeSeconds !== null) {
     return (
@@ -95,19 +85,16 @@ function BestTimesRow({
         >
           <div className="flex items-center justify-between gap-3 md:hidden">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{row.distanceLabel}</p>
-            <span className="text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+            <span className="text-slate-400">
               <ChevronRightIcon />
             </span>
           </div>
           <div className="mt-1 grid gap-2 md:mt-0 md:grid-cols-[1.1fr_1fr_1.2fr_1fr_auto] md:items-center md:gap-4">
             <p className="hidden text-sm font-medium text-slate-700 md:block">{row.distanceLabel}</p>
-            <div className="relative inline-block min-w-[7rem]">
-              <div className="absolute inset-y-0 left-0 rounded-sm bg-slate-200/45" style={{ width: `${score}%` }} aria-hidden="true" />
-              <p className="relative tabular-nums text-2xl font-semibold leading-none text-black">{formatClockTime(row.bestTimeSeconds)}</p>
-            </div>
-            <p className="text-sm text-slate-500">{pace}</p>
-            <p className="text-xs text-slate-500 md:text-sm">{achievedOn}</p>
-            <span className="hidden justify-self-end text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 md:inline-flex">
+            <p className="tabular-nums text-sm font-medium text-slate-700">{formatClockTime(row.bestTimeSeconds)}</p>
+            <p className="tabular-nums text-sm font-medium text-slate-700">{pace}</p>
+            <p className="text-sm font-medium text-slate-700">{achievedOn}</p>
+            <span className="hidden justify-self-end text-slate-400 md:inline-flex">
               <ChevronRightIcon />
             </span>
           </div>
@@ -123,39 +110,14 @@ function BestTimesRow({
           {row.distanceLabel}
         </p>
         <p className="text-sm font-medium text-slate-700">No record yet</p>
-        <p className="text-sm text-slate-500">Log a run to set this PR.</p>
+        <p className="text-sm font-medium text-slate-700">Log a run to set this PR.</p>
         <p className="text-sm text-slate-500">-</p>
-        <button
-          type="button"
-          onClick={() => onAddGoal?.(row)}
-          className="inline-flex items-center justify-center rounded-md border border-black/15 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-black/30 hover:bg-black/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC5200] focus-visible:ring-offset-1"
-          aria-label={`Set a goal for ${row.distanceLabel}`}
-        >
-          Add goal
-        </button>
+        <span className="hidden justify-self-end text-slate-300 md:inline-flex">
+          <ChevronRightIcon />
+        </span>
       </div>
     </li>
   );
-}
-
-function normalizeTimes(rows: PRRecord[]) {
-  const values = rows
-    .map((row) => row.bestTimeSeconds)
-    .filter((value): value is number => value !== null);
-
-  if (values.length === 0) return null;
-
-  return {
-    min: Math.min(...values),
-    max: Math.max(...values)
-  };
-}
-
-function getScore(bestTimeSeconds: number | null, normalization: { min: number; max: number } | null) {
-  if (bestTimeSeconds === null || !normalization) return 0;
-  if (normalization.min === normalization.max) return 100;
-  const ratio = (normalization.max - bestTimeSeconds) / (normalization.max - normalization.min);
-  return Math.round(30 + ratio * 70);
 }
 
 function formatAchievedDate(value: string) {
@@ -187,8 +149,7 @@ export function formatClockTime(totalSeconds: number) {
 export function formatPace(totalSeconds: number, distanceMeters: number) {
   if (!distanceMeters || distanceMeters <= 0) return "-";
   const secondsPerKm = totalSeconds / (distanceMeters / 1000);
-  const secondsPerMi = totalSeconds / (distanceMeters / 1609.344);
-  return `${formatPaceUnit(secondsPerKm)}/km • ${formatPaceUnit(secondsPerMi)}/mi`;
+  return `${formatPaceUnit(secondsPerKm)}/km`;
 }
 
 function formatPaceUnit(seconds: number) {

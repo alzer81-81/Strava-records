@@ -151,7 +151,7 @@ export async function RecordsView({
     const efforts = extractBestEfforts(cache);
     for (const target of targets) {
       const effort = resolveEffortForTarget(efforts, target);
-      if (effort) {
+      if (effort && isEffortUsableForTarget(run.distance, target)) {
         mergeDistanceRecords(recordsByDistance, {
           distanceTarget: target,
           bestTimeSeconds: effort.elapsed_time,
@@ -553,9 +553,19 @@ function formatPaceForTarget(timeSeconds: number, targetMeters: number) {
 
 function estimateFromActivityDistance(distanceMeters: number, movingTimeSeconds: number, targetMeters: number) {
   if (distanceMeters <= 0 || movingTimeSeconds <= 0) return null;
+  // Only use proportional fallback for shorter distances.
+  // Longer targets are too noisy when inferred from whole-run summaries.
+  if (targetMeters > 10000) return null;
   const tolerance = distanceTolerance(targetMeters);
   if (Math.abs(distanceMeters - targetMeters) > tolerance) return null;
   return Math.round(movingTimeSeconds * (targetMeters / distanceMeters));
+}
+
+function isEffortUsableForTarget(activityDistanceMeters: number, targetMeters: number) {
+  if (targetMeters <= 10000) return true;
+  // For HM/M records, require activity distance to be close to the target.
+  // This avoids selecting a split from a much longer/shorter run.
+  return Math.abs(activityDistanceMeters - targetMeters) <= distanceTolerance(targetMeters);
 }
 
 function distanceTolerance(targetMeters: number) {
