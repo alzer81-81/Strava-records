@@ -27,7 +27,7 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
-          <div className="w-full max-w-5xl rounded-xl border border-black/10 bg-white p-4 shadow-card md:p-6">
+          <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-black/10 bg-white p-4 shadow-card md:p-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-black text-black md:text-2xl">{title} Top 10</h3>
               <button
@@ -39,7 +39,7 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
               </button>
             </div>
 
-            <div className="mt-4 overflow-x-auto">
+            <div className="mt-4 hidden overflow-x-auto md:block">
               <table className="min-w-full border-separate border-spacing-y-1">
                 <thead>
                   <tr className="text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -78,6 +78,36 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <div className="mt-4 grid gap-2 md:hidden">
+              {rows.map((row, index) => (
+                <article
+                  key={`mobile-${row.url}-${index}`}
+                  className={[
+                    "rounded-lg border border-black/10 p-4",
+                    index % 2 === 0 ? "bg-slate-50/80" : "bg-white"
+                  ].join(" ")}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-black">{row.rank} • {row.name}</p>
+                    <a
+                      href={row.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-semibold text-[#FC5200]"
+                    >
+                      View on Strava
+                    </a>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-600">{row.date}</p>
+                  <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-700">
+                    <p><span className="font-semibold text-slate-900">Dist:</span> {row.distance}</p>
+                    <p><span className="font-semibold text-slate-900">Pace:</span> {row.pace}</p>
+                    <p><span className="font-semibold text-slate-900">Time:</span> {row.time}</p>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </div>

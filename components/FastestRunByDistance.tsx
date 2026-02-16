@@ -43,30 +43,29 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
 
   return (
     <section>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <h3 className="text-lg font-black md:text-2xl">Fastest Run</h3>
-        <TopTenModal title={`Fastest Run (${current.label})`} rows={modalRows} />
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-2">
-        {groups.map((group) => {
-          const active = group.key === current.key;
-          return (
-            <button
-              key={group.key}
-              type="button"
-              onClick={() => setSelected(group.key)}
-              className={[
-                "rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
-                active
-                  ? "border-[#FC5200] bg-[#FC5200] text-white"
-                  : "border-black/10 bg-white text-slate-600 hover:border-[#FC5200]/50 hover:text-black"
-              ].join(" ")}
-            >
-              {group.label}
-            </button>
-          );
-        })}
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+          {groups.map((group) => {
+            const active = group.key === current.key;
+            return (
+              <button
+                key={group.key}
+                type="button"
+                onClick={() => setSelected(group.key)}
+                className={[
+                  "rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
+                  active
+                    ? "border-[#FC5200] bg-[#FC5200] text-white"
+                    : "border-black/10 bg-white text-slate-600 hover:border-[#FC5200]/50 hover:text-black"
+                ].join(" ")}
+              >
+                {group.label}
+              </button>
+            );
+          })}
+          <TopTenModal title={`Fastest Run (${current.label})`} rows={modalRows} />
+        </div>
       </div>
 
       {topThree.length > 0 ? (
