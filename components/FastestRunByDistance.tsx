@@ -44,7 +44,7 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
   return (
     <section>
       <div className="flex flex-wrap items-center gap-3">
-        <h3 className="text-lg font-black md:text-2xl">Fastest Run</h3>
+        <h3 className="text-xl font-extrabold tracking-tight text-black md:text-2xl">Fastest Run</h3>
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           {groups.map((group) => {
             const active = group.key === current.key;
@@ -80,7 +80,7 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
                   {run.date} • {rankLabel(index)}
                 </p>
                 <p className="mt-2 text-xl font-black leading-tight text-black sm:text-2xl">{run.name || "Run"}</p>
-                <div className="mt-5 grid grid-cols-3 divide-x divide-black/10">
+                <div className="mt-4 grid grid-cols-3 divide-x divide-black/10">
                   <div className="pr-3">
                     <p className="text-sm text-slate-600">Distance</p>
                     <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{run.distance}</p>
@@ -94,7 +94,6 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
                     <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{run.time}</p>
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-slate-600">Overall pace rank</p>
                 <MapPreview polyline={run.summaryPolyline} label="Route" />
                 <a
                   href={`https://www.strava.com/activities/${run.id}`}

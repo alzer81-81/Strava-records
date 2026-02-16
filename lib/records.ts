@@ -24,10 +24,11 @@ export async function recomputeWindow(params: {
   });
 
   const totals = computeTotals(activities);
+  const byFastestPace = [...activities].sort((a, b) => paceSecondsPerKm(a) - paceSecondsPerKm(b));
   const bestActivityIds = {
-    longestRunId: activities.sort((a, b) => b.distance - a.distance)[0]?.id ?? null,
-    fastestAvgId: activities.sort((a, b) => b.averageSpeed - a.averageSpeed)[0]?.id ?? null,
-    biggestClimbId: activities.sort((a, b) => b.elevationGain - a.elevationGain)[0]?.id ?? null
+    longestRunId: [...activities].sort((a, b) => b.distance - a.distance)[0]?.id ?? null,
+    fastestAvgId: byFastestPace[0]?.id ?? null,
+    biggestClimbId: [...activities].sort((a, b) => b.elevationGain - a.elevationGain)[0]?.id ?? null
   };
 
   await prisma.periodSummary.upsert({
@@ -76,10 +77,23 @@ export async function recomputeWindow(params: {
 
     for (const target of targetDistances) {
       const effort = resolveEffortForTarget(efforts, target);
-      if (!effort) continue;
+      if (effort) {
+        mergeDistanceRecords(recordMap, {
+          distanceTarget: target,
+          bestTimeSeconds: effort.elapsed_time,
+          activityId: activity.id,
+          achievedAt: activity.startDate
+        });
+        continue;
+      }
+
+      // Fallback when Strava best_efforts are not cached:
+      // use full-run moving time if activity distance closely matches the target.
+      const estimatedTime = estimateFromActivityDistance(activity.distance, activity.movingTime, target);
+      if (!estimatedTime) continue;
       mergeDistanceRecords(recordMap, {
         distanceTarget: target,
-        bestTimeSeconds: effort.elapsed_time,
+        bestTimeSeconds: estimatedTime,
         activityId: activity.id,
         achievedAt: activity.startDate
       });
@@ -116,4 +130,30 @@ export async function recomputeWindow(params: {
   }
 
   return { totals };
+}
+
+function paceSecondsPerKm(activity: { distance: number; movingTime: number; averageSpeed: number }) {
+  if (activity.distance > 0 && activity.movingTime > 0) {
+    return activity.movingTime / (activity.distance / 1000);
+  }
+  if (activity.averageSpeed > 0) {
+    return 1000 / activity.averageSpeed;
+  }
+  return Number.POSITIVE_INFINITY;
+}
+
+function estimateFromActivityDistance(distanceMeters: number, movingTimeSeconds: number, targetMeters: number) {
+  if (distanceMeters <= 0 || movingTimeSeconds <= 0) return null;
+  const tolerance = distanceTolerance(targetMeters);
+  if (Math.abs(distanceMeters - targetMeters) > tolerance) return null;
+  return Math.round(movingTimeSeconds * (targetMeters / distanceMeters));
+}
+
+function distanceTolerance(targetMeters: number) {
+  if (targetMeters <= 400) return 40;
+  if (targetMeters <= 1000) return 90;
+  if (targetMeters <= 5000) return 220;
+  if (targetMeters <= 10000) return 380;
+  if (targetMeters <= 21097) return 650;
+  return 1200;
 }

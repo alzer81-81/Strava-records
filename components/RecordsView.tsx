@@ -173,12 +173,12 @@ export async function RecordsView({
   const activitiesById = new Map(runsForFastest.map((activity) => [activity.id, activity]));
 
   return (
-    <div className="flex flex-col gap-6 text-black">
+    <div className="flex flex-col gap-7 text-black">
       <AutoSync enabled windowType={windowType} />
       <section className="px-1 py-1">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="font-[var(--font-fraunces)] text-2xl font-black text-black md:text-4xl">{windowTitle}</h1>
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-blaze">
+          <h1 className="font-[var(--font-fraunces)] text-2xl font-extrabold tracking-tight text-black md:text-4xl">{windowTitle}</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blaze md:text-sm">
             <span className="md:hidden">{displayedRangeMobile}</span>
             <span className="hidden md:inline">{displayedRange}</span>
           </p>
@@ -216,7 +216,7 @@ export async function RecordsView({
 
       <section>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-lg font-black md:text-2xl">Longest Run</h3>
+          <h3 className="text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
           <TopTenModal
             title="Longest Run"
             rows={longestRunsTop10.map((run, index) => ({
@@ -240,7 +240,7 @@ export async function RecordsView({
                 >
                   <p className="text-xs font-medium text-slate-500">{formatDate(run.startDate)} • {rankLabel(index)}</p>
                   <p className="mt-2 text-xl font-black leading-tight text-black sm:text-2xl">{run.name ?? "Run"}</p>
-                  <div className="mt-5 grid grid-cols-3 divide-x divide-black/10">
+                  <div className="mt-4 grid grid-cols-3 divide-x divide-black/10">
                     <div className="pr-3">
                       <p className="text-sm text-slate-600">Distance</p>
                       <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{formatKm(run.distance)} km</p>
@@ -276,7 +276,7 @@ export async function RecordsView({
 
       <section>
         <div className="flex items-center justify-between">
-          <h3 className="font-[var(--font-fraunces)] text-2xl font-black">Best Times</h3>
+          <h3 className="font-[var(--font-fraunces)] text-2xl font-extrabold tracking-tight">Best Times</h3>
         </div>
         <div className="mt-4 grid grid-cols-1 gap-3 min-[800px]:grid-cols-2">
           {targets.map((target) => {
@@ -294,7 +294,7 @@ export async function RecordsView({
               >
                 <div className="flex items-center gap-3">
                   <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="min-w-0 flex-1 pr-2">
+                  <div className="min-w-0 flex-1 pr-1">
                     <p className="whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{formatTarget(target)}</p>
                     <span className="mt-1 block whitespace-nowrap text-sm font-black text-black md:text-base">{formatTime(record.bestTimeSeconds)}</span>
                   </div>
@@ -318,11 +318,11 @@ export async function RecordsView({
 
       <section>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-lg font-black md:text-2xl">When You Usually Run</h3>
+          <h3 className="text-xl font-extrabold tracking-tight text-black md:text-2xl">When You Usually Run</h3>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
           {timeOfDay.summary.map((bucket) => (
-            <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-4">
+            <div key={bucket.label} className="rounded-lg border border-black/10 bg-white p-3 md:p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{bucket.label}</p>
               <div className="mt-3 flex items-end gap-2">
                 <p className="stat-pop text-2xl font-black text-black md:text-3xl">{bucket.count}</p>
@@ -352,10 +352,10 @@ function TopStatCard({
 }) {
   return (
     <div className="min-w-0 rounded-xl border border-black/10 bg-white p-4 shadow-card transition-transform duration-200 hover:-translate-y-0.5 md:p-5">
-      <p className="stat-pop whitespace-nowrap text-[1.8rem] font-black leading-none text-black sm:text-4xl md:text-5xl">
+      <p className="stat-pop whitespace-nowrap text-[1.7rem] font-extrabold leading-none text-black sm:text-4xl md:text-[2.8rem]">
         {display ?? <AnimatedNumber value={value ?? null} decimals={decimals} />}
       </p>
-      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px] md:mt-2 md:text-xs">{label}</p>
+      <p className="mt-1 truncate text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:text-[11px] md:mt-2 md:text-xs">{label}</p>
     </div>
   );
 }
