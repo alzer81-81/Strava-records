@@ -1,6 +1,6 @@
 import { prisma } from "../lib/db";
 import { getWindowRange, WindowType } from "../lib/time";
-import { selectDistanceTargets } from "../lib/analytics";
+import { extractBestEfforts, mergeDistanceRecords, resolveEffortForTarget, selectDistanceTargets } from "../lib/analytics";
 import { MapPreview } from "./MapPreview";
 import { AutoSync } from "./AutoSync";
 import { AnimatedNumber } from "./AnimatedNumber";
@@ -36,22 +36,6 @@ export async function RecordsView({
   });
   const totals = getTotals(summary?.totals);
 
-  const records = await prisma.record.findMany({
-    where: {
-      userId,
-      windowType: windowType,
-      windowKey: key,
-      sportType: "RUN"
-    }
-  });
-  const recordActivities = await prisma.activity.findMany({
-    where: {
-      id: { in: records.map((r) => r.activityId) }
-    },
-    select: { id: true, summaryPolyline: true }
-  });
-  const activitiesById = new Map(recordActivities.map((activity) => [activity.id, activity]));
-
   const longestRunsTop10 = await prisma.activity.findMany({
     where: {
       userId,
@@ -73,6 +57,15 @@ export async function RecordsView({
     },
     orderBy: { startDate: "desc" }
   });
+
+  const effortCaches = await prisma.effortCache.findMany({
+    where: {
+      userId,
+      activityId: { in: runsForFastest.map((run) => run.id) },
+      kind: "best_effort"
+    }
+  });
+  const cacheByActivity = new Map(effortCaches.map((cache) => [cache.activityId, cache]));
   const fastestDistanceGroups = [
     { key: "1000", label: "1K", targetMeters: 1000, toleranceMeters: 120 },
     { key: "5000", label: "5K", targetMeters: 5000, toleranceMeters: 320 },
@@ -124,6 +117,34 @@ export async function RecordsView({
   const avgHeartrate = averageHeartRate(hrValues);
 
   const targets = selectDistanceTargets();
+  const recordsByDistance = new Map<number, { distanceTarget: number; bestTimeSeconds: number; activityId: string; achievedAt: Date }>();
+
+  for (const run of runsForFastest) {
+    const cache = cacheByActivity.get(run.id) ?? null;
+    const efforts = extractBestEfforts(cache);
+    for (const target of targets) {
+      const effort = resolveEffortForTarget(efforts, target);
+      if (effort) {
+        mergeDistanceRecords(recordsByDistance, {
+          distanceTarget: target,
+          bestTimeSeconds: effort.elapsed_time,
+          activityId: run.id,
+          achievedAt: run.startDate
+        });
+        continue;
+      }
+      const estimatedTime = estimateFromActivityDistance(run.distance, run.movingTime, target);
+      if (!estimatedTime) continue;
+      mergeDistanceRecords(recordsByDistance, {
+        distanceTarget: target,
+        bestTimeSeconds: estimatedTime,
+        activityId: run.id,
+        achievedAt: run.startDate
+      });
+    }
+  }
+
+  const activitiesById = new Map(runsForFastest.map((activity) => [activity.id, activity]));
 
   return (
     <div className="flex flex-col gap-6 text-black">
@@ -233,7 +254,7 @@ export async function RecordsView({
         </div>
         <div className="mt-4 grid grid-cols-1 gap-3 min-[800px]:grid-cols-2">
           {targets.map((target) => {
-            const record = records.find((r) => r.distanceTarget === target);
+            const record = recordsByDistance.get(target);
             const recordActivity = record
               ? activitiesById.get(record.activityId) ?? null
               : null;
@@ -496,4 +517,20 @@ function paceSecondsPerKm(activity: { distance: number; movingTime: number; aver
     return 1000 / activity.averageSpeed;
   }
   return Number.POSITIVE_INFINITY;
+}
+
+function estimateFromActivityDistance(distanceMeters: number, movingTimeSeconds: number, targetMeters: number) {
+  if (distanceMeters <= 0 || movingTimeSeconds <= 0) return null;
+  const tolerance = distanceTolerance(targetMeters);
+  if (Math.abs(distanceMeters - targetMeters) > tolerance) return null;
+  return Math.round(movingTimeSeconds * (targetMeters / distanceMeters));
+}
+
+function distanceTolerance(targetMeters: number) {
+  if (targetMeters <= 400) return 40;
+  if (targetMeters <= 1000) return 90;
+  if (targetMeters <= 5000) return 220;
+  if (targetMeters <= 10000) return 380;
+  if (targetMeters <= 21097) return 650;
+  return 1200;
 }
