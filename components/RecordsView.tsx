@@ -6,6 +6,7 @@ import { AutoSync } from "./AutoSync";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { TopTenModal } from "./TopTenModal";
 import { FastestRunByDistance } from "./FastestRunByDistance";
+import { BestTimesGroupedList, type PRRecord } from "./BestTimesGroupedList";
 
 export async function RecordsView({
   userId,
@@ -170,7 +171,18 @@ export async function RecordsView({
     }
   }
 
-  const activitiesById = new Map(runsForFastest.map((activity) => [activity.id, activity]));
+  const prRecords: PRRecord[] = targets.map((target) => {
+    const record = recordsByDistance.get(target);
+    return {
+      id: `pr-${target}`,
+      distanceKey: distanceKeyFromMeters(target),
+      distanceLabel: formatTarget(target),
+      distanceMeters: target,
+      bestTimeSeconds: record?.bestTimeSeconds ?? null,
+      activityId: record?.activityId,
+      achievedAt: record?.achievedAt?.toISOString()
+    };
+  });
 
   return (
     <div className="flex flex-col gap-7 text-black">
@@ -275,45 +287,7 @@ export async function RecordsView({
       <FastestRunByDistance groups={fastestRunsByDistance} />
 
       <section>
-        <div className="flex items-center justify-between">
-          <h3 className="font-[var(--font-fraunces)] text-2xl font-extrabold tracking-tight">Best Times</h3>
-        </div>
-        <div className="mt-4 grid grid-cols-1 gap-3 min-[800px]:grid-cols-2">
-          {targets.map((target) => {
-            const record = recordsByDistance.get(target);
-            const recordActivity = record
-              ? activitiesById.get(record.activityId) ?? null
-              : null;
-            return record ? (
-              <a
-                key={target}
-                href={`https://www.strava.com/activities/${record.activityId}`}
-                target="_blank"
-                rel="noreferrer"
-                className="group block rounded-xl border border-black/10 bg-white px-3 py-3 shadow-card transition duration-200 hover:scale-[1.01] hover:border-black/20 hover:shadow-soft"
-              >
-                <div className="flex items-center gap-3">
-                  <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="min-w-0 flex-1 pr-1">
-                    <p className="whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{formatTarget(target)}</p>
-                    <span className="mt-1 block whitespace-nowrap text-sm font-black text-black md:text-base">{formatTime(record.bestTimeSeconds)}</span>
-                  </div>
-                  <span className="whitespace-nowrap text-xs font-semibold text-[#FC5200] md:text-sm">View activity</span>
-                </div>
-              </a>
-            ) : (
-              <div key={target} className="rounded-xl border border-black/10 bg-white px-3 py-3 shadow-card">
-                <div className="flex items-center gap-3">
-                  <MapPreview polyline={recordActivity?.summaryPolyline ?? null} label="Route" compact />
-                  <div className="min-w-0 flex-1 pr-2">
-                    <p className="whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{formatTarget(target)}</p>
-                    <span className="mt-1 block whitespace-nowrap text-sm font-black text-slate-500 md:text-base">No record yet</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <BestTimesGroupedList records={prRecords} />
       </section>
 
       <section>
@@ -468,6 +442,21 @@ function rankLabel(index: number) {
   if (index === 1) return "2nd";
   if (index === 2) return "3rd";
   return `${index + 1}th`;
+}
+
+function distanceKeyFromMeters(distance: number): PRRecord["distanceKey"] {
+  if (distance === 400) return "400m";
+  if (distance === 805) return "half_mile";
+  if (distance === 1000) return "1k";
+  if (distance === 1609) return "1_mile";
+  if (distance === 3219) return "2_mile";
+  if (distance === 5000) return "5k";
+  if (distance === 10000) return "10k";
+  if (distance === 15000) return "15k";
+  if (distance === 16093) return "10_mile";
+  if (distance === 21097) return "half_marathon";
+  if (distance === 42195) return "marathon";
+  return `distance_${distance}`;
 }
 
 function getTotals(value: unknown) {
