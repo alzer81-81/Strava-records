@@ -4,6 +4,7 @@ import { selectDistanceTargets } from "../lib/analytics";
 import { MapPreview } from "./MapPreview";
 import { AutoSync } from "./AutoSync";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { TopTenModal } from "./TopTenModal";
 
 export async function RecordsView({
   userId,
@@ -50,15 +51,16 @@ export async function RecordsView({
   });
   const activitiesById = new Map(recordActivities.map((activity) => [activity.id, activity]));
 
-  const longestRuns = await prisma.activity.findMany({
+  const longestRunsTop10 = await prisma.activity.findMany({
     where: {
       userId,
       sportType: "RUN",
       startDate: { gte: start, lt: end }
     },
     orderBy: { distance: "desc" },
-    take: 3
+    take: 10
   });
+  const longestRuns = longestRunsTop10.slice(0, 3);
 
   const runsForFastest = await prisma.activity.findMany({
     where: {
@@ -70,9 +72,10 @@ export async function RecordsView({
     },
     orderBy: { startDate: "desc" }
   });
-  const fastestRuns = [...runsForFastest]
+  const fastestRunsTop10 = [...runsForFastest]
     .sort((a, b) => paceSecondsPerKm(a) - paceSecondsPerKm(b))
-    .slice(0, 3);
+    .slice(0, 10);
+  const fastestRuns = fastestRunsTop10.slice(0, 3);
 
   const activitiesForTimeOfDay = await prisma.activity.findMany({
     where: {
@@ -140,7 +143,21 @@ export async function RecordsView({
 
 
       <section>
-        <h3 className="text-lg font-black md:text-2xl">Longest Run</h3>
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-lg font-black md:text-2xl">Longest Run</h3>
+          <TopTenModal
+            title="Longest Run"
+            rows={longestRunsTop10.map((run, index) => ({
+              rank: rankLabel(index),
+              date: formatDate(run.startDate),
+              name: run.name ?? "Run",
+              distance: `${formatKm(run.distance)} km`,
+              pace: formatPace(run),
+              time: formatTime(run.movingTime),
+              url: `https://www.strava.com/activities/${run.id}`
+            }))}
+          />
+        </div>
         {longestRuns.length > 0 ? (
           <div className="-mx-1 mt-4 overflow-x-auto pb-2">
             <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
@@ -184,7 +201,21 @@ export async function RecordsView({
       </section>
 
       <section>
-        <h3 className="text-lg font-black md:text-2xl">Fastest Run</h3>
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-lg font-black md:text-2xl">Fastest Run</h3>
+          <TopTenModal
+            title="Fastest Run"
+            rows={fastestRunsTop10.map((run, index) => ({
+              rank: rankLabel(index),
+              date: formatDate(run.startDate),
+              name: run.name ?? "Run",
+              distance: `${formatKm(run.distance)} km`,
+              pace: formatPace(run),
+              time: formatTime(run.movingTime),
+              url: `https://www.strava.com/activities/${run.id}`
+            }))}
+          />
+        </div>
         {fastestRuns.length > 0 ? (
           <div className="-mx-1 mt-4 overflow-x-auto pb-2">
             <div className="flex gap-3 px-1 md:grid md:grid-cols-3 md:gap-4 md:px-0">
