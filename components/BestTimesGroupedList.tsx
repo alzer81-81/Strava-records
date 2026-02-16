@@ -25,30 +25,6 @@ export type PRRecord = {
   achievedAt?: string;
 };
 
-type Section = {
-  id: string;
-  title: string;
-  keys: string[];
-};
-
-const SECTION_CONFIG: Section[] = [
-  {
-    id: "short",
-    title: "Short",
-    keys: ["400m", "1k", "half_mile", "1_mile"]
-  },
-  {
-    id: "mid",
-    title: "Mid",
-    keys: ["2_mile", "5k", "10k", "15k"]
-  },
-  {
-    id: "long",
-    title: "Long",
-    keys: ["10_mile", "half_marathon", "marathon"]
-  }
-];
-
 export function BestTimesGroupedList({
   records,
   onAddGoal
@@ -56,7 +32,11 @@ export function BestTimesGroupedList({
   records: PRRecord[];
   onAddGoal?: (record: PRRecord) => void;
 }) {
-  const sectionBuckets = useMemo(() => buildSections(records), [records]);
+  const sortedRecords = useMemo(
+    () => [...records].sort((a, b) => a.distanceMeters - b.distanceMeters),
+    [records]
+  );
+  const normalization = useMemo(() => normalizeTimes(sortedRecords), [sortedRecords]);
 
   return (
     <section aria-labelledby="best-times-title">
@@ -66,125 +46,178 @@ export function BestTimesGroupedList({
         </h3>
       </div>
 
-      <div className="mt-4 space-y-6">
-        {sectionBuckets.map((section) => (
-          <SectionTable key={section.id} section={section} onAddGoal={onAddGoal} />
-        ))}
+      <div className="mt-4 overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
+        <div className="hidden md:block">
+          <table className="w-full table-fixed" aria-label="Personal records by distance">
+            <thead className="border-b border-black/10 bg-slate-50/70 text-left">
+              <tr>
+                <th scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
+                  Distance
+                </th>
+                <th scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
+                  Time
+                </th>
+                <th scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
+                  Pace
+                </th>
+                <th scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
+                  Achieved
+                </th>
+                <th scope="col" className="w-12 px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
+                  Open
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/10">
+              {sortedRecords.map((row) => (
+                <BestTimesTableRow
+                  key={row.id}
+                  row={row}
+                  normalization={normalization}
+                  onAddGoal={onAddGoal}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <ul className="divide-y divide-black/10 md:hidden" role="list" aria-label="Personal records by distance">
+          {sortedRecords.map((row) => (
+            <BestTimesMobileRow
+              key={row.id}
+              row={row}
+              normalization={normalization}
+              onAddGoal={onAddGoal}
+            />
+          ))}
+        </ul>
       </div>
     </section>
   );
 }
 
-function SectionTable({
-  section,
+function BestTimesTableRow({
+  row,
+  normalization,
   onAddGoal
 }: {
-  section: { id: string; title: string; rows: PRRecord[] };
+  row: PRRecord;
+  normalization: { min: number; max: number } | null;
   onAddGoal?: (record: PRRecord) => void;
 }) {
-  const normalization = normalizeTimes(section.rows);
+  const pace = row.bestTimeSeconds ? formatPace(row.bestTimeSeconds, row.distanceMeters) : "No pace yet";
+  const achievedOn = row.achievedAt ? formatAchievedDate(row.achievedAt) : "-";
+  const score = getScore(row.bestTimeSeconds, normalization);
+
+  if (row.activityId && row.bestTimeSeconds !== null) {
+    return (
+      <tr
+        tabIndex={0}
+        role="link"
+        onClick={() => window.open(`https://www.strava.com/activities/${row.activityId}`, "_blank", "noopener,noreferrer")}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            window.open(`https://www.strava.com/activities/${row.activityId}`, "_blank", "noopener,noreferrer");
+          }
+        }}
+        className="group cursor-pointer transition-colors hover:bg-black/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FC5200]"
+      >
+        <td className="px-4 py-3 text-sm font-medium text-slate-700">{row.distanceLabel}</td>
+        <td className="px-4 py-3">
+          <div className="relative inline-block min-w-[7rem]">
+            <div className="absolute inset-y-0 left-0 rounded-sm bg-slate-200/45" style={{ width: `${score}%` }} aria-hidden="true" />
+            <span className="relative tabular-nums text-2xl font-semibold leading-none text-black">{formatClockTime(row.bestTimeSeconds)}</span>
+          </div>
+        </td>
+        <td className="px-4 py-3 text-sm text-slate-500">{pace}</td>
+        <td className="px-4 py-3 text-sm text-slate-500">{achievedOn}</td>
+        <td className="px-4 py-3 text-right text-slate-400">
+          <span className="inline-flex opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+            <ChevronRightIcon />
+          </span>
+        </td>
+      </tr>
+    );
+  }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-black/10 bg-white shadow-card" aria-labelledby={`${section.id}-title`}>
-      <header className="sticky top-0 z-10 border-b border-black/10 bg-white/95 px-4 py-3 backdrop-blur">
-        <h4 id={`${section.id}-title`} className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-600">
-          {section.title}
-        </h4>
-      </header>
-
-      <ul role="list" className="divide-y divide-black/10">
-        {section.rows.map((row) => {
-          const pace = row.bestTimeSeconds ? formatPace(row.bestTimeSeconds, row.distanceMeters) : null;
-          const achievedOn = row.achievedAt ? formatAchievedDate(row.achievedAt) : null;
-          const score = getScore(row.bestTimeSeconds, normalization);
-
-          if (row.activityId && row.bestTimeSeconds !== null) {
-            return (
-              <li key={row.id}>
-                <a
-                  href={`https://www.strava.com/activities/${row.activityId}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-black/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC5200] focus-visible:ring-inset"
-                  aria-label={`${row.distanceLabel} best time ${formatClockTime(row.bestTimeSeconds)}. View on Strava in new tab.`}
-                >
-                  <div className="min-w-0">
-                    <div className="grid items-center gap-2 sm:grid-cols-[minmax(9rem,1fr)_minmax(8rem,auto)_minmax(10rem,auto)]">
-                      <p className="truncate text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{row.distanceLabel}</p>
-                      <div className="relative min-w-0">
-                        <div
-                          className="absolute inset-y-1 left-0 rounded-sm bg-slate-200/50"
-                          style={{ width: `${score}%` }}
-                          aria-hidden="true"
-                        />
-                        <p className="relative tabular-nums text-xl font-semibold leading-none text-black">{formatClockTime(row.bestTimeSeconds)}</p>
-                      </div>
-                      <p className="text-sm text-slate-500">
-                        {pace}
-                        {achievedOn ? ` • ${achievedOn}` : ""}
-                      </p>
-                    </div>
-                  </div>
-                  <span
-                    className="text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
-                    aria-hidden="true"
-                  >
-                    <ChevronRightIcon />
-                  </span>
-                </a>
-              </li>
-            );
-          }
-
-          return (
-            <li key={row.id}>
-              <div className="grid grid-cols-1 gap-3 px-4 py-3 sm:grid-cols-[minmax(9rem,1fr)_minmax(0,1fr)_auto] sm:items-center">
-                <p className="truncate text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{row.distanceLabel}</p>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-700">No record yet</p>
-                  <p className="text-xs text-slate-500">Log a run to set this PR.</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onAddGoal?.(row)}
-                  className="inline-flex items-center justify-center rounded-md border border-black/15 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-black/30 hover:bg-black/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC5200] focus-visible:ring-offset-1"
-                  aria-label={`Set a goal for ${row.distanceLabel}`}
-                >
-                  Add goal
-                </button>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+    <tr>
+      <td className="px-4 py-3 text-sm font-medium text-slate-700">{row.distanceLabel}</td>
+      <td className="px-4 py-3">
+        <span className="text-sm font-medium text-slate-700">No record yet</span>
+      </td>
+      <td className="px-4 py-3 text-sm text-slate-500">Log a run to set this PR.</td>
+      <td className="px-4 py-3 text-sm text-slate-500">-</td>
+      <td className="px-4 py-3 text-right">
+        <button
+          type="button"
+          onClick={() => onAddGoal?.(row)}
+          className="inline-flex items-center justify-center rounded-md border border-black/15 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-black/30 hover:bg-black/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC5200] focus-visible:ring-offset-1"
+          aria-label={`Set a goal for ${row.distanceLabel}`}
+        >
+          Add goal
+        </button>
+      </td>
+    </tr>
   );
 }
 
-function buildSections(records: PRRecord[]) {
-  const byKey = new Map(records.map((record) => [record.distanceKey, record]));
-  const sections = SECTION_CONFIG.map((section) => {
-    const rows = section.keys
-      .map((key) => byKey.get(key))
-      .filter((row): row is PRRecord => Boolean(row))
-      .sort((a, b) => a.distanceMeters - b.distanceMeters);
-    return { id: section.id, title: section.title, rows };
-  });
+function BestTimesMobileRow({
+  row,
+  normalization,
+  onAddGoal
+}: {
+  row: PRRecord;
+  normalization: { min: number; max: number } | null;
+  onAddGoal?: (record: PRRecord) => void;
+}) {
+  const pace = row.bestTimeSeconds ? formatPace(row.bestTimeSeconds, row.distanceMeters) : "No pace yet";
+  const achievedOn = row.achievedAt ? formatAchievedDate(row.achievedAt) : "-";
+  const score = getScore(row.bestTimeSeconds, normalization);
 
-  const knownKeys = new Set(SECTION_CONFIG.flatMap((section) => section.keys));
-  const remaining = records
-    .filter((record) => !knownKeys.has(record.distanceKey))
-    .sort((a, b) => a.distanceMeters - b.distanceMeters);
-
-  if (remaining.length > 0) {
-    sections.push({
-      id: "remaining",
-      title: "Additional",
-      rows: remaining
-    });
+  if (row.activityId && row.bestTimeSeconds !== null) {
+    return (
+      <li>
+        <a
+          href={`https://www.strava.com/activities/${row.activityId}`}
+          target="_blank"
+          rel="noreferrer"
+          className="group block px-4 py-3 transition-colors hover:bg-black/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FC5200]"
+          aria-label={`${row.distanceLabel} best time ${formatClockTime(row.bestTimeSeconds)}. View on Strava in new tab.`}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{row.distanceLabel}</p>
+            <span className="text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+              <ChevronRightIcon />
+            </span>
+          </div>
+          <div className="mt-2 relative inline-block min-w-[7rem]">
+            <div className="absolute inset-y-0 left-0 rounded-sm bg-slate-200/45" style={{ width: `${score}%` }} aria-hidden="true" />
+            <p className="relative tabular-nums text-2xl font-semibold leading-none text-black">{formatClockTime(row.bestTimeSeconds)}</p>
+          </div>
+          <p className="mt-2 text-sm text-slate-500">{pace}</p>
+          <p className="mt-1 text-xs text-slate-500">{achievedOn}</p>
+        </a>
+      </li>
+    );
   }
 
-  return sections.filter((section) => section.rows.length > 0);
+  return (
+    <li className="px-4 py-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{row.distanceLabel}</p>
+      <p className="mt-2 text-sm font-medium text-slate-700">No record yet</p>
+      <p className="mt-1 text-xs text-slate-500">Log a run to set this PR.</p>
+      <button
+        type="button"
+        onClick={() => onAddGoal?.(row)}
+        className="mt-2 inline-flex items-center justify-center rounded-md border border-black/15 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-black/30 hover:bg-black/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC5200] focus-visible:ring-offset-1"
+        aria-label={`Set a goal for ${row.distanceLabel}`}
+      >
+        Add goal
+      </button>
+    </li>
+  );
 }
 
 function normalizeTimes(rows: PRRecord[]) {
@@ -210,7 +243,7 @@ function getScore(bestTimeSeconds: number | null, normalization: { min: number; 
 function formatAchievedDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return `Achieved on ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date)}`;
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
 function ChevronRightIcon() {
