@@ -47,43 +47,17 @@ export function BestTimesGroupedList({
       </div>
 
       <div className="mt-4 overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
-        <div className="hidden md:block">
-          <table className="w-full table-fixed" aria-label="Personal records by distance">
-            <thead className="border-b border-black/10 bg-slate-50/70 text-left">
-              <tr>
-                <th scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
-                  Distance
-                </th>
-                <th scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
-                  Time
-                </th>
-                <th scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
-                  Pace
-                </th>
-                <th scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
-                  Achieved
-                </th>
-                <th scope="col" className="w-12 px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
-                  Open
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/10">
-              {sortedRecords.map((row) => (
-                <BestTimesTableRow
-                  key={row.id}
-                  row={row}
-                  normalization={normalization}
-                  onAddGoal={onAddGoal}
-                />
-              ))}
-            </tbody>
-          </table>
+        <div className="hidden border-b border-black/10 bg-slate-50/70 px-4 py-3 md:grid md:grid-cols-[1.1fr_1fr_1.2fr_1fr_auto] md:items-center md:gap-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Distance</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Time</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Pace</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Achieved</p>
+          <p className="text-right text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Open</p>
         </div>
 
-        <ul className="divide-y divide-black/10 md:hidden" role="list" aria-label="Personal records by distance">
+        <ul className="divide-y divide-black/10" role="list" aria-label="Personal records by distance">
           {sortedRecords.map((row) => (
-            <BestTimesMobileRow
+            <BestTimesRow
               key={row.id}
               row={row}
               normalization={normalization}
@@ -96,74 +70,7 @@ export function BestTimesGroupedList({
   );
 }
 
-function BestTimesTableRow({
-  row,
-  normalization,
-  onAddGoal
-}: {
-  row: PRRecord;
-  normalization: { min: number; max: number } | null;
-  onAddGoal?: (record: PRRecord) => void;
-}) {
-  const pace = row.bestTimeSeconds ? formatPace(row.bestTimeSeconds, row.distanceMeters) : "No pace yet";
-  const achievedOn = row.achievedAt ? formatAchievedDate(row.achievedAt) : "-";
-  const score = getScore(row.bestTimeSeconds, normalization);
-
-  if (row.activityId && row.bestTimeSeconds !== null) {
-    return (
-      <tr
-        tabIndex={0}
-        role="link"
-        onClick={() => window.open(`https://www.strava.com/activities/${row.activityId}`, "_blank", "noopener,noreferrer")}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            window.open(`https://www.strava.com/activities/${row.activityId}`, "_blank", "noopener,noreferrer");
-          }
-        }}
-        className="group cursor-pointer transition-colors hover:bg-black/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FC5200]"
-      >
-        <td className="px-4 py-3 text-sm font-medium text-slate-700">{row.distanceLabel}</td>
-        <td className="px-4 py-3">
-          <div className="relative inline-block min-w-[7rem]">
-            <div className="absolute inset-y-0 left-0 rounded-sm bg-slate-200/45" style={{ width: `${score}%` }} aria-hidden="true" />
-            <span className="relative tabular-nums text-2xl font-semibold leading-none text-black">{formatClockTime(row.bestTimeSeconds)}</span>
-          </div>
-        </td>
-        <td className="px-4 py-3 text-sm text-slate-500">{pace}</td>
-        <td className="px-4 py-3 text-sm text-slate-500">{achievedOn}</td>
-        <td className="px-4 py-3 text-right text-slate-400">
-          <span className="inline-flex opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-            <ChevronRightIcon />
-          </span>
-        </td>
-      </tr>
-    );
-  }
-
-  return (
-    <tr>
-      <td className="px-4 py-3 text-sm font-medium text-slate-700">{row.distanceLabel}</td>
-      <td className="px-4 py-3">
-        <span className="text-sm font-medium text-slate-700">No record yet</span>
-      </td>
-      <td className="px-4 py-3 text-sm text-slate-500">Log a run to set this PR.</td>
-      <td className="px-4 py-3 text-sm text-slate-500">-</td>
-      <td className="px-4 py-3 text-right">
-        <button
-          type="button"
-          onClick={() => onAddGoal?.(row)}
-          className="inline-flex items-center justify-center rounded-md border border-black/15 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-black/30 hover:bg-black/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC5200] focus-visible:ring-offset-1"
-          aria-label={`Set a goal for ${row.distanceLabel}`}
-        >
-          Add goal
-        </button>
-      </td>
-    </tr>
-  );
-}
-
-function BestTimesMobileRow({
+function BestTimesRow({
   row,
   normalization,
   onAddGoal
@@ -186,18 +93,24 @@ function BestTimesMobileRow({
           className="group block px-4 py-3 transition-colors hover:bg-black/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FC5200]"
           aria-label={`${row.distanceLabel} best time ${formatClockTime(row.bestTimeSeconds)}. View on Strava in new tab.`}
         >
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 md:hidden">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{row.distanceLabel}</p>
             <span className="text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
               <ChevronRightIcon />
             </span>
           </div>
-          <div className="mt-2 relative inline-block min-w-[7rem]">
-            <div className="absolute inset-y-0 left-0 rounded-sm bg-slate-200/45" style={{ width: `${score}%` }} aria-hidden="true" />
-            <p className="relative tabular-nums text-2xl font-semibold leading-none text-black">{formatClockTime(row.bestTimeSeconds)}</p>
+          <div className="mt-1 grid gap-2 md:mt-0 md:grid-cols-[1.1fr_1fr_1.2fr_1fr_auto] md:items-center md:gap-4">
+            <p className="hidden text-sm font-medium text-slate-700 md:block">{row.distanceLabel}</p>
+            <div className="relative inline-block min-w-[7rem]">
+              <div className="absolute inset-y-0 left-0 rounded-sm bg-slate-200/45" style={{ width: `${score}%` }} aria-hidden="true" />
+              <p className="relative tabular-nums text-2xl font-semibold leading-none text-black">{formatClockTime(row.bestTimeSeconds)}</p>
+            </div>
+            <p className="text-sm text-slate-500">{pace}</p>
+            <p className="text-xs text-slate-500 md:text-sm">{achievedOn}</p>
+            <span className="hidden justify-self-end text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 md:inline-flex">
+              <ChevronRightIcon />
+            </span>
           </div>
-          <p className="mt-2 text-sm text-slate-500">{pace}</p>
-          <p className="mt-1 text-xs text-slate-500">{achievedOn}</p>
         </a>
       </li>
     );
@@ -205,17 +118,22 @@ function BestTimesMobileRow({
 
   return (
     <li className="px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{row.distanceLabel}</p>
-      <p className="mt-2 text-sm font-medium text-slate-700">No record yet</p>
-      <p className="mt-1 text-xs text-slate-500">Log a run to set this PR.</p>
-      <button
-        type="button"
-        onClick={() => onAddGoal?.(row)}
-        className="mt-2 inline-flex items-center justify-center rounded-md border border-black/15 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-black/30 hover:bg-black/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC5200] focus-visible:ring-offset-1"
-        aria-label={`Set a goal for ${row.distanceLabel}`}
-      >
-        Add goal
-      </button>
+      <div className="grid gap-2 md:grid-cols-[1.1fr_1fr_1.2fr_1fr_auto] md:items-center md:gap-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 md:text-sm md:font-medium md:uppercase md:tracking-normal md:text-slate-700">
+          {row.distanceLabel}
+        </p>
+        <p className="text-sm font-medium text-slate-700">No record yet</p>
+        <p className="text-sm text-slate-500">Log a run to set this PR.</p>
+        <p className="text-sm text-slate-500">-</p>
+        <button
+          type="button"
+          onClick={() => onAddGoal?.(row)}
+          className="inline-flex items-center justify-center rounded-md border border-black/15 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-black/30 hover:bg-black/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC5200] focus-visible:ring-offset-1"
+          aria-label={`Set a goal for ${row.distanceLabel}`}
+        >
+          Add goal
+        </button>
+      </div>
     </li>
   );
 }
