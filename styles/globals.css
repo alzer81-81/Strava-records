@@ -18,22 +18,14 @@
   color-scheme: light;
   --font-manrope: "Mona Sans", "Inter", "Segoe UI", sans-serif;
   --font-fraunces: "Mona Sans", "Inter", "Segoe UI", sans-serif;
-  --app-bg: #f6f2ea;
+  --app-bg: #f6f6f6;
   --app-text: #0e0e11;
-}
-
-html[data-theme="dark"] {
-  color-scheme: dark;
-  --app-bg: #0f1115;
-  --app-text: #f3f4f6;
 }
 
 body {
   @apply antialiased;
   background-color: var(--app-bg);
   color: var(--app-text);
-  background-image: radial-gradient(circle at 8% -10%, rgba(252, 82, 0, 0.14) 0%, rgba(252, 82, 0, 0) 38%),
-    radial-gradient(circle at 88% -5%, rgba(47, 107, 255, 0.14) 0%, rgba(47, 107, 255, 0) 34%);
 }
 
 html,

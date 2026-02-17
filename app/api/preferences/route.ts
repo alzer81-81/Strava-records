@@ -7,7 +7,6 @@ const IS_PROD = process.env.NODE_ENV === "production";
 export async function POST(request: Request) {
   const formData = await request.formData();
   const distanceUnit = formData.get("distanceUnit");
-  const theme = formData.get("theme");
   const redirectToRaw = formData.get("redirectTo");
 
   const redirectTo =
@@ -19,16 +18,6 @@ export async function POST(request: Request) {
 
   if (distanceUnit === "km" || distanceUnit === "mi") {
     store.set("bt_distance_unit", distanceUnit, {
-      httpOnly: false,
-      sameSite: "lax",
-      secure: IS_PROD,
-      path: "/",
-      maxAge: ONE_YEAR_SECONDS
-    });
-  }
-
-  if (theme === "light" || theme === "dark" || theme === "system") {
-    store.set("bt_theme", theme, {
       httpOnly: false,
       sameSite: "lax",
       secure: IS_PROD,

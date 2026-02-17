@@ -1,6 +1,5 @@
 import "../styles/globals.css";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 const siteUrl = process.env.BASE_URL ?? "https://best-times-run.vercel.app";
 const metadataBase = new URL(siteUrl);
 
@@ -60,18 +59,11 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const theme = resolveTheme(cookies().get("bt_theme")?.value);
-
   return (
-    <html lang="en" data-theme={theme}>
+    <html lang="en">
       <body className="font-[var(--font-manrope)]">
         {children}
       </body>
     </html>
   );
-}
-
-function resolveTheme(value?: string) {
-  if (value === "light" || value === "dark") return value;
-  return "light";
 }

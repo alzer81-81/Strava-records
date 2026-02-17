@@ -194,10 +194,10 @@ export async function RecordsView({
     <div className="flex flex-col gap-0 text-black">
       <AutoSync enabled windowType={windowType} />
 
-      <section className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-gradient-to-r from-[#F4E8DE] to-[#DEE5EF] px-[max(1.5rem,calc((100vw-72rem)/2))] py-6 md:py-8">
+      <section className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#0F8CD2] px-[max(1.5rem,calc((100vw-72rem)/2))] py-6 md:py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="font-[var(--font-fraunces)] text-2xl font-extrabold tracking-tight text-black md:text-4xl">{windowTitle}</h1>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blaze md:text-sm">
+          <h1 className="font-[var(--font-fraunces)] text-2xl font-extrabold tracking-tight text-white md:text-4xl">{windowTitle}</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/90 md:text-sm">
             <span className="md:hidden">{displayedRangeMobile}</span>
             <span className="hidden md:inline">{displayedRange}</span>
           </p>
@@ -212,7 +212,7 @@ export async function RecordsView({
         </div>
       </section>
 
-      <div className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#F3F4F6] px-[max(1.5rem,calc((100vw-72rem)/2))] py-7 md:py-8">
+      <div className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#F6F6F6] px-[max(1.5rem,calc((100vw-72rem)/2))] py-7 md:py-8">
       <section>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
