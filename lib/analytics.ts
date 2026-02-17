@@ -90,6 +90,9 @@ export function resolveEffortForTarget(bestEfforts: BestEffort[], target: number
 
 function nameMatchesTarget(name: string, target: number) {
   const normalized = name.toLowerCase();
+  if (target === 42195 && (normalized.includes("half marathon") || normalized.includes("half-marathon") || normalized.includes(" hm "))) {
+    return false;
+  }
   const targetMap: Record<number, string[]> = {
     400: ["400m"],
     805: ["1/2 mile", "half mile", "0.5 mile"],
@@ -105,7 +108,12 @@ function nameMatchesTarget(name: string, target: number) {
     42195: ["marathon"]
   };
   const labels = targetMap[target] || [];
-  return labels.some((label) => normalized.includes(label));
+  return labels.some((label) => {
+    if (label === "marathon") {
+      return /(^|\s)marathon(\s|$)/.test(normalized) && !normalized.includes("half marathon");
+    }
+    return normalized.includes(label);
+  });
 }
 
 export function sportKey(sportType: SportType) {
