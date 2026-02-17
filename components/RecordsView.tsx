@@ -7,6 +7,9 @@ import { AnimatedNumber } from "./AnimatedNumber";
 import { TopTenModal } from "./TopTenModal";
 import { FastestRunByDistance } from "./FastestRunByDistance";
 import { BestTimesGroupedList, type PRRecord } from "./BestTimesGroupedList";
+import { cookies } from "next/headers";
+
+type DistanceUnit = "km" | "mi";
 
 export async function RecordsView({
   userId,
@@ -15,6 +18,7 @@ export async function RecordsView({
   userId: string;
   windowParam?: string;
 }) {
+  const distanceUnit = getDistanceUnitPreference();
   const windowType = normalizeWindow(windowParam);
   const now = new Date();
   const { start, end, key } = getWindowRange(windowType, now);
@@ -110,7 +114,7 @@ export async function RecordsView({
       date: formatDate(run.startDate),
       name: run.name,
       distance: formatTargetDistance(group.targetMeters),
-      pace: formatPaceForTarget(run.bestTimeSeconds, group.targetMeters),
+      pace: formatPaceForTarget(run.bestTimeSeconds, group.targetMeters, distanceUnit),
       time: formatTime(run.bestTimeSeconds),
       summaryPolyline: run.summaryPolyline
     }));
@@ -142,6 +146,8 @@ export async function RecordsView({
     select: { averageHeartrate: true }
   });
   const avgHeartrate = averageHeartRate(hrValues);
+  const avgDistance = totals.activityCount > 0 ? metersToUnit(totals.totalDistance / totals.activityCount, distanceUnit) : 0;
+  const avgPace = formatAveragePace(totals.totalDistance, totals.totalMovingTime, distanceUnit);
 
   const targets = selectDistanceTargets();
   const recordsByDistance = new Map<number, { distanceTarget: number; bestTimeSeconds: number; activityId: string; achievedAt: Date }>();
@@ -185,9 +191,10 @@ export async function RecordsView({
   });
 
   return (
-    <div className="flex flex-col gap-7 text-black">
+    <div className="flex flex-col gap-0 text-black">
       <AutoSync enabled windowType={windowType} />
-      <section className="px-1 py-1">
+
+      <section className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-gradient-to-r from-[#F4E8DE] to-[#DEE5EF] px-[max(1.5rem,calc((100vw-72rem)/2))] py-6 md:py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="font-[var(--font-fraunces)] text-2xl font-extrabold tracking-tight text-black md:text-4xl">{windowTitle}</h1>
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blaze md:text-sm">
@@ -195,37 +202,17 @@ export async function RecordsView({
             <span className="hidden md:inline">{displayedRange}</span>
           </p>
         </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <TopStatCard value={totals.activityCount} label="Activities" />
+          <TopStatCard display={formatDistanceWithUnit(totals.totalDistance, distanceUnit, 1)} label={`Total Distance (${distanceUnit})`} />
+          <TopStatCard value={avgDistance} decimals={1} label={`Avg Distance (${distanceUnit})`} />
+          <TopStatCard value={Math.round(totals.totalElevationGain)} label="Elevation (m)" />
+          <TopStatCard display={avgPace} label={`Avg Pace (/${distanceUnit})`} />
+          <TopStatCard value={avgHeartrate ? Math.round(avgHeartrate) : null} label="Average HR" />
+        </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-        <TopStatCard
-          value={totals.activityCount}
-          label="Activities"
-        />
-        <TopStatCard
-          value={totals.totalDistance / 1000}
-          decimals={1}
-          label="Kilometers"
-        />
-        <TopStatCard
-          display={formatMovingTimeCard(totals.totalMovingTime)}
-          label="Hours moving"
-        />
-        <TopStatCard
-          value={Math.round(totals.totalElevationGain)}
-          label="Meters climbed"
-        />
-        <TopStatCard
-          value={Math.round(estimateCalories(totals.totalDistance))}
-          label="Calories burned"
-        />
-        <TopStatCard
-          value={avgHeartrate ? Math.round(avgHeartrate) : null}
-          label="Average HR"
-        />
-      </section>
-
-
+      <div className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#F3F4F6] px-[max(1.5rem,calc((100vw-72rem)/2))] py-7 md:py-8">
       <section>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
@@ -235,8 +222,8 @@ export async function RecordsView({
               rank: rankLabel(index),
               date: formatDate(run.startDate),
               name: run.name ?? "Run",
-              distance: `${formatKm(run.distance)} km`,
-              pace: formatPace(run),
+              distance: formatDistanceWithUnit(run.distance, distanceUnit),
+              pace: formatPaceForActivity(run, distanceUnit),
               time: formatTime(run.movingTime),
               url: `https://www.strava.com/activities/${run.id}`
             }))}
@@ -255,11 +242,11 @@ export async function RecordsView({
                   <div className="mt-4 grid grid-cols-3 divide-x divide-black/10">
                     <div className="pr-3">
                       <p className="text-sm text-slate-600">Distance</p>
-                      <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{formatKm(run.distance)} km</p>
+                      <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{formatDistanceWithUnit(run.distance, distanceUnit)}</p>
                     </div>
                     <div className="px-3">
                       <p className="text-sm text-slate-600">Pace</p>
-                      <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{formatPace(run)}</p>
+                      <p className="mt-1 whitespace-nowrap text-[17px] font-semibold leading-tight text-black">{formatPaceForActivity(run, distanceUnit)}</p>
                     </div>
                     <div className="pl-3">
                       <p className="text-sm text-slate-600">Time</p>
@@ -287,7 +274,7 @@ export async function RecordsView({
       <FastestRunByDistance groups={fastestRunsByDistance} />
 
       <section>
-        <BestTimesGroupedList records={prRecords} />
+        <BestTimesGroupedList records={prRecords} distanceUnit={distanceUnit} />
       </section>
 
       <section>
@@ -307,8 +294,7 @@ export async function RecordsView({
           ))}
         </div>
       </section>
-
-
+      </div>
     </div>
   );
 }
@@ -390,10 +376,6 @@ function ordinal(day: number) {
   return `${day}th`;
 }
 
-function formatKm(distanceMeters: number) {
-  return (distanceMeters / 1000).toFixed(1);
-}
-
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60);
   const hrs = Math.floor(mins / 60);
@@ -403,12 +385,12 @@ function formatTime(seconds: number) {
   return `${remMins}m ${String(remSecs).padStart(2, "0")}s`;
 }
 
-function formatMovingTimeCard(seconds: number) {
-  const totalMinutes = Math.floor(seconds / 60);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (hours <= 0) return `${minutes}m`;
-  return `${hours}h ${minutes}m`;
+function formatAveragePace(distanceMeters: number, movingTimeSeconds: number, unit: DistanceUnit) {
+  if (distanceMeters <= 0 || movingTimeSeconds <= 0) return "--";
+  const secondsPerUnit = movingTimeSeconds / metersToUnit(distanceMeters, unit);
+  const mins = Math.floor(secondsPerUnit / 60);
+  const secs = Math.round(secondsPerUnit % 60);
+  return `${mins}:${String(secs).padStart(2, "0")}`;
 }
 
 function formatDate(date: Date) {
@@ -477,12 +459,6 @@ function averageHeartRate(values: { averageHeartrate: number | null }[]) {
   return filtered.reduce((sum, value) => sum + value, 0) / filtered.length;
 }
 
-function estimateCalories(distanceMeters: number) {
-  const km = distanceMeters / 1000;
-  const caloriesPerKm = 62;
-  return km * caloriesPerKm;
-}
-
 function buildTimeOfDayData(dates: Date[]) {
   const hours = new Array(24).fill(0);
   dates.forEach((date) => {
@@ -520,35 +496,34 @@ function sumRange(values: number[], start: number, end: number) {
   return values.slice(start, end).reduce((sum, value) => sum + value, 0);
 }
 
-function formatSpeed(speedMetersPerSecond: number) {
-  const kmh = speedMetersPerSecond * 3.6;
-  return `${kmh.toFixed(1)} km/h`;
-}
-
-function formatPace(activity: { distance: number; movingTime: number }) {
+function formatPaceForActivity(activity: { distance: number; movingTime: number }, unit: DistanceUnit) {
   if (activity.distance <= 0 || activity.movingTime <= 0) return "--";
-  const paceSecondsPerKm = activity.movingTime / (activity.distance / 1000);
-  const mins = Math.floor(paceSecondsPerKm / 60);
-  const secs = Math.round(paceSecondsPerKm % 60);
-  return `${mins}:${String(secs).padStart(2, "0")}/km`;
+  const paceSecondsPerUnit = activity.movingTime / metersToUnit(activity.distance, unit);
+  const mins = Math.floor(paceSecondsPerUnit / 60);
+  const secs = Math.round(paceSecondsPerUnit % 60);
+  return `${mins}:${String(secs).padStart(2, "0")}/${unit}`;
 }
 
-function paceSecondsPerKm(activity: { distance: number; movingTime: number; averageSpeed: number }) {
-  if (activity.distance > 0 && activity.movingTime > 0) {
-    return activity.movingTime / (activity.distance / 1000);
-  }
-  if (activity.averageSpeed > 0) {
-    return 1000 / activity.averageSpeed;
-  }
-  return Number.POSITIVE_INFINITY;
-}
-
-function formatPaceForTarget(timeSeconds: number, targetMeters: number) {
+function formatPaceForTarget(timeSeconds: number, targetMeters: number, unit: DistanceUnit) {
   if (timeSeconds <= 0 || targetMeters <= 0) return "--";
-  const paceSeconds = timeSeconds / (targetMeters / 1000);
+  const paceSeconds = timeSeconds / metersToUnit(targetMeters, unit);
   const mins = Math.floor(paceSeconds / 60);
   const secs = Math.round(paceSeconds % 60);
-  return `${mins}:${String(secs).padStart(2, "0")}/km`;
+  return `${mins}:${String(secs).padStart(2, "0")}/${unit}`;
+}
+
+function getDistanceUnitPreference(): DistanceUnit {
+  const unit = cookies().get("bt_distance_unit")?.value;
+  return unit === "mi" ? "mi" : "km";
+}
+
+function metersToUnit(distanceMeters: number, unit: DistanceUnit) {
+  return unit === "mi" ? distanceMeters / 1609.344 : distanceMeters / 1000;
+}
+
+function formatDistanceWithUnit(distanceMeters: number, unit: DistanceUnit, decimals = 1) {
+  const value = metersToUnit(distanceMeters, unit);
+  return `${value.toFixed(decimals)} ${unit}`;
 }
 
 function estimateFromActivityDistance(distanceMeters: number, movingTimeSeconds: number, targetMeters: number) {

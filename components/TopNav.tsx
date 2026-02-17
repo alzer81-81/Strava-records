@@ -3,25 +3,26 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { WindowType } from "../lib/time";
 
-const windowOptions: WindowType[] = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"];
+const windowOptions = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"] as const satisfies readonly WindowType[];
 
-const WINDOW_LABELS: Record<WindowType, string> = {
+const WINDOW_LABELS: Record<(typeof windowOptions)[number], string> = {
   WEEK: "This Week",
   MONTH: "This Month",
   LAST_2M: "2 Months",
   LAST_6M: "6 Months",
   YEAR: "This Year",
-  LAST_YEAR: "Last Year",
   ALL_TIME: "All Time",
 };
+
+type WindowOption = (typeof windowOptions)[number];
 
 function normalizeWindow(value?: string): WindowType {
   if (!value) return "MONTH";
   const upper = value.toUpperCase();
-  if (windowOptions.includes(upper as WindowType)) return upper as WindowType;
+  if (windowOptions.includes(upper as WindowOption)) return upper as WindowOption;
   return "MONTH";
 }
 
@@ -30,7 +31,6 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
   const searchParams = useSearchParams();
   const router = useRouter();
   const current = useMemo(() => normalizeWindow(searchParams.get("window") ?? undefined), [searchParams]);
-  const [nextValue, setNextValue] = useState<WindowType>(current);
 
   const showTimeframe = pathname === "/";
 
@@ -51,10 +51,9 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
             <span className="hidden text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 md:inline">Timeframe</span>
             <div className="relative">
               <select
-                value={nextValue}
+                value={current}
                 onChange={(event) => {
                   const value = event.target.value as WindowType;
-                  setNextValue(value);
                   applyWindow(value);
                 }}
                 className="appearance-none rounded-full border border-black/10 bg-gradient-to-r from-white to-slate-50 px-3 py-2 pr-9 text-sm font-semibold text-black transition hover:border-black/30 md:px-4 md:pr-10"

@@ -26,9 +26,11 @@ export type PRRecord = {
 };
 
 export function BestTimesGroupedList({
-  records
+  records,
+  distanceUnit = "km"
 }: {
   records: PRRecord[];
+  distanceUnit?: "km" | "mi";
 }) {
   const sortedRecords = useMemo(
     () => [...records].sort((a, b) => a.distanceMeters - b.distanceMeters),
@@ -57,6 +59,7 @@ export function BestTimesGroupedList({
             <BestTimesRow
               key={row.id}
               row={row}
+              distanceUnit={distanceUnit}
             />
           ))}
         </ul>
@@ -66,11 +69,13 @@ export function BestTimesGroupedList({
 }
 
 function BestTimesRow({
-  row
+  row,
+  distanceUnit
 }: {
   row: PRRecord;
+  distanceUnit: "km" | "mi";
 }) {
-  const pace = row.bestTimeSeconds ? formatPace(row.bestTimeSeconds, row.distanceMeters) : "-";
+  const pace = row.bestTimeSeconds ? formatPace(row.bestTimeSeconds, row.distanceMeters, distanceUnit) : "-";
   const achievedOn = row.achievedAt ? formatAchievedDate(row.achievedAt) : "-";
 
   if (row.activityId && row.bestTimeSeconds !== null) {
@@ -157,10 +162,11 @@ export function formatClockTime(totalSeconds: number) {
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
-export function formatPace(totalSeconds: number, distanceMeters: number) {
+export function formatPace(totalSeconds: number, distanceMeters: number, unit: "km" | "mi" = "km") {
   if (!distanceMeters || distanceMeters <= 0) return "-";
-  const secondsPerKm = totalSeconds / (distanceMeters / 1000);
-  return `${formatPaceUnit(secondsPerKm)}/km`;
+  const metersPerUnit = unit === "mi" ? 1609.344 : 1000;
+  const secondsPerUnit = totalSeconds / (distanceMeters / metersPerUnit);
+  return `${formatPaceUnit(secondsPerUnit)}/${unit}`;
 }
 
 function formatPaceUnit(seconds: number) {
