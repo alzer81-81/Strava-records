@@ -184,6 +184,26 @@ export async function RecordsView({
     };
   });
 
+  const headlinePRTargets = [
+    { meters: 5000, label: "Best 5K" },
+    { meters: 10000, label: "Best 10K" },
+    { meters: 21097, label: "Best Half Marathon" },
+    { meters: 42195, label: "Best Marathon" }
+  ] as const;
+
+  const headlinePRs = headlinePRTargets
+    .map((target) => {
+      const record = recordsByDistance.get(target.meters);
+      if (!record) return null;
+      return {
+        ...target,
+        bestTimeSeconds: record.bestTimeSeconds,
+        achievedAt: record.achievedAt,
+        activityId: record.activityId
+      };
+    })
+    .filter((record): record is NonNullable<typeof record> => record !== null);
+
   return (
     <div className="flex flex-col gap-7 text-black">
       <AutoSync enabled windowType={windowType} />
@@ -196,6 +216,24 @@ export async function RecordsView({
           </p>
         </div>
       </section>
+
+      {headlinePRs.length > 0 ? (
+        <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
+          {headlinePRs.map((record) => (
+            <a
+              key={record.meters}
+              href={`https://www.strava.com/activities/${record.activityId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl border border-black/10 bg-white p-4 shadow-card transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blaze/40"
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{record.label}</p>
+              <p className="mt-2 text-4xl font-extrabold leading-none text-black">{formatClockTime(record.bestTimeSeconds)}</p>
+              <p className="mt-3 text-sm text-slate-600">Date: {formatShortDate(record.achievedAt)}</p>
+            </a>
+          ))}
+        </section>
+      ) : null}
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <TopStatCard
@@ -413,6 +451,22 @@ function formatMovingTimeCard(seconds: number) {
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
+
+function formatShortDate(date: Date) {
+  return new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short" }).format(date);
+}
+
+function formatClockTime(seconds: number) {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const remainderSeconds = safeSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(remainderSeconds).padStart(2, "0")}`;
+  }
+  return `${minutes}:${String(remainderSeconds).padStart(2, "0")}`;
 }
 
 function formatTarget(distance: number) {
