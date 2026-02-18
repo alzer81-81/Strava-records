@@ -215,6 +215,10 @@ export async function RecordsView({
       </section>
 
       <div className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#F6F6F6] px-[max(1.5rem,calc((100vw-72rem)/2))] py-7 md:py-8">
+      <div className="-mt-16 md:-mt-20">
+        <DistanceChart points={distanceChartPoints} scopeLabel={windowTitle} />
+      </div>
+
       <section>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="pt-5 text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
@@ -297,7 +301,6 @@ export async function RecordsView({
         </div>
       </section>
 
-      <DistanceChart points={distanceChartPoints} scopeLabel={windowTitle} />
       </div>
     </div>
   );
@@ -537,10 +540,13 @@ function buildDistanceChartPoints(
     windowType === "ALL_TIME"
       ? new Date(Math.min(...runs.map((run) => run.startDate.getTime())))
       : start;
+  const now = new Date();
+  const tomorrowUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  const effectiveEnd = endExclusive.getTime() > tomorrowUtc.getTime() ? tomorrowUtc : endExclusive;
   const useMonthlyBuckets = windowType === "YEAR" || windowType === "LAST_6M" || windowType === "ALL_TIME" || windowType === "LAST_YEAR";
   return useMonthlyBuckets
-    ? aggregateByMonth(runs, effectiveStart, endExclusive)
-    : aggregateByDay(runs, effectiveStart, endExclusive);
+    ? aggregateByMonth(runs, effectiveStart, effectiveEnd)
+    : aggregateByDay(runs, effectiveStart, effectiveEnd);
 }
 
 function aggregateByDay(runs: Array<{ startDate: Date; distance: number }>, start: Date, endExclusive: Date) {
