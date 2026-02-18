@@ -533,10 +533,14 @@ function buildDistanceChartPoints(
 ) {
   if (runs.length === 0) return [];
 
+  const effectiveStart =
+    windowType === "ALL_TIME"
+      ? new Date(Math.min(...runs.map((run) => run.startDate.getTime())))
+      : start;
   const useMonthlyBuckets = windowType === "YEAR" || windowType === "LAST_6M" || windowType === "ALL_TIME" || windowType === "LAST_YEAR";
   return useMonthlyBuckets
-    ? aggregateByMonth(runs, start, endExclusive)
-    : aggregateByDay(runs, start, endExclusive);
+    ? aggregateByMonth(runs, effectiveStart, endExclusive)
+    : aggregateByDay(runs, effectiveStart, endExclusive);
 }
 
 function aggregateByDay(runs: Array<{ startDate: Date; distance: number }>, start: Date, endExclusive: Date) {

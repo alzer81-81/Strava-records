@@ -38,13 +38,7 @@ export function DistanceChart({
     <section className="mt-8" aria-label="Distance ran chart">
       <div className="rounded-xl border border-black/10 bg-white p-4 shadow-card md:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3 text-sm">
-            <span className="inline-flex items-center gap-2 font-semibold text-[#FF4D00]">
-              <span className="h-0.5 w-8 bg-[#FF4D00]" />Distance
-            </span>
-            <span className="text-slate-400">Time</span>
-            <span className="text-slate-400">Elevation</span>
-          </div>
+          <h3 className="text-xl font-bold text-black md:text-2xl">Your Activity</h3>
           <p className="text-sm font-medium text-slate-600">{scopeLabel}</p>
         </div>
 
@@ -52,7 +46,7 @@ export function DistanceChart({
           {!chart ? (
             <p className="py-14 text-center text-sm text-slate-500">No runs logged.</p>
           ) : (
-            <div className="relative">
+            <div className="relative overflow-x-auto">
               <svg width={chart.width} height={chart.height} role="img" aria-label="Distance series chart" className="overflow-visible">
                 {chart.yTicks.map((tick) => (
                   <g key={tick.value}>
@@ -142,8 +136,9 @@ type ChartGeometry = {
 };
 
 function buildChartGeometry(points: DistancePoint[], width: number, height: number, yMax: number): ChartGeometry {
+  const minWidthByPoints = Math.max(width, points.length * 44);
   const plotLeft = 64;
-  const plotRight = width - 18;
+  const plotRight = minWidthByPoints - 18;
   const plotTop = 16;
   const plotBottom = height - 38;
   const plotWidth = Math.max(1, plotRight - plotLeft);
@@ -177,7 +172,7 @@ function buildChartGeometry(points: DistancePoint[], width: number, height: numb
   });
 
   return {
-    width,
+    width: minWidthByPoints,
     height,
     plotLeft,
     plotRight,
