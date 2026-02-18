@@ -31,38 +31,33 @@ export async function RecordsView({
   const displayedRange = formatWindowRange(windowType, start, end, earliestActivity?.startDate ?? null);
   const displayedRangeMobile = formatWindowRange(windowType, start, end, earliestActivity?.startDate ?? null, true);
   const windowTitle = getWindowTitle(windowType);
+  const usesPeriodSummary = windowType !== "LAST_365";
 
-  const summary = await prisma.periodSummary.findFirst({
-    where: {
-      userId,
-      periodType: windowType,
-      periodKey: key,
-      sportType: "RUN"
-    }
-  });
-  const totals = getTotals(summary?.totals);
+  const summary = usesPeriodSummary
+    ? await prisma.periodSummary.findFirst({
+        where: {
+          userId,
+          periodType: windowType,
+          periodKey: key,
+          sportType: "RUN"
+        }
+      })
+    : null;
 
-  const longestRunsTop10 = await prisma.activity.findMany({
+  const runActivities = await prisma.activity.findMany({
     where: {
       userId,
       sportType: "RUN",
       startDate: { gte: start, lt: end }
     },
-    orderBy: { distance: "desc" },
-    take: 10
-  });
-  const longestRuns = longestRunsTop10.slice(0, 3);
-
-  const runsForFastest = await prisma.activity.findMany({
-    where: {
-      userId,
-      sportType: "RUN",
-      startDate: { gte: start, lt: end },
-      distance: { gt: 0 },
-      movingTime: { gt: 0 }
-    },
     orderBy: { startDate: "desc" }
   });
+  const totals = summary ? getTotals(summary?.totals) : computeRunTotals(runActivities);
+
+  const longestRunsTop10 = [...runActivities].sort((a, b) => b.distance - a.distance).slice(0, 10);
+  const longestRuns = longestRunsTop10.slice(0, 3);
+
+  const runsForFastest = runActivities.filter((run) => run.distance > 0 && run.movingTime > 0);
 
   const effortCaches = await prisma.effortCache.findMany({
     where: {
@@ -127,26 +122,12 @@ export async function RecordsView({
     };
   });
 
-  const activitiesForTimeOfDay = await prisma.activity.findMany({
-    where: {
-      userId,
-      sportType: "RUN",
-      startDate: { gte: start, lt: end }
-    },
-    select: { startDate: true }
-  });
-  const timeOfDay = buildTimeOfDayData(activitiesForTimeOfDay.map((activity) => activity.startDate));
-
-  const hrValues = await prisma.activity.findMany({
-    where: {
-      userId,
-      sportType: "RUN",
-      startDate: { gte: start, lt: end },
-      averageHeartrate: { not: null }
-    },
-    select: { averageHeartrate: true }
-  });
-  const avgHeartrate = averageHeartRate(hrValues);
+  const timeOfDay = buildTimeOfDayData(runActivities.map((activity) => activity.startDate));
+  const avgHeartrate = averageHeartRate(
+    runActivities.map((activity) => ({
+      averageHeartrate: activity.averageHeartrate
+    }))
+  );
   const avgDistance = totals.activityCount > 0 ? metersToUnit(totals.totalDistance / totals.activityCount, distanceUnit) : 0;
   const avgPace = formatAveragePace(totals.totalDistance, totals.totalMovingTime, distanceUnit);
   const distanceChartPoints = buildDistanceChartPoints(runsForFastest, windowType, start, end);
@@ -194,7 +175,7 @@ export async function RecordsView({
 
   return (
     <div className="flex flex-col gap-0 text-black">
-      <AutoSync enabled windowType={windowType} />
+      <AutoSync enabled />
 
       <section className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#0F8CD2] px-[max(1.5rem,calc((100vw-72rem)/2))] pb-20 pt-6 md:pb-24 md:pt-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -330,7 +311,7 @@ function TopStatCard({
 function normalizeWindow(value?: string): WindowType {
   if (!value) return "MONTH";
   const upper = value.toUpperCase();
-  if (["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"].includes(upper)) {
+  if (["WEEK", "MONTH", "LAST_2M", "LAST_6M", "LAST_365", "YEAR", "ALL_TIME"].includes(upper)) {
     return upper as WindowType;
   }
   return "MONTH";
@@ -346,6 +327,8 @@ function getWindowTitle(windowType: WindowType) {
       return "2 Months";
     case "LAST_6M":
       return "6 Months";
+    case "LAST_365":
+      return "Last 365 Days";
     case "YEAR":
       return "This Year";
     case "ALL_TIME":
@@ -460,6 +443,22 @@ function getTotals(value: unknown) {
   return { ...fallback, ...(value as Record<string, number>) };
 }
 
+function computeRunTotals(
+  activities: Array<{ distance: number; movingTime: number; elevationGain: number }>
+) {
+  const totalDistance = activities.reduce((sum, activity) => sum + activity.distance, 0);
+  const totalMovingTime = activities.reduce((sum, activity) => sum + activity.movingTime, 0);
+  const totalElevationGain = activities.reduce((sum, activity) => sum + activity.elevationGain, 0);
+  const activityCount = activities.length;
+  return {
+    totalDistance,
+    totalMovingTime,
+    totalElevationGain,
+    activityCount,
+    avgSpeed: totalMovingTime > 0 ? totalDistance / totalMovingTime : 0
+  };
+}
+
 function averageHeartRate(values: { averageHeartrate: number | null }[]) {
   const filtered = values.map((item) => item.averageHeartrate).filter((value): value is number => value !== null);
   if (filtered.length === 0) return null;
@@ -543,8 +542,9 @@ function buildDistanceChartPoints(
   const now = new Date();
   const tomorrowUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
   const effectiveEnd = endExclusive.getTime() > tomorrowUtc.getTime() ? tomorrowUtc : endExclusive;
-  const useMonthlyBuckets = windowType === "YEAR" || windowType === "LAST_6M" || windowType === "ALL_TIME" || windowType === "LAST_YEAR";
-  return useMonthlyBuckets
+  const useMonthly =
+    windowType === "YEAR" || windowType === "LAST_6M" || windowType === "LAST_365" || windowType === "ALL_TIME" || windowType === "LAST_YEAR";
+  return useMonthly
     ? aggregateByMonth(runs, effectiveStart, effectiveEnd)
     : aggregateByDay(runs, effectiveStart, effectiveEnd);
 }

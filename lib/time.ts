@@ -1,6 +1,6 @@
 import { addDays, endOfMonth, endOfYear, startOfMonth, startOfWeek, startOfYear, subMonths } from "./timeUtils";
 
-export type WindowType = "WEEK" | "MONTH" | "LAST_2M" | "LAST_6M" | "YEAR" | "LAST_YEAR" | "ALL_TIME";
+export type WindowType = "WEEK" | "MONTH" | "LAST_2M" | "LAST_6M" | "LAST_365" | "YEAR" | "LAST_YEAR" | "ALL_TIME";
 
 type Range = { start: Date; end: Date; key: string };
 
@@ -31,6 +31,17 @@ export function getWindowRange(type: WindowType, now: Date, tzOffsetMinutes = 0)
       const end = endOfMonth(local);
       const endExclusive = addDays(end, 1);
       return { start: unshiftByMinutes(start, tzOffsetMinutes), end: unshiftByMinutes(endExclusive, tzOffsetMinutes), key: `rolling-6m-${monthKey(start)}` };
+    }
+    case "LAST_365": {
+      const start = new Date(local);
+      start.setDate(start.getDate() - 364);
+      start.setHours(0, 0, 0, 0);
+      const end = addDays(local, 1);
+      return {
+        start: unshiftByMinutes(start, tzOffsetMinutes),
+        end: unshiftByMinutes(end, tzOffsetMinutes),
+        key: `rolling-365d-${start.toISOString().slice(0, 10)}`
+      };
     }
     case "YEAR": {
       const start = startOfYear(local);

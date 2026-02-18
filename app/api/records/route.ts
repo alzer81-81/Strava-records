@@ -6,7 +6,7 @@ import { getWindowRange } from "../../../lib/time";
 import { isWindowAllowed } from "../../../lib/entitlements";
 
 const QuerySchema = z.object({
-  windowType: z.enum(["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "LAST_YEAR", "ALL_TIME"]).default("MONTH"),
+  windowType: z.enum(["WEEK", "MONTH", "LAST_2M", "LAST_6M", "LAST_365", "YEAR", "LAST_YEAR", "ALL_TIME"]).default("MONTH"),
   sportType: z.enum(["RUN", "RIDE"]).default("RUN")
 });
 
@@ -27,23 +27,29 @@ export async function GET(request: Request) {
 
   const { start, end, key } = getWindowRange(windowType, new Date());
 
-  const summary = await prisma.periodSummary.findFirst({
-    where: {
-      userId: user.id,
-      periodType: windowType,
-      periodKey: key,
-      sportType: parsed.data.sportType
-    }
-  });
+  const usesPeriodEnum = windowType !== "LAST_365";
 
-  const records = await prisma.record.findMany({
-    where: {
-      userId: user.id,
-      windowType,
-      windowKey: key,
-      sportType: parsed.data.sportType
-    }
-  });
+  const summary = usesPeriodEnum
+    ? await prisma.periodSummary.findFirst({
+        where: {
+          userId: user.id,
+          periodType: windowType,
+          periodKey: key,
+          sportType: parsed.data.sportType
+        }
+      })
+    : null;
+
+  const records = usesPeriodEnum
+    ? await prisma.record.findMany({
+        where: {
+          userId: user.id,
+          windowType,
+          windowKey: key,
+          sportType: parsed.data.sportType
+        }
+      })
+    : [];
 
   return NextResponse.json({ summary, records });
 }
