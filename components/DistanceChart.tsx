@@ -21,6 +21,7 @@ export function DistanceChart({
 }) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(wrapperRef);
 
   const yMax = useMemo(() => {
@@ -34,6 +35,13 @@ export function DistanceChart({
     return buildChartGeometry(points, width, CHART_HEIGHT, yMax);
   }, [points, width, yMax]);
 
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !chart) return;
+    // Keep newest data in view by default.
+    el.scrollLeft = Math.max(0, el.scrollWidth - el.clientWidth);
+  }, [chart?.width, points.length, scopeLabel]);
+
   return (
     <section className="mt-8" aria-label="Distance ran chart">
       <div className="rounded-xl border border-black/10 bg-white p-4 shadow-card md:p-6">
@@ -46,7 +54,11 @@ export function DistanceChart({
           {!chart ? (
             <p className="py-14 text-center text-sm text-slate-500">No runs logged.</p>
           ) : (
-            <div className="relative overflow-x-auto">
+            <div
+              ref={scrollRef}
+              className="relative overflow-x-auto pb-2 [scrollbar-color:#cfd4dd_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-track]:bg-transparent"
+            >
+              <div className="pointer-events-none absolute bottom-[38px] left-0 top-4 z-10 border-l border-slate-300/80" />
               <svg width={chart.width} height={chart.height} role="img" aria-label="Distance series chart" className="overflow-visible">
                 {chart.yTicks.map((tick) => (
                   <g key={tick.value}>
