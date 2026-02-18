@@ -8,6 +8,7 @@ export function MapPreview({
   label?: string;
   compact?: boolean;
 }) {
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
   const previewId = getPreviewId(polyline ?? "missing", compact);
   const gridId = `${previewId}-grid`;
   const glowId = `${previewId}-glow`;
@@ -57,8 +58,18 @@ export function MapPreview({
   const startY = (1 - (first[0] - minY) / height) * 100;
   const endX = ((last[1] - minX) / width) * 100;
   const endY = (1 - (last[0] - minY) / height) * 100;
+  const mapboxUrl = mapboxToken
+    ? buildMapboxStaticUrl(polyline, compact ? 220 : 900, compact ? 140 : 220, mapboxToken)
+    : null;
 
   if (compact) {
+    if (mapboxUrl) {
+      return (
+        <div className="h-14 w-20 overflow-hidden rounded-lg border border-black/5 bg-sand/50">
+          <img src={mapboxUrl} alt="Route map preview" className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
+        </div>
+      );
+    }
     return (
       <div className="h-14 w-20 overflow-hidden rounded-lg border border-black/5 bg-gradient-to-br from-amber-50 via-orange-50 to-white p-1.5">
         <svg viewBox={`-${padding} -${padding} ${100 + padding * 2} ${100 + padding * 2}`} className="h-full w-full">
@@ -80,6 +91,14 @@ export function MapPreview({
           <circle cx={startX} cy={startY} r="2.5" fill="white" stroke="#0f172a" strokeOpacity="0.5" strokeWidth="1" />
           <circle cx={endX} cy={endY} r="2.5" fill="#F97316" stroke="#0f172a" strokeOpacity="0.3" strokeWidth="0.8" />
         </svg>
+      </div>
+    );
+  }
+
+  if (mapboxUrl) {
+    return (
+      <div className="mt-3 h-24 overflow-hidden rounded-lg border border-black/5 bg-sand/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+        <img src={mapboxUrl} alt="Route map preview" className="h-full w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
       </div>
     );
   }
@@ -115,4 +134,9 @@ function getPreviewId(seed: string, compact: boolean) {
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
   }
   return `map-${compact ? "c" : "f"}-${hash.toString(36)}`;
+}
+
+function buildMapboxStaticUrl(polyline: string, width: number, height: number, token: string) {
+  const encodedPath = encodeURIComponent(polyline);
+  return `https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/static/path-4+fc5200-0.9(${encodedPath})/auto/${width}x${height}?padding=32&logo=false&attribution=false&access_token=${token}`;
 }
