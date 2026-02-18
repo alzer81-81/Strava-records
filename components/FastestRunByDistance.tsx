@@ -44,7 +44,7 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
   return (
     <section>
       <div className="flex flex-wrap items-center gap-3">
-        <h3 className="text-xl font-extrabold tracking-tight text-black md:text-2xl">Fastest Run</h3>
+        <h3 className="pt-5 text-xl font-extrabold tracking-tight text-black md:text-2xl">Fastest Run</h3>
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           {groups.map((group) => {
             const active = group.key === current.key;

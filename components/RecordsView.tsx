@@ -215,7 +215,7 @@ export async function RecordsView({
       <div className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#F6F6F6] px-[max(1.5rem,calc((100vw-72rem)/2))] py-7 md:py-8">
       <section>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
+          <h3 className="pt-5 text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
           <TopTenModal
             title="Longest Run"
             rows={longestRunsTop10.map((run, index) => ({
@@ -279,7 +279,7 @@ export async function RecordsView({
 
       <section>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-xl font-extrabold tracking-tight text-black md:text-2xl">When You Usually Run</h3>
+          <h3 className="pt-5 text-xl font-extrabold tracking-tight text-black md:text-2xl">When You Usually Run</h3>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
           {timeOfDay.summary.map((bucket) => (

@@ -40,13 +40,13 @@ export function BestTimesGroupedList({
   return (
     <section aria-labelledby="best-times-title">
       <div className="flex items-center justify-between gap-3">
-        <h3 id="best-times-title" className="font-[var(--font-fraunces)] text-2xl font-bold tracking-tight text-black">
+        <h3 id="best-times-title" className="pt-5 font-[var(--font-fraunces)] text-2xl font-bold tracking-tight text-black">
           Best Times
         </h3>
       </div>
 
       <div className="mt-4 overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
-        <div className="hidden border-b border-black/10 bg-slate-50/70 px-4 py-3 md:grid md:grid-cols-[1.1fr_1fr_1.2fr_1fr_auto] md:items-center md:gap-4">
+        <div className={`hidden border-b border-black/10 bg-slate-50/70 px-4 py-3 md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Distance</p>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Time</p>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Pace</p>
@@ -96,19 +96,19 @@ function BestTimesRow({
           </div>
           <div className="text-base font-medium text-slate-800 md:hidden">{row.distanceLabel}</div>
 
-          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 md:mt-0 md:grid-cols-[1.1fr_1fr_1.2fr_1fr_auto] md:items-center md:gap-4">
-            <p className="hidden text-sm font-medium text-slate-700 md:block">{row.distanceLabel}</p>
+          <div className={`mt-2 grid grid-cols-2 gap-x-4 gap-y-2 md:mt-0 md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
+            <p className="hidden text-sm font-medium text-slate-700 md:block md:whitespace-nowrap">{row.distanceLabel}</p>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">Time</p>
-              <p className="tabular-nums text-sm font-medium text-slate-700">{formatClockTime(row.bestTimeSeconds)}</p>
+              <p className="tabular-nums text-sm font-medium text-slate-700 md:whitespace-nowrap">{formatClockTime(row.bestTimeSeconds)}</p>
             </div>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">Pace</p>
-              <p className="tabular-nums text-sm font-medium text-slate-700">{pace}</p>
+              <p className="tabular-nums text-sm font-medium text-slate-700 md:whitespace-nowrap">{pace}</p>
             </div>
             <div className="col-span-2 md:col-span-1">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">Achieved</p>
-              <p className="text-sm font-medium text-slate-700">{achievedOn}</p>
+              <p className="text-sm font-medium text-slate-700 md:whitespace-nowrap">{achievedOn}</p>
             </div>
             <span className="hidden justify-self-end text-slate-400 md:inline-flex">
               <ChevronRightIcon />
@@ -121,20 +121,22 @@ function BestTimesRow({
 
   return (
     <li className="px-4 py-3">
-      <div className="grid gap-2 md:grid-cols-[1.1fr_1fr_1.2fr_1fr_auto] md:items-center md:gap-4">
-        <p className="text-base font-medium text-slate-700 md:text-sm md:uppercase md:tracking-normal">
-          {row.distanceLabel}
-        </p>
+      <div className={`grid gap-2 md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
+        <p className="text-base font-medium text-slate-700 md:text-sm md:font-medium">{row.distanceLabel}</p>
         <p className="text-sm font-medium text-slate-700">No record yet</p>
-        <p className="text-sm font-medium text-slate-700">Log a run to set this PR.</p>
+        <p className="text-sm font-medium text-slate-500">-</p>
         <p className="text-sm text-slate-500">-</p>
         <span className="hidden justify-self-end text-slate-300 md:inline-flex">
           <ChevronRightIcon />
         </span>
       </div>
+      <p className="mt-1 text-sm text-slate-600 md:hidden">Log a run to set this PR.</p>
     </li>
   );
 }
+
+const DESKTOP_GRID =
+  "md:grid-cols-[minmax(120px,1.1fr)_minmax(92px,1fr)_minmax(120px,1.2fr)_minmax(120px,1fr)_28px]";
 
 function formatAchievedDate(value: string) {
   const date = new Date(value);

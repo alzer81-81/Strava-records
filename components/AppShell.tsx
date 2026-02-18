@@ -9,7 +9,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell bg-[#F6F6F6]">
       <TopNav avatarUrl={session?.avatarUrl ?? null} displayName={session?.displayName ?? null} />
-      <main className="mx-auto max-w-6xl px-6 py-6 md:py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-6 pt-0 pb-6 md:pb-8">{children}</main>
       <footer className="bg-[#F6F6F6]">
         <div className="mx-auto w-full max-w-6xl px-6 pb-10 text-center text-xs text-slate-500">
         <div className="mb-3 flex justify-center">
