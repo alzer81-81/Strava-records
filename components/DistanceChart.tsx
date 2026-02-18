@@ -58,13 +58,20 @@ export function DistanceChart({
               ref={scrollRef}
               className="relative overflow-x-auto pb-2 [scrollbar-color:#cfd4dd_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-track]:bg-transparent"
             >
-              <div className="pointer-events-none absolute bottom-[38px] left-0 top-4 z-10 border-l border-slate-300/80" />
+              <div className="pointer-events-none absolute bottom-[38px] left-0 top-4 z-20 w-[62px] border-r border-slate-200 bg-white/95 backdrop-blur-[1px]">
+                {chart.yTicks.map((tick) => (
+                  <div
+                    key={`y-${tick.value}`}
+                    className="absolute right-2 text-xs text-slate-500"
+                    style={{ top: `${tick.y - 8}px` }}
+                  >
+                    {formatDistanceTick(tick.value)}
+                  </div>
+                ))}
+              </div>
               <svg width={chart.width} height={chart.height} role="img" aria-label="Distance series chart" className="overflow-visible">
                 {chart.yTicks.map((tick) => (
                   <g key={tick.value}>
-                    <text x={tick.labelX} y={tick.y + 5} fontSize={12} fill="#6B7280" textAnchor="end">
-                      {formatDistanceTick(tick.value)}
-                    </text>
                     <line x1={chart.plotLeft} x2={chart.plotRight} y1={tick.y} y2={tick.y} stroke="#EEF0F3" strokeWidth={1} />
                   </g>
                 ))}
@@ -141,7 +148,7 @@ type ChartGeometry = {
   plotRight: number;
   plotTop: number;
   plotBottom: number;
-  yTicks: Array<{ value: number; y: number; labelX: number }>;
+  yTicks: Array<{ value: number; y: number }>;
   linePath: string;
   areaPath: string;
   points: Array<{ key: string; x: number; y: number; xLabel: string; raw: DistancePoint }>;
@@ -180,7 +187,7 @@ function buildChartGeometry(points: DistancePoint[], width: number, height: numb
   const yTicks = Array.from({ length: steps + 1 }, (_, i) => {
     const value = (yMax / steps) * i;
     const y = plotBottom - (value / yMax) * plotHeight;
-    return { value, y, labelX: plotLeft - 8 };
+    return { value, y };
   });
 
   return {

@@ -196,7 +196,7 @@ export async function RecordsView({
     <div className="flex flex-col gap-0 text-black">
       <AutoSync enabled windowType={windowType} />
 
-      <section className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#0F8CD2] px-[max(1.5rem,calc((100vw-72rem)/2))] py-6 md:py-8">
+      <section className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#0F8CD2] px-[max(1.5rem,calc((100vw-72rem)/2))] pb-20 pt-6 md:pb-24 md:pt-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="font-[var(--font-fraunces)] text-2xl font-extrabold tracking-tight text-white md:text-4xl">{windowTitle}</h1>
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/90 md:text-sm">
@@ -215,7 +215,7 @@ export async function RecordsView({
       </section>
 
       <div className="-mx-[max(1.5rem,calc((100vw-72rem)/2))] bg-[#F6F6F6] px-[max(1.5rem,calc((100vw-72rem)/2))] py-7 md:py-8">
-      <div className="-mt-16 md:-mt-20">
+      <div className="-mt-32 md:-mt-36">
         <DistanceChart points={distanceChartPoints} scopeLabel={windowTitle} />
       </div>
 
