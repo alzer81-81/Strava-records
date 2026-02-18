@@ -34,6 +34,7 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [syncPhase, setSyncPhase] = useState<string | null>(null);
 
   const showTimeframe = pathname === "/";
 
@@ -52,17 +53,49 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
     if (isSyncing) return;
     setIsSyncing(true);
     setSyncError(null);
+    setSyncPhase("Starting");
     try {
-      const res = await fetch("/api/sync", { method: "GET", credentials: "include", cache: "no-store" });
-      if (!res.ok) {
-        throw new Error("Sync failed");
+      const startRes = await fetch("/api/sync/start?full=0&details=0", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store"
+      });
+      if (!startRes.ok) {
+        throw new Error("Could not start sync");
       }
+      const startJson = (await startRes.json()) as { jobId?: string };
+      if (!startJson.jobId) throw new Error("Missing sync job id");
+
+      const deadline = Date.now() + 8 * 60 * 1000;
+      let done = false;
+      while (!done && Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const statusRes = await fetch(`/api/sync/status?id=${startJson.jobId}`, {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store"
+        });
+        if (!statusRes.ok) continue;
+        const statusJson = (await statusRes.json()) as { status?: string; phase?: string; errorMessage?: string };
+        if (statusJson.phase) setSyncPhase(statusJson.phase);
+        if (statusJson.status === "DONE") {
+          done = true;
+          break;
+        }
+        if (statusJson.status === "ERROR") {
+          throw new Error(statusJson.errorMessage || "Sync failed");
+        }
+      }
+      if (!done) throw new Error("Sync timed out. Try again.");
+
       const now = new Date().toISOString();
       setLastSyncedAt(now);
       window.localStorage.setItem("bt_last_synced_at", now);
       router.refresh();
-    } catch (_err) {
-      setSyncError("Sync failed");
+      setSyncPhase("Complete");
+    } catch (err) {
+      setSyncError(err instanceof Error ? err.message : "Sync failed");
+      setSyncPhase("Error");
     } finally {
       setIsSyncing(false);
     }
@@ -118,6 +151,7 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
               </button>
               <div className="pointer-events-none absolute right-0 top-11 z-30 hidden w-52 rounded-lg border border-black/10 bg-white px-3 py-2 text-xs text-slate-600 shadow-soft group-hover:block group-focus-within:block">
                 <p className="font-semibold text-black">Sync now</p>
+                <p className="mt-1">Status: {isSyncing ? syncPhase ?? "Running" : "Idle"}</p>
                 <p className="mt-1">
                   Last synced:{" "}
                   {lastSyncedAt
