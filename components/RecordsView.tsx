@@ -149,6 +149,7 @@ export async function RecordsView({
   const avgHeartrate = averageHeartRate(hrValues);
   const avgDistance = totals.activityCount > 0 ? metersToUnit(totals.totalDistance / totals.activityCount, distanceUnit) : 0;
   const avgPace = formatAveragePace(totals.totalDistance, totals.totalMovingTime, distanceUnit);
+  const distanceChartPoints = buildDistanceChartPoints(runsForFastest, windowType, start, end);
 
   const targets = selectDistanceTargets();
   const recordsByDistance = new Map<number, { distanceTarget: number; bestTimeSeconds: number; activityId: string; achievedAt: Date }>();
@@ -296,7 +297,7 @@ export async function RecordsView({
         </div>
       </section>
 
-      <DistanceChart userId={userId} />
+      <DistanceChart points={distanceChartPoints} scopeLabel={windowTitle} />
       </div>
     </div>
   );
@@ -522,6 +523,69 @@ function getDistanceUnitPreference(): DistanceUnit {
 
 function metersToUnit(distanceMeters: number, unit: DistanceUnit) {
   return unit === "mi" ? distanceMeters / 1609.344 : distanceMeters / 1000;
+}
+
+function buildDistanceChartPoints(
+  runs: Array<{ startDate: Date; distance: number }>,
+  windowType: WindowType,
+  start: Date,
+  endExclusive: Date
+) {
+  if (runs.length === 0) return [];
+
+  const useMonthlyBuckets = windowType === "YEAR" || windowType === "LAST_6M" || windowType === "ALL_TIME" || windowType === "LAST_YEAR";
+  return useMonthlyBuckets
+    ? aggregateByMonth(runs, start, endExclusive)
+    : aggregateByDay(runs, start, endExclusive);
+}
+
+function aggregateByDay(runs: Array<{ startDate: Date; distance: number }>, start: Date, endExclusive: Date) {
+  const sums = new Map<string, number>();
+  for (const run of runs) {
+    const key = run.startDate.toISOString().slice(0, 10);
+    sums.set(key, (sums.get(key) ?? 0) + run.distance / 1000);
+  }
+
+  const points: Array<{ start: string; end: string; valueKm: number; label: string }> = [];
+  for (let cursor = new Date(start); cursor < endExclusive; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+    const key = cursor.toISOString().slice(0, 10);
+    const dayStart = new Date(`${key}T00:00:00.000Z`);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+    points.push({
+      start: dayStart.toISOString(),
+      end: dayEnd.toISOString(),
+      valueKm: Number((sums.get(key) ?? 0).toFixed(1)),
+      label: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(dayStart)
+    });
+  }
+  return points;
+}
+
+function aggregateByMonth(runs: Array<{ startDate: Date; distance: number }>, start: Date, endExclusive: Date) {
+  const sums = new Map<string, number>();
+  for (const run of runs) {
+    const key = `${run.startDate.getUTCFullYear()}-${String(run.startDate.getUTCMonth() + 1).padStart(2, "0")}`;
+    sums.set(key, (sums.get(key) ?? 0) + run.distance / 1000);
+  }
+
+  const points: Array<{ start: string; end: string; valueKm: number; label: string }> = [];
+  for (
+    let cursor = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+    cursor < endExclusive;
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1)
+  ) {
+    const key = `${cursor.getUTCFullYear()}-${String(cursor.getUTCMonth() + 1).padStart(2, "0")}`;
+    const monthStart = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), 1));
+    const monthEnd = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 1));
+    points.push({
+      start: monthStart.toISOString(),
+      end: monthEnd.toISOString(),
+      valueKm: Number((sums.get(key) ?? 0).toFixed(1)),
+      label: new Intl.DateTimeFormat("en-US", { month: "short" }).format(monthStart)
+    });
+  }
+  return points;
 }
 
 function formatDistanceWithUnit(distanceMeters: number, unit: DistanceUnit, decimals = 1) {
