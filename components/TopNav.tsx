@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { WindowType } from "../lib/time";
 
 const windowOptions = ["WEEK", "MONTH", "LAST_2M", "LAST_6M", "YEAR", "ALL_TIME"] as const satisfies readonly WindowType[];
@@ -31,13 +31,41 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
   const searchParams = useSearchParams();
   const router = useRouter();
   const current = useMemo(() => normalizeWindow(searchParams.get("window") ?? undefined), [searchParams]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   const showTimeframe = pathname === "/";
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("bt_last_synced_at");
+    if (saved) setLastSyncedAt(saved);
+  }, []);
 
   function applyWindow(next: WindowType) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("window", next);
     router.push(`/?${params.toString()}`);
+  }
+
+  async function syncNow() {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    setSyncError(null);
+    try {
+      const res = await fetch("/api/sync", { method: "GET", credentials: "include", cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Sync failed");
+      }
+      const now = new Date().toISOString();
+      setLastSyncedAt(now);
+      window.localStorage.setItem("bt_last_synced_at", now);
+      router.refresh();
+    } catch (_err) {
+      setSyncError("Sync failed");
+    } finally {
+      setIsSyncing(false);
+    }
   }
 
   return (
@@ -74,6 +102,35 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
               >
                 <path d="M6 8L10 12L14 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
+            </div>
+            <div className="group relative">
+              <button
+                type="button"
+                onClick={syncNow}
+                disabled={isSyncing}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-slate-600 transition hover:border-black/20 hover:text-black disabled:cursor-wait disabled:opacity-70"
+                aria-label="Sync now"
+              >
+                <svg className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M16 10a6 6 0 10-1.5 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <path d="M16 4v4h-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <div className="pointer-events-none absolute right-0 top-11 z-30 hidden w-52 rounded-lg border border-black/10 bg-white px-3 py-2 text-xs text-slate-600 shadow-soft group-hover:block group-focus-within:block">
+                <p className="font-semibold text-black">Sync now</p>
+                <p className="mt-1">
+                  Last synced:{" "}
+                  {lastSyncedAt
+                    ? new Intl.DateTimeFormat(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit"
+                      }).format(new Date(lastSyncedAt))
+                    : "Never"}
+                </p>
+                {syncError ? <p className="mt-1 text-[#FC5200]">{syncError}</p> : null}
+              </div>
             </div>
             <Avatar avatarUrl={avatarUrl} displayName={displayName} />
           </div>
