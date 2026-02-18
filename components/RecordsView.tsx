@@ -7,6 +7,7 @@ import { AnimatedNumber } from "./AnimatedNumber";
 import { TopTenModal } from "./TopTenModal";
 import { FastestRunByDistance } from "./FastestRunByDistance";
 import { BestTimesGroupedList, type PRRecord } from "./BestTimesGroupedList";
+import { DistanceChart } from "./DistanceChart";
 import { cookies } from "next/headers";
 
 type DistanceUnit = "km" | "mi";
@@ -294,6 +295,8 @@ export async function RecordsView({
           ))}
         </div>
       </section>
+
+      <DistanceChart userId={userId} />
       </div>
     </div>
   );
