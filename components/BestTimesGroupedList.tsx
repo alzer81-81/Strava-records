@@ -89,28 +89,24 @@ function BestTimesRow({
           aria-label={`${row.distanceLabel} best time ${formatClockTime(row.bestTimeSeconds)}. View on Strava in new tab.`}
         >
           <div className="flex items-center justify-between gap-3 md:hidden">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Distance</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">PR Entry</p>
             <span className="text-slate-400">
               <ChevronRightIcon />
             </span>
           </div>
-          <div className="text-base font-medium text-slate-800 md:hidden">{row.distanceLabel}</div>
+          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-3 md:mt-0 md:grid-cols-1">
+            <MobileMetric label="Distance" value={row.distanceLabel} />
+            <MobileMetric label="Time" value={formatClockTime(row.bestTimeSeconds)} tabular />
+            <MobileMetric label="Pace" value={pace} tabular />
+            <MobileMetric label="Achieved" value={achievedOn} />
+          </div>
 
-          <div className={`mt-2 grid grid-cols-2 gap-x-4 gap-y-2 md:mt-0 md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
-            <p className="hidden text-sm font-medium text-slate-700 md:block md:whitespace-nowrap">{row.distanceLabel}</p>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">Time</p>
-              <p className="tabular-nums text-sm font-medium text-slate-700 md:whitespace-nowrap">{formatClockTime(row.bestTimeSeconds)}</p>
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">Pace</p>
-              <p className="tabular-nums text-sm font-medium text-slate-700 md:whitespace-nowrap">{pace}</p>
-            </div>
-            <div className="col-span-2 md:col-span-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">Achieved</p>
-              <p className="text-sm font-medium text-slate-700 md:whitespace-nowrap">{achievedOn}</p>
-            </div>
-            <span className="hidden justify-self-end text-slate-400 md:inline-flex">
+          <div className={`mt-3 hidden md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
+            <p className="text-sm font-medium text-slate-700 md:whitespace-nowrap">{row.distanceLabel}</p>
+            <p className="tabular-nums text-sm font-medium text-slate-700 md:whitespace-nowrap">{formatClockTime(row.bestTimeSeconds)}</p>
+            <p className="tabular-nums text-sm font-medium text-slate-700 md:whitespace-nowrap">{pace}</p>
+            <p className="text-sm font-medium text-slate-700 md:whitespace-nowrap">{achievedOn}</p>
+            <span className="justify-self-end text-slate-400">
               <ChevronRightIcon />
             </span>
           </div>
@@ -121,22 +117,45 @@ function BestTimesRow({
 
   return (
     <li className="px-4 py-3">
-      <div className={`grid gap-2 md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
-        <p className="text-base font-medium text-slate-700 md:text-sm md:font-medium">{row.distanceLabel}</p>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3 md:hidden">
+        <MobileMetric label="Distance" value={row.distanceLabel} />
+        <MobileMetric label="Time" value="No record yet" />
+        <MobileMetric label="Pace" value="-" />
+        <MobileMetric label="Achieved" value="-" />
+      </div>
+      <div className={`mt-2 hidden md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
+        <p className="text-sm font-medium text-slate-700">{row.distanceLabel}</p>
         <p className="text-sm font-medium text-slate-700">No record yet</p>
         <p className="text-sm font-medium text-slate-500">-</p>
         <p className="text-sm text-slate-500">-</p>
-        <span className="hidden justify-self-end text-slate-300 md:inline-flex">
+        <span className="justify-self-end text-slate-300">
           <ChevronRightIcon />
         </span>
       </div>
-      <p className="mt-1 text-sm text-slate-600 md:hidden">Log a run to set this PR.</p>
+      <p className="mt-1 text-sm text-slate-600">Log a run to set this PR.</p>
     </li>
   );
 }
 
 const DESKTOP_GRID =
   "md:grid-cols-[minmax(120px,1.1fr)_minmax(92px,1fr)_minmax(120px,1.2fr)_minmax(120px,1fr)_28px]";
+
+function MobileMetric({
+  label,
+  value,
+  tabular = false
+}: {
+  label: string;
+  value: string;
+  tabular?: boolean;
+}) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className={`mt-0.5 text-sm font-medium text-slate-700 ${tabular ? "tabular-nums" : ""}`}>{value}</p>
+    </div>
+  );
+}
 
 function formatAchievedDate(value: string) {
   const date = new Date(value);

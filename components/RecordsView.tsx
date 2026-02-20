@@ -54,8 +54,8 @@ export async function RecordsView({
   });
   const totals = summary ? getTotals(summary?.totals) : computeRunTotals(runActivities);
 
-  const longestRunsTop10 = [...runActivities].sort((a, b) => b.distance - a.distance).slice(0, 10);
-  const longestRuns = longestRunsTop10.slice(0, 3);
+  const longestRunsTop50 = [...runActivities].sort((a, b) => b.distance - a.distance).slice(0, 50);
+  const longestRuns = longestRunsTop50.slice(0, 3);
 
   const runsForFastest = runActivities.filter((run) => run.distance > 0 && run.movingTime > 0);
 
@@ -103,7 +103,7 @@ export async function RecordsView({
       })
       .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null)
       .sort((a, b) => a.bestTimeSeconds - b.bestTimeSeconds)
-      .slice(0, 10);
+      .slice(0, 50);
 
     const runs = candidates.map((run) => ({
       id: run.id,
@@ -205,7 +205,7 @@ export async function RecordsView({
           <h3 className="pt-5 text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
           <TopTenModal
             title="Longest Run"
-            rows={longestRunsTop10.map((run, index) => ({
+            rows={longestRunsTop50.map((run, index) => ({
               rank: rankLabel(index),
               date: formatDate(run.startDate),
               name: run.name ?? "Run",

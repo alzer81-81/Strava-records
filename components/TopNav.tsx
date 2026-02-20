@@ -73,13 +73,6 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
               </svg>
             </div>
 
-            <Link
-              href="/settings"
-              className="inline-flex h-9 items-center rounded-full border border-black/10 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-700 transition hover:border-black/20 hover:text-black"
-            >
-              Settings
-            </Link>
-
             <Avatar avatarUrl={avatarUrl} displayName={displayName} />
           </div>
         ) : (

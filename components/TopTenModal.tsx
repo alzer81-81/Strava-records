@@ -22,24 +22,33 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
         onClick={() => setOpen(true)}
         className="text-sm font-semibold text-[#FC5200] transition-colors hover:text-[#d84800]"
       >
-        View top 10
+        View top 50
       </button>
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
-          <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-black/10 bg-white p-4 shadow-card md:p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-black text-black md:text-2xl">{title} Top 10</h3>
+          <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/10 bg-white px-4 py-3 md:px-6 md:py-4">
+              <h3 className="text-xl font-black text-black md:text-2xl">{title} Top 50</h3>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-md border border-black/10 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                aria-label="Close"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-black/10 text-slate-700 transition-colors hover:bg-slate-50"
               >
-                Close
+                <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+                  <path
+                    d="M5 5L15 15M15 5L5 15"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </button>
             </div>
 
-            <div className="mt-4 hidden overflow-x-auto md:block">
+            <div className="overflow-y-auto px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
+            <div className="hidden overflow-x-auto md:block">
               <table className="min-w-full border-separate border-spacing-y-1">
                 <thead>
                   <tr className="text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -80,7 +89,7 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
               </table>
             </div>
 
-            <div className="mt-4 grid gap-2 md:hidden">
+            <div className="mt-3 grid gap-2 md:hidden">
               {rows.map((row, index) => (
                 <article
                   key={`mobile-${row.url}-${index}`}
@@ -96,18 +105,19 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
                       target="_blank"
                       rel="noreferrer"
                       className="text-xs font-semibold text-[#FC5200]"
-                    >
+                  >
                       View on Strava
                     </a>
                   </div>
                   <p className="mt-1 text-xs text-slate-600">{row.date}</p>
-                  <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-700">
-                    <p><span className="font-semibold text-slate-900">Dist:</span> {row.distance}</p>
-                    <p><span className="font-semibold text-slate-900">Pace:</span> {row.pace}</p>
-                    <p><span className="font-semibold text-slate-900">Time:</span> {row.time}</p>
+                  <div className="mt-3 grid grid-cols-1 gap-1 text-xs text-slate-700">
+                    <p className="flex items-center justify-between gap-3"><span className="font-semibold text-slate-900">Distance</span><span>{row.distance}</span></p>
+                    <p className="flex items-center justify-between gap-3"><span className="font-semibold text-slate-900">Pace</span><span>{row.pace}</span></p>
+                    <p className="flex items-center justify-between gap-3"><span className="font-semibold text-slate-900">Time</span><span>{row.time}</span></p>
                   </div>
                 </article>
               ))}
+            </div>
             </div>
           </div>
         </div>
