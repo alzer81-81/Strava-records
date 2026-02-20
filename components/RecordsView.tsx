@@ -311,7 +311,7 @@ function TopStatCard({
 function normalizeWindow(value?: string): WindowType {
   if (!value) return "MONTH";
   const upper = value.toUpperCase();
-  if (["WEEK", "MONTH", "LAST_2M", "LAST_6M", "LAST_365", "YEAR", "ALL_TIME"].includes(upper)) {
+  if (["WEEK", "MONTH", "LAST_2M", "LAST_6M", "LAST_365", "YEAR"].includes(upper)) {
     return upper as WindowType;
   }
   return "MONTH";

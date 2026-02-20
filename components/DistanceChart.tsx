@@ -43,7 +43,7 @@ export function DistanceChart({
   }, [chart?.width, points.length, scopeLabel]);
 
   return (
-    <section className="mt-8" aria-label="Distance ran chart">
+    <section className="relative z-0 mt-8" aria-label="Distance ran chart">
       <div className="rounded-xl border border-black/10 bg-white p-4 shadow-card md:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-xl font-bold text-black md:text-2xl">Your Activity</h3>
@@ -58,7 +58,7 @@ export function DistanceChart({
               ref={scrollRef}
               className="relative overflow-x-auto pb-2 [scrollbar-color:#cfd4dd_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-track]:bg-transparent"
             >
-              <div className="pointer-events-none absolute bottom-[38px] left-0 top-4 z-20 w-[62px] border-r border-slate-200 bg-white/95 backdrop-blur-[1px]">
+              <div className="pointer-events-none absolute bottom-[38px] left-0 top-4 z-[1] w-[62px] border-r border-slate-200 bg-white/95 backdrop-blur-[1px]">
                 {chart.yTicks.map((tick) => (
                   <div
                     key={`y-${tick.value}`}
