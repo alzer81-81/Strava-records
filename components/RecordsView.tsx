@@ -205,6 +205,7 @@ export async function RecordsView({
           <h3 className="pt-5 text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
           <TopTenModal
             title="Longest Run"
+            rangeLabel={displayedRange}
             rows={longestRunsTop50.map((run, index) => ({
               rank: rankLabel(index),
               date: formatDate(run.startDate),
@@ -258,7 +259,7 @@ export async function RecordsView({
         )}
       </section>
 
-      <FastestRunByDistance groups={fastestRunsByDistance} />
+      <FastestRunByDistance groups={fastestRunsByDistance} rangeLabel={displayedRange} />
 
       <section>
         <BestTimesGroupedList records={prRecords} distanceUnit={distanceUnit} />

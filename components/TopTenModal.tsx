@@ -12,7 +12,15 @@ type TopTenRow = {
   url: string;
 };
 
-export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] }) {
+export function TopTenModal({
+  title,
+  rows,
+  rangeLabel
+}: {
+  title: string;
+  rows: TopTenRow[];
+  rangeLabel?: string;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -28,8 +36,16 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
       {open ? (
         <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/35 p-4">
           <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/10 bg-white px-4 py-3 md:px-6 md:py-4">
-              <h3 className="text-xl font-black text-black md:text-2xl">{title} Top 50</h3>
+            <div className="sticky top-0 z-10 border-b border-black/10 bg-white px-4 py-3 md:px-6 md:py-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-xl font-black text-black md:text-2xl">{title} Top 50</h3>
+                  {rangeLabel ? (
+                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 md:text-[11px]">
+                      {rangeLabel}
+                    </p>
+                  ) : null}
+                </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -45,6 +61,7 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
                   />
                 </svg>
               </button>
+              </div>
             </div>
 
             <div className="overflow-y-auto px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">

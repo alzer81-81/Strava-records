@@ -20,7 +20,13 @@ type DistanceGroup = {
   runs: RunRow[];
 };
 
-export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
+export function FastestRunByDistance({
+  groups,
+  rangeLabel
+}: {
+  groups: DistanceGroup[];
+  rangeLabel?: string;
+}) {
   const [selected, setSelected] = useState(groups[0]?.key ?? "");
 
   const current = useMemo(
@@ -43,9 +49,13 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
 
   return (
     <section>
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex items-end justify-between gap-3">
         <h3 className="pt-5 text-xl font-extrabold tracking-tight text-black md:text-2xl">Fastest Run</h3>
-        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+        <TopTenModal title={`Fastest Run (${current.label})`} rows={modalRows} rangeLabel={rangeLabel} />
+      </div>
+
+      <div className="-mx-1 mt-3 overflow-x-auto px-1">
+        <div className="flex min-w-max items-center gap-2">
           {groups.map((group) => {
             const active = group.key === current.key;
             return (
@@ -64,7 +74,6 @@ export function FastestRunByDistance({ groups }: { groups: DistanceGroup[] }) {
               </button>
             );
           })}
-          <TopTenModal title={`Fastest Run (${current.label})`} rows={modalRows} />
         </div>
       </div>
 
