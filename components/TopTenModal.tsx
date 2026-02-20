@@ -26,8 +26,8 @@ export function TopTenModal({ title, rows }: { title: string; rows: TopTenRow[] 
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
-          <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/35 p-4">
+          <div className="mx-auto my-4 flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/10 bg-white px-4 py-3 md:px-6 md:py-4">
               <h3 className="text-xl font-black text-black md:text-2xl">{title} Top 50</h3>
               <button

@@ -201,7 +201,7 @@ export async function RecordsView({
       </div>
 
       <section>
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <h3 className="pt-5 text-xl font-extrabold tracking-tight text-black md:text-2xl">Longest Run</h3>
           <TopTenModal
             title="Longest Run"
@@ -378,9 +378,7 @@ function formatTime(seconds: number) {
 function formatAveragePace(distanceMeters: number, movingTimeSeconds: number, unit: DistanceUnit) {
   if (distanceMeters <= 0 || movingTimeSeconds <= 0) return "--";
   const secondsPerUnit = movingTimeSeconds / metersToUnit(distanceMeters, unit);
-  const mins = Math.floor(secondsPerUnit / 60);
-  const secs = Math.round(secondsPerUnit % 60);
-  return `${mins}:${String(secs).padStart(2, "0")}`;
+  return formatPaceSeconds(secondsPerUnit);
 }
 
 function formatDate(date: Date) {
@@ -505,17 +503,21 @@ function sumRange(values: number[], start: number, end: number) {
 function formatPaceForActivity(activity: { distance: number; movingTime: number }, unit: DistanceUnit) {
   if (activity.distance <= 0 || activity.movingTime <= 0) return "--";
   const paceSecondsPerUnit = activity.movingTime / metersToUnit(activity.distance, unit);
-  const mins = Math.floor(paceSecondsPerUnit / 60);
-  const secs = Math.round(paceSecondsPerUnit % 60);
-  return `${mins}:${String(secs).padStart(2, "0")}/${unit}`;
+  return `${formatPaceSeconds(paceSecondsPerUnit)}/${unit}`;
 }
 
 function formatPaceForTarget(timeSeconds: number, targetMeters: number, unit: DistanceUnit) {
   if (timeSeconds <= 0 || targetMeters <= 0) return "--";
   const paceSeconds = timeSeconds / metersToUnit(targetMeters, unit);
-  const mins = Math.floor(paceSeconds / 60);
-  const secs = Math.round(paceSeconds % 60);
-  return `${mins}:${String(secs).padStart(2, "0")}/${unit}`;
+  return `${formatPaceSeconds(paceSeconds)}/${unit}`;
+}
+
+function formatPaceSeconds(secondsPerUnit: number) {
+  if (!Number.isFinite(secondsPerUnit) || secondsPerUnit <= 0) return "--:--";
+  const rounded = Math.round(secondsPerUnit);
+  const mins = Math.floor(rounded / 60);
+  const secs = rounded % 60;
+  return `${mins}:${String(secs).padStart(2, "0")}`;
 }
 
 function getDistanceUnitPreference(): DistanceUnit {

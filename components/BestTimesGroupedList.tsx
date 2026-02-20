@@ -46,23 +46,25 @@ export function BestTimesGroupedList({
       </div>
 
       <div className="mt-4 overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
-        <div className={`hidden border-b border-black/10 bg-slate-50/70 px-4 py-3 md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Distance</p>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Time</p>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Pace</p>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Achieved</p>
-          <p className="text-right text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Open</p>
-        </div>
+        <div className="overflow-x-auto">
+          <div className={`hidden min-w-[760px] border-b border-black/10 bg-slate-50/70 px-4 py-3 md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Distance</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Time</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Pace</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">Achieved</p>
+            <p className="text-right text-xs font-semibold uppercase tracking-[0.14em] text-slate-600"> </p>
+          </div>
 
-        <ul className="divide-y divide-black/10" role="list" aria-label="Personal records by distance">
-          {sortedRecords.map((row) => (
-            <BestTimesRow
-              key={row.id}
-              row={row}
-              distanceUnit={distanceUnit}
-            />
-          ))}
-        </ul>
+          <ul className="divide-y divide-black/10" role="list" aria-label="Personal records by distance">
+            {sortedRecords.map((row) => (
+              <BestTimesRow
+                key={row.id}
+                row={row}
+                distanceUnit={distanceUnit}
+              />
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );
@@ -94,14 +96,14 @@ function BestTimesRow({
               <ChevronRightIcon />
             </span>
           </div>
-          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-3 md:mt-0 md:grid-cols-1">
+          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-3 md:hidden">
             <MobileMetric label="Distance" value={row.distanceLabel} />
             <MobileMetric label="Time" value={formatClockTime(row.bestTimeSeconds)} tabular />
             <MobileMetric label="Pace" value={pace} tabular />
             <MobileMetric label="Achieved" value={achievedOn} />
           </div>
 
-          <div className={`mt-3 hidden md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
+          <div className={`mt-3 hidden min-w-[760px] md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
             <p className="text-sm font-medium text-slate-700 md:whitespace-nowrap">{row.distanceLabel}</p>
             <p className="tabular-nums text-sm font-medium text-slate-700 md:whitespace-nowrap">{formatClockTime(row.bestTimeSeconds)}</p>
             <p className="tabular-nums text-sm font-medium text-slate-700 md:whitespace-nowrap">{pace}</p>
@@ -123,7 +125,7 @@ function BestTimesRow({
         <MobileMetric label="Pace" value="-" />
         <MobileMetric label="Achieved" value="-" />
       </div>
-      <div className={`mt-2 hidden md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
+      <div className={`mt-2 hidden min-w-[760px] md:grid ${DESKTOP_GRID} md:items-center md:gap-4`}>
         <p className="text-sm font-medium text-slate-700">{row.distanceLabel}</p>
         <p className="text-sm font-medium text-slate-700">No record yet</p>
         <p className="text-sm font-medium text-slate-500">-</p>
