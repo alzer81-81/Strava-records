@@ -92,6 +92,19 @@ export function resolveEffortForTarget(bestEfforts: BestEffort[], target: number
   return null;
 }
 
+export function estimateFromLongerEffort(bestEfforts: BestEffort[], targetMeters: number) {
+  if (targetMeters < 15000) return null;
+
+  const candidate = bestEfforts
+    .filter((effort) => effort.distance >= targetMeters)
+    .sort((a, b) => a.elapsed_time - b.elapsed_time)[0];
+
+  if (!candidate || candidate.distance <= 0 || candidate.elapsed_time <= 0) return null;
+  if (candidate.distance > targetMeters * 1.25) return null;
+
+  return Math.round(candidate.elapsed_time * (targetMeters / candidate.distance));
+}
+
 function nameMatchesTarget(name: string, target: number) {
   const normalized = name.toLowerCase();
   if (target === 42195 && (normalized.includes("half marathon") || normalized.includes("half-marathon") || normalized.includes(" hm "))) {

@@ -1,6 +1,13 @@
 import { PeriodType, SportType } from "@prisma/client";
 import { prisma } from "./db";
-import { computeTotals, extractBestEfforts, mergeDistanceRecords, resolveEffortForTarget, selectDistanceTargets } from "./analytics";
+import {
+  computeTotals,
+  estimateFromLongerEffort,
+  extractBestEfforts,
+  mergeDistanceRecords,
+  resolveEffortForTarget,
+  selectDistanceTargets
+} from "./analytics";
 import { WindowType } from "./time";
 
 export async function recomputeWindow(params: {
@@ -81,6 +88,17 @@ export async function recomputeWindow(params: {
         mergeDistanceRecords(recordMap, {
           distanceTarget: target,
           bestTimeSeconds: effort.elapsed_time,
+          activityId: activity.id,
+          achievedAt: activity.startDate
+        });
+        continue;
+      }
+
+      const derivedFromEffort = estimateFromLongerEffort(efforts, target);
+      if (derivedFromEffort) {
+        mergeDistanceRecords(recordMap, {
+          distanceTarget: target,
+          bestTimeSeconds: derivedFromEffort,
           activityId: activity.id,
           achievedAt: activity.startDate
         });

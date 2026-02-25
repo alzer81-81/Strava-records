@@ -1,6 +1,12 @@
 import { prisma } from "../lib/db";
 import { getWindowRange, WindowType } from "../lib/time";
-import { extractBestEfforts, mergeDistanceRecords, resolveEffortForTarget, selectDistanceTargets } from "../lib/analytics";
+import {
+  estimateFromLongerEffort,
+  extractBestEfforts,
+  mergeDistanceRecords,
+  resolveEffortForTarget,
+  selectDistanceTargets
+} from "../lib/analytics";
 import { MapPreview } from "./MapPreview";
 import { AutoSync } from "./AutoSync";
 import { AnimatedNumber } from "./AnimatedNumber";
@@ -144,6 +150,16 @@ export async function RecordsView({
         mergeDistanceRecords(recordsByDistance, {
           distanceTarget: target,
           bestTimeSeconds: effort.elapsed_time,
+          activityId: run.id,
+          achievedAt: run.startDate
+        });
+        continue;
+      }
+      const derivedFromEffort = estimateFromLongerEffort(efforts, target);
+      if (derivedFromEffort) {
+        mergeDistanceRecords(recordsByDistance, {
+          distanceTarget: target,
+          bestTimeSeconds: derivedFromEffort,
           activityId: run.id,
           achievedAt: run.startDate
         });
@@ -608,19 +624,23 @@ function formatDistanceWithUnit(distanceMeters: number, unit: DistanceUnit, deci
 
 function estimateFromActivityDistance(distanceMeters: number, movingTimeSeconds: number, targetMeters: number) {
   if (distanceMeters <= 0 || movingTimeSeconds <= 0) return null;
-  // Only use proportional fallback for shorter distances.
-  // Longer targets are too noisy when inferred from whole-run summaries.
-  if (targetMeters > 10000) return null;
-  const tolerance = distanceTolerance(targetMeters);
-  if (Math.abs(distanceMeters - targetMeters) > tolerance) return null;
+  // For short targets, keep fallback tight to avoid noisy estimates.
+  if (targetMeters <= 10000) {
+    const tolerance = distanceTolerance(targetMeters);
+    if (Math.abs(distanceMeters - targetMeters) > tolerance) return null;
+  } else {
+    // For long targets (20k/HM/M), allow deriving from longer runs
+    // while avoiding very long-run distortion.
+    if (distanceMeters < targetMeters) return null;
+    if (distanceMeters > targetMeters * 1.25) return null;
+  }
   return Math.round(movingTimeSeconds * (targetMeters / distanceMeters));
 }
 
 function isEffortUsableForTarget(activityDistanceMeters: number, targetMeters: number) {
-  if (targetMeters <= 10000) return true;
-  // For HM/M records, require activity distance to be close to the target.
-  // This avoids selecting a split from a much longer/shorter run.
-  return Math.abs(activityDistanceMeters - targetMeters) <= distanceTolerance(targetMeters);
+  // best_efforts are target-specific splits from Strava detail payload.
+  // If Strava returns the effort for this target, use it.
+  return activityDistanceMeters > 0 && targetMeters > 0;
 }
 
 function distanceTolerance(targetMeters: number) {

@@ -42,9 +42,9 @@ export function TopNav({ avatarUrl, displayName }: { avatarUrl?: string | null; 
   return (
     <header className="sticky top-0 z-[100] border-b border-black/10 bg-white/95 text-black backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <div className="flex items-center">
+        <Link href="/" className="flex items-center" aria-label="Go to home">
           <Image src="/BT_logo.png" alt="Best Times" width={200} height={60} className="h-auto w-[100px] md:w-[200px]" />
-        </div>
+        </Link>
 
         {showTimeframe ? (
           <div className="flex items-center gap-2 rounded-full border border-black/10 bg-white px-2 py-1.5 shadow-soft md:gap-3 md:px-3">
