@@ -80,10 +80,14 @@ export function mergeDistanceRecords(
 }
 
 export function resolveEffortForTarget(bestEfforts: BestEffort[], target: number) {
-  const byDistance = mapBestEffortByDistance(bestEfforts);
-  const exact = byDistance.get(target);
-  if (exact) return exact;
-  const byName = bestEfforts.find((effort) => nameMatchesTarget(effort.name, target));
+  const byDistance = bestEfforts
+    .filter((effort) => Math.abs(Math.round(effort.distance) - target) <= effortTolerance(target))
+    .sort((a, b) => a.elapsed_time - b.elapsed_time)[0];
+  if (byDistance) return byDistance;
+
+  const byName = bestEfforts
+    .filter((effort) => nameMatchesTarget(effort.name, target))
+    .sort((a, b) => a.elapsed_time - b.elapsed_time)[0];
   if (byName) return byName;
   return null;
 }
@@ -112,8 +116,20 @@ function nameMatchesTarget(name: string, target: number) {
     if (label === "marathon") {
       return /(^|\s)marathon(\s|$)/.test(normalized) && !normalized.includes("half marathon");
     }
+    if (label === "mile") {
+      return /(^|\s)1 mile(\s|$)/.test(normalized);
+    }
     return normalized.includes(label);
   });
+}
+
+function effortTolerance(targetMeters: number) {
+  if (targetMeters <= 400) return 15;
+  if (targetMeters <= 1000) return 30;
+  if (targetMeters <= 5000) return 120;
+  if (targetMeters <= 10000) return 180;
+  if (targetMeters <= 21097) return 260;
+  return 420;
 }
 
 export function sportKey(sportType: SportType) {

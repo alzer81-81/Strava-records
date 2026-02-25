@@ -144,8 +144,13 @@ function paceSecondsPerKm(activity: { distance: number; movingTime: number; aver
 
 function estimateFromActivityDistance(distanceMeters: number, movingTimeSeconds: number, targetMeters: number) {
   if (distanceMeters <= 0 || movingTimeSeconds <= 0) return null;
-  const tolerance = distanceTolerance(targetMeters);
-  if (Math.abs(distanceMeters - targetMeters) > tolerance) return null;
+  if (targetMeters <= 10000) {
+    const tolerance = distanceTolerance(targetMeters);
+    if (Math.abs(distanceMeters - targetMeters) > tolerance) return null;
+  } else {
+    if (distanceMeters < targetMeters) return null;
+    if (distanceMeters > targetMeters * 1.25) return null;
+  }
   return Math.round(movingTimeSeconds * (targetMeters / distanceMeters));
 }
 

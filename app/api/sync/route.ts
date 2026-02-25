@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const full = searchParams.get("full") === "1";
   const details = searchParams.get("details") === "1";
-  const syncResult = await syncActivities(user.id, { full, details, maxDetail: full ? 0 : 25 });
+  const syncResult = await syncActivities(user.id, { full, details, maxDetail: full ? 250 : 60 });
 
   const now = new Date();
   for (const windowType of windowTypes) {

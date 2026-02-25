@@ -34,8 +34,8 @@ export function TopTenModal({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/35 p-4">
-          <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-black/10 bg-white shadow-card">
+        <div className="fixed inset-0 z-[220] overflow-y-auto bg-black/35 p-2 md:p-4">
+          <div className="mx-auto my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-black/10 bg-white shadow-card md:my-4 md:max-h-[90vh]">
             <div className="sticky top-0 z-10 border-b border-black/10 bg-white px-4 py-3 md:px-6 md:py-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -64,7 +64,7 @@ export function TopTenModal({
               </div>
             </div>
 
-            <div className="overflow-y-auto px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
+            <div className="min-h-0 overflow-y-auto px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4">
             <div className="hidden overflow-x-auto md:block">
               <table className="min-w-full border-separate border-spacing-y-1">
                 <thead>

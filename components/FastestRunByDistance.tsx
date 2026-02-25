@@ -54,8 +54,8 @@ export function FastestRunByDistance({
         <TopTenModal title={`Fastest Run (${current.label})`} rows={modalRows} rangeLabel={rangeLabel} />
       </div>
 
-      <div className="-mx-1 mt-3 overflow-x-auto px-1">
-        <div className="flex min-w-max items-center gap-2">
+      <div className="-mx-1 mt-3 flex overflow-x-auto px-1">
+        <div className="ml-auto flex min-w-max items-center gap-2">
           {groups.map((group) => {
             const active = group.key === current.key;
             return (
